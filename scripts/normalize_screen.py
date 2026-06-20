@@ -273,6 +273,12 @@ def parse_args() -> argparse.Namespace:
         help="Minimum total accepted horizontal line length in pixels.",
     )
     parser.add_argument(
+        "--line-cluster-deg",
+        type=nonnegative_fraction,
+        default=0.35,
+        help="Maximum angle distance from the dominant horizontal-line direction.",
+    )
+    parser.add_argument(
         "--line-max-correction-deg",
         type=nonnegative_fraction,
         default=1.0,
@@ -974,6 +980,7 @@ def estimate_line_roll_angle(
     bottom_fraction: float,
     min_segments: int,
     min_total_length: int,
+    cluster_deg: float,
 ) -> tuple[float | None, int, float]:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     mask = line_roll_mask(gray.shape, top_fraction, right_fraction, bottom_fraction)
@@ -1010,11 +1017,17 @@ def estimate_line_roll_angle(
 
     angle_values = np.asarray(angles, dtype=np.float32)
     weight_values = np.asarray(weights, dtype=np.float32)
+    dominant_angle = weighted_median(angle_values, weight_values)
+    inlier_mask = np.abs(angle_values - dominant_angle) <= cluster_deg
+    angle_values = angle_values[inlier_mask]
+    weight_values = weight_values[inlier_mask]
     total_length = float(weight_values.sum())
+    if len(angle_values) < min_segments:
+        return None, int(len(angle_values)), total_length
     if total_length < min_total_length:
-        return None, len(angles), total_length
+        return None, int(len(angle_values)), total_length
 
-    return weighted_median(angle_values, weight_values), len(angles), total_length
+    return weighted_median(angle_values, weight_values), int(len(angle_values)), total_length
 
 
 def update_line_roll_angle(
@@ -1071,6 +1084,7 @@ def encode_warped_video(
     line_mask_bottom: float,
     line_min_segments: int,
     line_min_total_length: int,
+    line_cluster_deg: float,
     line_max_correction_deg: float,
     line_max_step_deg: float,
     line_smooth: float,
@@ -1170,6 +1184,7 @@ def encode_warped_video(
                     bottom_fraction=line_mask_bottom,
                     min_segments=line_min_segments,
                     min_total_length=line_min_total_length,
+                    cluster_deg=line_cluster_deg,
                 )
                 if measured_angle is None:
                     line_roll_misses += 1
@@ -1321,6 +1336,7 @@ def main() -> None:
             line_mask_bottom=args.line_mask_bottom,
             line_min_segments=args.line_min_segments,
             line_min_total_length=args.line_min_total_length,
+            line_cluster_deg=args.line_cluster_deg,
             line_max_correction_deg=args.line_max_correction_deg,
             line_max_step_deg=args.line_max_step_deg,
             line_smooth=args.line_smooth,
