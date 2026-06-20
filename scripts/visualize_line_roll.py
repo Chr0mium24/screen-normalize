@@ -84,10 +84,23 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mask-top", type=crop_fraction, default=0.34)
     parser.add_argument("--mask-right", type=crop_fraction, default=0.30)
     parser.add_argument("--mask-bottom", type=crop_fraction, default=0.0)
+    parser.add_argument(
+        "--full-mask",
+        action="store_true",
+        help="Use the whole frame instead of the top/right/bottom diagnostic mask.",
+    )
+    parser.add_argument(
+        "--detector",
+        choices=("hough", "contour"),
+        default="hough",
+        help="Line detector used for the diagnostic overlay.",
+    )
     parser.add_argument("--angle-limit-deg", type=nonnegative_float, default=3.0)
     parser.add_argument("--cluster-deg", type=nonnegative_float, default=0.35)
     parser.add_argument("--min-segments", type=positive_int, default=20)
     parser.add_argument("--min-total-length", type=positive_int, default=5000)
+    parser.add_argument("--horizontal-kernel", type=positive_int, default=81)
+    parser.add_argument("--max-line-thickness", type=positive_int, default=24)
     parser.add_argument("--max-frames", type=positive_int, default=None)
     parser.add_argument("--crf", type=positive_int, default=18)
     parser.add_argument("--preset", default="medium")
@@ -136,47 +149,12 @@ def normalize_line_angle_degrees(angle: float) -> float:
     return angle
 
 
-def detect_lines(
-    frame: np.ndarray,
-    mask: np.ndarray,
-    angle_limit: float,
+def group_line_candidates(
+    candidates: list[dict[str, object]],
     cluster_deg: float,
     min_segments: int,
     min_total_length: int,
 ) -> dict[str, object]:
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    masked = cv2.bitwise_and(gray, gray, mask=mask)
-    edges = cv2.Canny(masked, 60, 160)
-    min_line_length = max(140, gray.shape[1] // 10)
-    lines = cv2.HoughLinesP(
-        edges,
-        1,
-        np.pi / 180.0,
-        threshold=110,
-        minLineLength=min_line_length,
-        maxLineGap=18,
-    )
-
-    candidates = []
-    if lines is not None:
-        for x1, y1, x2, y2 in lines.reshape(-1, 4):
-            length = float(np.hypot(x2 - x1, y2 - y1))
-            if length < min_line_length:
-                continue
-            angle = normalize_line_angle_degrees(
-                float(np.degrees(np.arctan2(y2 - y1, x2 - x1)))
-            )
-            if abs(angle) > angle_limit:
-                continue
-            candidates.append(
-                {
-                    "p1": (int(x1), int(y1)),
-                    "p2": (int(x2), int(y2)),
-                    "angle": angle,
-                    "length": length,
-                }
-            )
-
     if not candidates:
         return {
             "candidates": candidates,
@@ -216,11 +194,138 @@ def detect_lines(
     }
 
 
+def hough_line_candidates(
+    frame: np.ndarray,
+    mask: np.ndarray,
+    angle_limit: float,
+) -> list[dict[str, object]]:
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    masked = cv2.bitwise_and(gray, gray, mask=mask)
+    edges = cv2.Canny(masked, 60, 160)
+    min_line_length = max(140, gray.shape[1] // 10)
+    lines = cv2.HoughLinesP(
+        edges,
+        1,
+        np.pi / 180.0,
+        threshold=110,
+        minLineLength=min_line_length,
+        maxLineGap=18,
+    )
+
+    candidates = []
+    if lines is not None:
+        for x1, y1, x2, y2 in lines.reshape(-1, 4):
+            length = float(np.hypot(x2 - x1, y2 - y1))
+            if length < min_line_length:
+                continue
+            angle = normalize_line_angle_degrees(
+                float(np.degrees(np.arctan2(y2 - y1, x2 - x1)))
+            )
+            if abs(angle) > angle_limit:
+                continue
+            candidates.append(
+                {
+                    "p1": (int(x1), int(y1)),
+                    "p2": (int(x2), int(y2)),
+                    "angle": angle,
+                    "length": length,
+                }
+            )
+
+    return candidates
+
+
+def contour_line_candidates(
+    frame: np.ndarray,
+    mask: np.ndarray,
+    angle_limit: float,
+    horizontal_kernel: int,
+    max_line_thickness: int,
+) -> list[dict[str, object]]:
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    masked = cv2.bitwise_and(gray, gray, mask=mask)
+    blurred = cv2.GaussianBlur(masked, (3, 3), 0)
+    edges = cv2.Canny(blurred, 60, 160)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (horizontal_kernel, 1))
+    horizontal = cv2.morphologyEx(edges, cv2.MORPH_OPEN, kernel)
+    contours, _ = cv2.findContours(horizontal, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    min_line_length = max(180, gray.shape[1] // 8)
+    candidates: list[dict[str, object]] = []
+    for contour in contours:
+        if len(contour) < 2:
+            continue
+        rect = cv2.minAreaRect(contour)
+        (cx, cy), (rect_width, rect_height), rect_angle = rect
+        long_side = float(max(rect_width, rect_height))
+        short_side = float(min(rect_width, rect_height))
+        if long_side < min_line_length or short_side > max_line_thickness:
+            continue
+
+        angle = float(rect_angle)
+        if rect_width < rect_height:
+            angle += 90.0
+        angle = normalize_line_angle_degrees(angle)
+        if abs(angle) > angle_limit:
+            continue
+
+        theta = np.deg2rad(angle)
+        dx = np.cos(theta) * long_side * 0.5
+        dy = np.sin(theta) * long_side * 0.5
+        p1 = (int(round(cx - dx)), int(round(cy - dy)))
+        p2 = (int(round(cx + dx)), int(round(cy + dy)))
+        candidates.append(
+            {
+                "p1": p1,
+                "p2": p2,
+                "angle": angle,
+                "length": long_side,
+            }
+        )
+
+    return candidates
+
+
+def detect_lines(
+    frame: np.ndarray,
+    mask: np.ndarray,
+    detector: str,
+    angle_limit: float,
+    cluster_deg: float,
+    min_segments: int,
+    min_total_length: int,
+    horizontal_kernel: int,
+    max_line_thickness: int,
+) -> dict[str, object]:
+    if detector == "contour":
+        candidates = contour_line_candidates(
+            frame,
+            mask,
+            angle_limit=angle_limit,
+            horizontal_kernel=horizontal_kernel,
+            max_line_thickness=max_line_thickness,
+        )
+    else:
+        candidates = hough_line_candidates(
+            frame,
+            mask,
+            angle_limit=angle_limit,
+        )
+
+    return group_line_candidates(
+        candidates,
+        cluster_deg=cluster_deg,
+        min_segments=min_segments,
+        min_total_length=min_total_length,
+    )
+
+
 def draw_overlay(
     frame: np.ndarray,
     mask: np.ndarray,
     detection: dict[str, object],
     frame_index: int,
+    detector: str,
 ) -> np.ndarray:
     output = frame.copy()
     mask_overlay = np.zeros_like(output)
@@ -238,6 +343,7 @@ def draw_overlay(
     status = "accepted" if detection["accepted"] else "rejected"
     text_lines = [
         f"frame {frame_index}",
+        f"detector: {detector}",
         f"raw horizontal candidates: {len(detection['candidates'])}",
         f"same-direction inliers: {len(detection['inliers'])}",
         f"dominant angle: {dominant_angle:.3f} deg" if dominant_angle is not None else "dominant angle: none",
@@ -276,7 +382,10 @@ def main() -> None:
         raise SystemExit("input video has invalid dimensions")
 
     output_video, output_csv, run_dir = resolve_outputs(args, source)
-    mask = line_roll_mask((height, width), args.mask_top, args.mask_right, args.mask_bottom)
+    if args.full_mask:
+        mask = np.full((height, width), 255, dtype=np.uint8)
+    else:
+        mask = line_roll_mask((height, width), args.mask_top, args.mask_right, args.mask_bottom)
 
     command = [
         "ffmpeg",
@@ -320,12 +429,15 @@ def main() -> None:
             detection = detect_lines(
                 frame,
                 mask,
+                detector=args.detector,
                 angle_limit=args.angle_limit_deg,
                 cluster_deg=args.cluster_deg,
                 min_segments=args.min_segments,
                 min_total_length=args.min_total_length,
+                horizontal_kernel=args.horizontal_kernel,
+                max_line_thickness=args.max_line_thickness,
             )
-            overlay = draw_overlay(frame, mask, detection, processed)
+            overlay = draw_overlay(frame, mask, detection, processed, detector=args.detector)
             process.stdin.write(overlay.tobytes())
             rows.append(
                 {

@@ -243,6 +243,18 @@ def parse_args() -> argparse.Namespace:
         help="Use stable horizontal UI lines to apply a small residual roll correction.",
     )
     parser.add_argument(
+        "--line-detector",
+        choices=("contour", "hough"),
+        default="contour",
+        help="Horizontal-line detector used by --line-roll-correction.",
+    )
+    parser.add_argument(
+        "--line-full-mask",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Use the whole normalized frame for line detection; disable to use top/right/bottom masks.",
+    )
+    parser.add_argument(
         "--line-mask-top",
         type=crop_fraction,
         default=0.34,
@@ -263,13 +275,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--line-min-segments",
         type=positive_int,
-        default=20,
+        default=2,
         help="Minimum horizontal line segments before accepting a roll estimate.",
     )
     parser.add_argument(
         "--line-min-total-length",
         type=positive_int,
-        default=5000,
+        default=1000,
         help="Minimum total accepted horizontal line length in pixels.",
     )
     parser.add_argument(
@@ -277,6 +289,18 @@ def parse_args() -> argparse.Namespace:
         type=nonnegative_fraction,
         default=0.35,
         help="Maximum angle distance from the dominant horizontal-line direction.",
+    )
+    parser.add_argument(
+        "--line-horizontal-kernel",
+        type=positive_int,
+        default=81,
+        help="Horizontal morphology kernel width used by the contour line detector.",
+    )
+    parser.add_argument(
+        "--line-max-thickness",
+        type=positive_int,
+        default=24,
+        help="Maximum contour thickness in pixels for structural line candidates.",
     )
     parser.add_argument(
         "--line-max-correction-deg",
@@ -973,17 +997,12 @@ def normalize_line_angle_degrees(angle: float) -> float:
     return angle
 
 
-def estimate_line_roll_angle(
+def hough_line_candidates(
     frame: np.ndarray,
-    top_fraction: float,
-    right_fraction: float,
-    bottom_fraction: float,
-    min_segments: int,
-    min_total_length: int,
-    cluster_deg: float,
-) -> tuple[float | None, int, float]:
+    mask: np.ndarray,
+    angle_limit: float,
+) -> list[dict[str, object]]:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    mask = line_roll_mask(gray.shape, top_fraction, right_fraction, bottom_fraction)
     masked = cv2.bitwise_and(gray, gray, mask=mask)
     edges = cv2.Canny(masked, 60, 160)
     min_line_length = max(140, gray.shape[1] // 10)
@@ -995,11 +1014,10 @@ def estimate_line_roll_angle(
         minLineLength=min_line_length,
         maxLineGap=18,
     )
+    candidates: list[dict[str, object]] = []
     if lines is None:
-        return None, 0, 0.0
+        return candidates
 
-    angles = []
-    weights = []
     for x1, y1, x2, y2 in lines.reshape(-1, 4):
         length = float(np.hypot(x2 - x1, y2 - y1))
         if length < min_line_length:
@@ -1007,16 +1025,83 @@ def estimate_line_roll_angle(
         angle = normalize_line_angle_degrees(
             float(np.degrees(np.arctan2(y2 - y1, x2 - x1)))
         )
-        if abs(angle) > 3.0:
+        if abs(angle) > angle_limit:
             continue
-        angles.append(angle)
-        weights.append(length)
+        candidates.append({"angle": angle, "length": length})
+    return candidates
 
-    if len(angles) < min_segments:
-        return None, len(angles), float(np.sum(weights))
 
-    angle_values = np.asarray(angles, dtype=np.float32)
-    weight_values = np.asarray(weights, dtype=np.float32)
+def contour_line_candidates(
+    frame: np.ndarray,
+    mask: np.ndarray,
+    angle_limit: float,
+    horizontal_kernel: int,
+    max_thickness: int,
+) -> list[dict[str, object]]:
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    masked = cv2.bitwise_and(gray, gray, mask=mask)
+    blurred = cv2.GaussianBlur(masked, (3, 3), 0)
+    edges = cv2.Canny(blurred, 60, 160)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (horizontal_kernel, 1))
+    horizontal = cv2.morphologyEx(edges, cv2.MORPH_OPEN, kernel)
+    contours, _ = cv2.findContours(horizontal, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    min_line_length = max(180, gray.shape[1] // 8)
+    candidates: list[dict[str, object]] = []
+    for contour in contours:
+        if len(contour) < 2:
+            continue
+        (_, _), (rect_width, rect_height), rect_angle = cv2.minAreaRect(contour)
+        long_side = float(max(rect_width, rect_height))
+        short_side = float(min(rect_width, rect_height))
+        if long_side < min_line_length or short_side > max_thickness:
+            continue
+
+        angle = float(rect_angle)
+        if rect_width < rect_height:
+            angle += 90.0
+        angle = normalize_line_angle_degrees(angle)
+        if abs(angle) > angle_limit:
+            continue
+        candidates.append({"angle": angle, "length": long_side})
+    return candidates
+
+
+def estimate_line_roll_angle(
+    frame: np.ndarray,
+    detector: str,
+    full_mask: bool,
+    top_fraction: float,
+    right_fraction: float,
+    bottom_fraction: float,
+    min_segments: int,
+    min_total_length: int,
+    cluster_deg: float,
+    horizontal_kernel: int,
+    max_thickness: int,
+) -> tuple[float | None, int, float]:
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    if full_mask:
+        mask = np.full(gray.shape, 255, dtype=np.uint8)
+    else:
+        mask = line_roll_mask(gray.shape, top_fraction, right_fraction, bottom_fraction)
+    if detector == "contour":
+        candidates = contour_line_candidates(
+            frame,
+            mask,
+            angle_limit=3.0,
+            horizontal_kernel=horizontal_kernel,
+            max_thickness=max_thickness,
+        )
+    else:
+        candidates = hough_line_candidates(frame, mask, angle_limit=3.0)
+
+    if len(candidates) < min_segments:
+        total_length = sum(float(candidate["length"]) for candidate in candidates)
+        return None, len(candidates), float(total_length)
+
+    angle_values = np.asarray([candidate["angle"] for candidate in candidates], dtype=np.float32)
+    weight_values = np.asarray([candidate["length"] for candidate in candidates], dtype=np.float32)
     dominant_angle = weighted_median(angle_values, weight_values)
     inlier_mask = np.abs(angle_values - dominant_angle) <= cluster_deg
     angle_values = angle_values[inlier_mask]
@@ -1079,12 +1164,16 @@ def encode_warped_video(
     reference_align: bool,
     reference_motion: str,
     line_roll_correction: bool,
+    line_detector: str,
+    line_full_mask: bool,
     line_mask_top: float,
     line_mask_right: float,
     line_mask_bottom: float,
     line_min_segments: int,
     line_min_total_length: int,
     line_cluster_deg: float,
+    line_horizontal_kernel: int,
+    line_max_thickness: int,
     line_max_correction_deg: float,
     line_max_step_deg: float,
     line_smooth: float,
@@ -1179,15 +1268,21 @@ def encode_warped_video(
             if line_roll_correction:
                 measured_angle, segment_count, total_length = estimate_line_roll_angle(
                     warped,
+                    detector=line_detector,
+                    full_mask=line_full_mask,
                     top_fraction=line_mask_top,
                     right_fraction=line_mask_right,
                     bottom_fraction=line_mask_bottom,
                     min_segments=line_min_segments,
                     min_total_length=line_min_total_length,
                     cluster_deg=line_cluster_deg,
+                    horizontal_kernel=line_horizontal_kernel,
+                    max_thickness=line_max_thickness,
                 )
                 if measured_angle is None:
                     line_roll_misses += 1
+                    if line_roll_angle is not None:
+                        warped = apply_roll_correction(warped, line_roll_angle)
                 else:
                     line_roll_angle = update_line_roll_angle(
                         previous_angle=line_roll_angle,
@@ -1331,12 +1426,16 @@ def main() -> None:
             reference_align=args.reference_align,
             reference_motion=args.reference_motion,
             line_roll_correction=args.line_roll_correction,
+            line_detector=args.line_detector,
+            line_full_mask=args.line_full_mask,
             line_mask_top=args.line_mask_top,
             line_mask_right=args.line_mask_right,
             line_mask_bottom=args.line_mask_bottom,
             line_min_segments=args.line_min_segments,
             line_min_total_length=args.line_min_total_length,
             line_cluster_deg=args.line_cluster_deg,
+            line_horizontal_kernel=args.line_horizontal_kernel,
+            line_max_thickness=args.line_max_thickness,
             line_max_correction_deg=args.line_max_correction_deg,
             line_max_step_deg=args.line_max_step_deg,
             line_smooth=args.line_smooth,

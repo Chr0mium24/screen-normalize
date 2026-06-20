@@ -47,18 +47,18 @@ uv run scripts/normalize_screen.py inputs/VID20260621024117.mp4 --tracker refere
 
 `--tracker reference` locks the video to the first detected screen plane, tracks screen features with Lucas-Kanade optical flow, estimates a RANSAC homography, and rejects updates with weak inliers or abnormal scale/area changes.
 
-If the normalized screen still has a small residual tilt and the page has stable browser or UI lines, add line-based roll correction:
+If the normalized screen still has a small residual tilt and the page has stable structural edges, add contour-based roll correction:
 
 ```bash
 uv run scripts/normalize_screen.py inputs/VID20260621031719.mp4 --tracker reference --line-roll-correction --crop-right 0.02 --crop-bottom 0.055
 ```
 
-`--line-roll-correction` estimates long horizontal lines only in stable mask regions, by default the top browser/page area and right-side UI. It then applies a small smoothed rotation; it does not recompute screen corners or use moving video content as geometry.
+`--line-roll-correction` defaults to `--line-detector contour`: it runs Canny, applies a horizontal morphology kernel, finds long thin contours, clusters same-direction structural edges, and applies a small smoothed rotation. Missed frames reuse the previous accepted roll angle instead of dropping the correction to zero. This does not recompute screen corners.
 
 To inspect which lines are being used, render a diagnostic overlay:
 
 ```bash
-uv run scripts/visualize_line_roll.py runs/run_other_input_no_line_roll/VID20260621031719_normalized.mp4 --run-name debug_line_roll_no_line_input
+uv run scripts/visualize_line_roll.py runs/run_other_input_no_line_roll/VID20260621031719_normalized.mp4 --detector contour --full-mask --run-name debug_contour_structural_full
 ```
 
 The debug video draws same-direction inlier lines in green, other horizontal candidates in orange, and writes per-frame measurements to a CSV next to the video.
