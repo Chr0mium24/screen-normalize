@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+
+# Source and generated media are kept on disk, not in git.
+VID*.mp4
+screen_normalized*.mp4
+frame_*.jpg
+diagnostic_*.jpg
+preview_*.jpg
+normalized_frame_*.jpg
