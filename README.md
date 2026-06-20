@@ -1,0 +1,48 @@
+# screen-normalize
+
+Turn a filmed monitor into a screen-recording-like video by estimating the screen plane and warping it to a fixed output canvas.
+
+## Layout
+
+- `scripts/` - runnable processing scripts.
+- `inputs/` - local input videos. Files in this directory are ignored by git.
+- `runs/` - generated outputs. Every script run writes to a timestamped subdirectory.
+- `doc/` - reference papers and notes.
+
+The repository root should only contain folders, `.gitignore`, and this `README.md`.
+
+## Usage
+
+Use `uv` to run the script dependencies:
+
+```bash
+uv run scripts/normalize_screen.py inputs/VID20260621024117.mp4 --tracker reference --crop-right 0.02 --crop-bottom 0.055
+```
+
+By default, outputs are written to:
+
+```text
+runs/<YYYYMMDD-HHMMSS>_normalize_screen/<input_stem>_normalized.mp4
+```
+
+You can provide an output filename, but it is still placed inside the generated run directory:
+
+```bash
+uv run scripts/normalize_screen.py inputs/VID20260621024117.mp4 screen.mp4 --tracker reference
+```
+
+Use `--run-name` for a deterministic run folder name:
+
+```bash
+uv run scripts/normalize_screen.py inputs/VID20260621024117.mp4 --run-name test_reference_gate --tracker reference
+```
+
+## Current Recommended Mode
+
+The most stable mode for filmed screens is:
+
+```bash
+uv run scripts/normalize_screen.py inputs/VID20260621024117.mp4 --tracker reference --crop-right 0.02 --crop-bottom 0.055
+```
+
+`--tracker reference` locks the video to the first detected screen plane, tracks screen features with Lucas-Kanade optical flow, estimates a RANSAC homography, and rejects updates with weak inliers or abnormal scale/area changes.

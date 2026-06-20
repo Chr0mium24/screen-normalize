@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from datetime import datetime
 from pathlib import Path
 
 import cv2
@@ -76,12 +77,77 @@ def nonnegative_fraction(value: str) -> float:
     return parsed
 
 
+def project_root() -> Path:
+    script_path = Path(__file__).resolve()
+    for path in (script_path.parent, *script_path.parents):
+        if (path / ".git").exists():
+            return path
+    if script_path.parent.name == "scripts":
+        return script_path.parent.parent
+    return Path.cwd()
+
+
+def clean_path_component(value: str) -> str:
+    cleaned = "".join(
+        character if character.isalnum() or character in ("-", "_", ".") else "_"
+        for character in value
+    ).strip("._-")
+    return cleaned or "run"
+
+
+def create_run_directory(runs_dir: Path, run_name: str) -> Path:
+    runs_dir.mkdir(parents=True, exist_ok=True)
+    clean_name = clean_path_component(run_name)
+    for index in range(1000):
+        suffix = "" if index == 0 else f"_{index:02d}"
+        candidate = runs_dir / f"{clean_name}{suffix}"
+        try:
+            candidate.mkdir()
+        except FileExistsError:
+            continue
+        return candidate
+    raise RuntimeError(f"could not create unique run directory under {runs_dir}")
+
+
+def resolve_run_output(args: argparse.Namespace, source: Path) -> tuple[Path, Path]:
+    runs_dir = args.runs_dir.resolve() if args.runs_dir else project_root() / "runs"
+    script_name = clean_path_component(Path(__file__).stem)
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    run_name = args.run_name or f"{timestamp}_{script_name}"
+    run_dir = create_run_directory(runs_dir, run_name)
+
+    output_name = args.output.name if args.output else f"{source.stem}_normalized.mp4"
+    if not Path(output_name).suffix:
+        output_name = f"{output_name}.mp4"
+    output = run_dir / output_name
+    return output.resolve(), run_dir.resolve()
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Perspective-correct a filmed monitor into a screen-recording-like video."
     )
     parser.add_argument("input", type=Path)
-    parser.add_argument("output", type=Path)
+    parser.add_argument(
+        "output",
+        type=Path,
+        nargs="?",
+        help=(
+            "Optional output filename. The file is always written inside a "
+            "timestamped runs/<time>_<script>/ directory."
+        ),
+    )
+    parser.add_argument(
+        "--runs-dir",
+        type=Path,
+        default=None,
+        help="Directory that receives timestamped run folders. Defaults to ./runs.",
+    )
+    parser.add_argument(
+        "--run-name",
+        default=None,
+        help="Override the generated run folder name.",
+    )
     parser.add_argument(
         "--corners",
         type=parse_corners,
@@ -979,12 +1045,11 @@ def main() -> None:
     require_ffmpeg()
 
     source = args.input.resolve()
-    output = args.output.resolve()
+    capture = open_capture(source)
+    output, run_dir = resolve_run_output(args, source)
     if source == output:
         raise SystemExit("input and output must be different files")
-    output.parent.mkdir(parents=True, exist_ok=True)
 
-    capture = open_capture(source)
     fps = args.fps or float(capture.get(cv2.CAP_PROP_FPS) or 60.0)
     if fps <= 0:
         fps = 60.0
@@ -1042,6 +1107,7 @@ def main() -> None:
         )
         mux_audio(silent_video, source, output)
 
+    print(f"run directory: {run_dir}")
     print(f"wrote {output} from {processed} frames")
 
 
