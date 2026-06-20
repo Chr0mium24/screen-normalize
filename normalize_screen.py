@@ -97,9 +97,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--preset", default="medium")
     parser.add_argument(
         "--tracker",
-        choices=("detect", "flow"),
+        choices=("detect", "flow", "reference"),
         default="flow",
-        help="Corner trajectory source. flow tracks screen features with LK optical flow.",
+        help=(
+            "Corner trajectory source. reference locks all frames to the first "
+            "screen plane using LK optical flow."
+        ),
     )
     parser.add_argument(
         "--trajectory-window",
@@ -318,6 +321,165 @@ def flow_predict_corners(
     return predicted, next_good[inliers].reshape(-1, 1, 2).astype(np.float32), int(inliers.sum())
 
 
+def append_reference_points(
+    gray: np.ndarray,
+    current_corners: np.ndarray,
+    current_to_reference: np.ndarray,
+    reference_points: np.ndarray,
+    current_points: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    new_points = select_tracking_points(gray, current_corners)
+    if new_points is None:
+        return reference_points, current_points
+
+    existing = current_points.reshape(-1, 2)
+    fresh = []
+    for point in new_points.reshape(-1, 2):
+        if len(existing) and np.min(np.linalg.norm(existing - point, axis=1)) < 8:
+            continue
+        fresh.append(point)
+        if len(fresh) >= 250:
+            break
+
+    if not fresh:
+        return reference_points, current_points
+
+    fresh_current = np.asarray(fresh, dtype=np.float32).reshape(-1, 1, 2)
+    fresh_reference = cv2.perspectiveTransform(fresh_current, current_to_reference)
+    reference_points = np.concatenate([reference_points, fresh_reference.astype(np.float32)])
+    current_points = np.concatenate([current_points, fresh_current.astype(np.float32)])
+    return reference_points, current_points
+
+
+def estimate_reference_corner_trajectory(
+    capture: cv2.VideoCapture,
+    fallback_corners: np.ndarray,
+    auto_detect: bool,
+    feature_refresh: int,
+) -> list[np.ndarray]:
+    frame_count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+    ok, first_frame = capture.read()
+    if not ok:
+        return []
+
+    reference_corners = detect_screen_corners(first_frame) if auto_detect else fallback_corners
+    if reference_corners is None:
+        reference_corners = fallback_corners
+    reference_corners = order_corners(reference_corners).astype(np.float32)
+
+    previous_gray = cv2.cvtColor(first_frame, cv2.COLOR_BGR2GRAY)
+    reference_points = select_tracking_points(previous_gray, reference_corners)
+    if reference_points is None:
+        reference_points = reference_corners.reshape(-1, 1, 2).astype(np.float32)
+    current_points = reference_points.copy()
+
+    trajectory = [reference_corners]
+    previous_corners = reference_corners
+    frame_index = 1
+
+    while True:
+        ok, frame = capture.read()
+        if not ok:
+            break
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        next_points, status, _ = cv2.calcOpticalFlowPyrLK(
+            previous_gray,
+            gray,
+            current_points,
+            None,
+            winSize=(31, 31),
+            maxLevel=3,
+            criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01),
+        )
+        if next_points is None or status is None:
+            trajectory.append(previous_corners)
+            previous_gray = gray
+            frame_index += 1
+            continue
+
+        previous_back, back_status, _ = cv2.calcOpticalFlowPyrLK(
+            gray,
+            previous_gray,
+            next_points,
+            None,
+            winSize=(31, 31),
+            maxLevel=3,
+            criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01),
+        )
+        if previous_back is None or back_status is None:
+            trajectory.append(previous_corners)
+            previous_gray = gray
+            frame_index += 1
+            continue
+
+        forward_ok = status.reshape(-1).astype(bool)
+        backward_ok = back_status.reshape(-1).astype(bool)
+        round_trip_error = np.linalg.norm(
+            current_points.reshape(-1, 2) - previous_back.reshape(-1, 2),
+            axis=1,
+        )
+        valid = forward_ok & backward_ok & (round_trip_error < 2.0)
+        reference_good = reference_points.reshape(-1, 2)[valid]
+        current_good = next_points.reshape(-1, 2)[valid]
+
+        if len(reference_good) >= 20:
+            current_to_reference, inlier_mask = cv2.findHomography(
+                current_good,
+                reference_good,
+                cv2.RANSAC,
+                3.0,
+            )
+        else:
+            current_to_reference, inlier_mask = None, None
+
+        if (
+            current_to_reference is not None
+            and inlier_mask is not None
+            and int(inlier_mask.sum()) >= 20
+        ):
+            reference_to_current = np.linalg.inv(current_to_reference)
+            corners = cv2.perspectiveTransform(
+                reference_corners.reshape(1, 4, 2),
+                reference_to_current,
+            ).reshape(4, 2)
+            corners = order_corners(corners).astype(np.float32)
+            if detected_corners_are_valid(corners, gray.shape):
+                previous_corners = corners
+        trajectory.append(previous_corners)
+
+        keep = valid
+        if inlier_mask is not None and len(reference_good) == int(valid.sum()):
+            valid_indices = np.flatnonzero(valid)
+            keep = np.zeros_like(valid)
+            keep[valid_indices[inlier_mask.reshape(-1).astype(bool)]] = True
+
+        reference_points = reference_points[keep]
+        current_points = next_points[keep].astype(np.float32)
+        if (
+            len(current_points) < 140
+            or frame_index % feature_refresh == 0
+        ) and current_to_reference is not None:
+            reference_points, current_points = append_reference_points(
+                gray,
+                previous_corners,
+                current_to_reference,
+                reference_points,
+                current_points,
+            )
+
+        previous_gray = gray
+        frame_index += 1
+        if frame_count and (frame_index % 60 == 0 or frame_index == frame_count):
+            print(
+                f"reference-tracked corners {frame_index}/{frame_count} frames "
+                f"with {len(current_points)} points",
+                file=sys.stderr,
+            )
+
+    return trajectory
+
+
 def estimate_corner_trajectory(
     capture: cv2.VideoCapture,
     fallback_corners: np.ndarray,
@@ -327,6 +489,14 @@ def estimate_corner_trajectory(
     detect_correction: float,
     feature_refresh: int,
 ) -> list[np.ndarray]:
+    if tracker == "reference":
+        return estimate_reference_corner_trajectory(
+            capture=capture,
+            fallback_corners=fallback_corners,
+            auto_detect=auto_detect,
+            feature_refresh=feature_refresh,
+        )
+
     frame_count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     trajectory: list[np.ndarray] = []
     previous_gray: np.ndarray | None = None
@@ -700,11 +870,12 @@ def main() -> None:
                 feature_refresh=args.feature_refresh,
             )
             capture.release()
-            corner_trajectory = smooth_corner_trajectory(
-                corner_trajectory,
-                median_window=args.median_window,
-                average_window=args.trajectory_window,
-            )
+            if args.tracker != "reference":
+                corner_trajectory = smooth_corner_trajectory(
+                    corner_trajectory,
+                    median_window=args.median_window,
+                    average_window=args.trajectory_window,
+                )
             capture = open_capture(source)
 
         silent_video = Path(tmp) / "screen_normalized_silent.mp4"

@@ -16,6 +16,8 @@ crop*.jpg
 recording_like_*.jpg
 flow_*.jpg
 ref_align_*.jpg
+reftrack_*.jpg
+reftrack_tight_*.jpg
 vidstab_*.jpg
 ecc_*.jpg
 *.trf
