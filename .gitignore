@@ -1,6 +1,7 @@
 .venv/
 __pycache__/
 *.py[cod]
+.DS_Store
 
 # Local source videos and generated run artifacts stay on disk, not in git.
 inputs/*
