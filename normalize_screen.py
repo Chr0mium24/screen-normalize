@@ -48,6 +48,13 @@ def positive_int(value: str) -> int:
     return parsed
 
 
+def odd_positive_int(value: str) -> int:
+    parsed = positive_int(value)
+    if parsed % 2 == 0:
+        raise argparse.ArgumentTypeError("value must be odd")
+    return parsed
+
+
 def smoothing_weight(value: str) -> float:
     parsed = float(value)
     if not 0.0 <= parsed < 1.0:
@@ -88,6 +95,42 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--fps", type=float, default=None)
     parser.add_argument("--crf", type=positive_int, default=18)
     parser.add_argument("--preset", default="medium")
+    parser.add_argument(
+        "--tracker",
+        choices=("detect", "flow"),
+        default="flow",
+        help="Corner trajectory source. flow tracks screen features with LK optical flow.",
+    )
+    parser.add_argument(
+        "--trajectory-window",
+        type=odd_positive_int,
+        default=31,
+        help="Centered moving-average window for offline corner trajectory smoothing.",
+    )
+    parser.add_argument(
+        "--median-window",
+        type=odd_positive_int,
+        default=5,
+        help="Centered median window used before averaging to reject corner jumps.",
+    )
+    parser.add_argument(
+        "--detect-correction",
+        type=smoothing_weight,
+        default=0.08,
+        help="Blend weight for color-detected corners when optical-flow tracking is valid.",
+    )
+    parser.add_argument("--feature-refresh", type=positive_int, default=15)
+    parser.add_argument(
+        "--reference-align",
+        action="store_true",
+        help="After perspective correction, align each frame back to the first corrected frame.",
+    )
+    parser.add_argument(
+        "--reference-motion",
+        choices=("affine", "homography"),
+        default="affine",
+        help="Residual motion model used by --reference-align.",
+    )
     parser.add_argument("--crop-left", type=crop_fraction, default=0.0)
     parser.add_argument("--crop-top", type=crop_fraction, default=0.0)
     parser.add_argument("--crop-right", type=crop_fraction, default=0.0)
@@ -180,10 +223,294 @@ def detect_screen_corners(frame: np.ndarray) -> np.ndarray | None:
     return None
 
 
+def corner_mask(shape: tuple[int, ...], corners: np.ndarray, inset_pixels: int = 12) -> np.ndarray:
+    mask = np.zeros(shape[:2], dtype=np.uint8)
+    cv2.fillConvexPoly(mask, corners.astype(np.int32), 255)
+    if inset_pixels > 0:
+        kernel = cv2.getStructuringElement(
+            cv2.MORPH_ELLIPSE,
+            (inset_pixels * 2 + 1, inset_pixels * 2 + 1),
+        )
+        mask = cv2.erode(mask, kernel, iterations=1)
+    return mask
+
+
+def select_tracking_points(gray: np.ndarray, corners: np.ndarray) -> np.ndarray | None:
+    points = cv2.goodFeaturesToTrack(
+        gray,
+        maxCorners=900,
+        qualityLevel=0.005,
+        minDistance=8,
+        mask=corner_mask(gray.shape, corners),
+        blockSize=7,
+    )
+    if points is None or len(points) < 12:
+        return None
+    return points.astype(np.float32)
+
+
+def flow_predict_corners(
+    previous_gray: np.ndarray,
+    gray: np.ndarray,
+    previous_points: np.ndarray | None,
+    previous_corners: np.ndarray,
+) -> tuple[np.ndarray | None, np.ndarray | None, int]:
+    if previous_points is None or len(previous_points) < 12:
+        return None, None, 0
+
+    next_points, status, _ = cv2.calcOpticalFlowPyrLK(
+        previous_gray,
+        gray,
+        previous_points,
+        None,
+        winSize=(31, 31),
+        maxLevel=3,
+        criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01),
+    )
+    if next_points is None or status is None:
+        return None, None, 0
+
+    previous_back, back_status, _ = cv2.calcOpticalFlowPyrLK(
+        gray,
+        previous_gray,
+        next_points,
+        None,
+        winSize=(31, 31),
+        maxLevel=3,
+        criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01),
+    )
+    if previous_back is None or back_status is None:
+        return None, None, 0
+
+    forward_ok = status.reshape(-1).astype(bool)
+    backward_ok = back_status.reshape(-1).astype(bool)
+    round_trip_error = np.linalg.norm(
+        previous_points.reshape(-1, 2) - previous_back.reshape(-1, 2),
+        axis=1,
+    )
+    valid = forward_ok & backward_ok & (round_trip_error < 2.0)
+    previous_good = previous_points.reshape(-1, 2)[valid]
+    next_good = next_points.reshape(-1, 2)[valid]
+    if len(previous_good) < 12:
+        return None, next_good.reshape(-1, 1, 2).astype(np.float32), len(previous_good)
+
+    homography, inlier_mask = cv2.findHomography(
+        previous_good,
+        next_good,
+        cv2.RANSAC,
+        3.0,
+    )
+    if homography is None or inlier_mask is None:
+        return None, next_good.reshape(-1, 1, 2).astype(np.float32), len(previous_good)
+
+    inliers = inlier_mask.reshape(-1).astype(bool)
+    if int(inliers.sum()) < 12:
+        return None, next_good.reshape(-1, 1, 2).astype(np.float32), int(inliers.sum())
+
+    predicted = cv2.perspectiveTransform(
+        previous_corners.reshape(1, 4, 2),
+        homography,
+    ).reshape(4, 2)
+    predicted = order_corners(predicted)
+    if not detected_corners_are_valid(predicted, gray.shape):
+        return None, next_good[inliers].reshape(-1, 1, 2).astype(np.float32), int(inliers.sum())
+
+    return predicted, next_good[inliers].reshape(-1, 1, 2).astype(np.float32), int(inliers.sum())
+
+
+def estimate_corner_trajectory(
+    capture: cv2.VideoCapture,
+    fallback_corners: np.ndarray,
+    auto_detect: bool,
+    tracker: str,
+    smooth: float,
+    detect_correction: float,
+    feature_refresh: int,
+) -> list[np.ndarray]:
+    frame_count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+    trajectory: list[np.ndarray] = []
+    previous_gray: np.ndarray | None = None
+    previous_points: np.ndarray | None = None
+    previous_corners: np.ndarray | None = None
+    frame_index = 0
+
+    while True:
+        ok, frame = capture.read()
+        if not ok:
+            break
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        detected_corners = detect_screen_corners(frame) if auto_detect else fallback_corners
+        predicted_corners = None
+        tracked_points = None
+        inliers = 0
+
+        if tracker == "flow" and previous_gray is not None and previous_corners is not None:
+            predicted_corners, tracked_points, inliers = flow_predict_corners(
+                previous_gray,
+                gray,
+                previous_points,
+                previous_corners,
+            )
+
+        if previous_corners is None:
+            corners = detected_corners if detected_corners is not None else fallback_corners
+        elif predicted_corners is not None:
+            if detected_corners is not None:
+                corners = (predicted_corners * (1.0 - detect_correction)) + (
+                    detected_corners * detect_correction
+                )
+            else:
+                corners = predicted_corners
+        elif detected_corners is not None:
+            corners = detected_corners
+        else:
+            corners = previous_corners
+
+        if previous_corners is not None and smooth:
+            corners = (previous_corners * smooth) + (corners * (1.0 - smooth))
+
+        corners = order_corners(corners)
+        trajectory.append(corners.astype(np.float32))
+
+        previous_gray = gray
+        previous_corners = corners.astype(np.float32)
+        if tracker == "flow":
+            should_refresh = (
+                tracked_points is None
+                or len(tracked_points) < 80
+                or inliers < 60
+                or frame_index % feature_refresh == 0
+            )
+            previous_points = select_tracking_points(gray, previous_corners) if should_refresh else tracked_points
+
+        frame_index += 1
+        if frame_count and (frame_index % 60 == 0 or frame_index == frame_count):
+            print(f"estimated corners {frame_index}/{frame_count} frames", file=sys.stderr)
+
+    return trajectory
+
+
+def centered_window_filter(trajectory: np.ndarray, window: int, reducer: str) -> np.ndarray:
+    if window <= 1 or len(trajectory) < 3:
+        return trajectory
+
+    radius = window // 2
+    padded = np.pad(trajectory, ((radius, radius), (0, 0), (0, 0)), mode="edge")
+    filtered = np.empty_like(trajectory)
+    for index in range(len(trajectory)):
+        chunk = padded[index : index + window]
+        if reducer == "median":
+            filtered[index] = np.median(chunk, axis=0)
+        elif reducer == "mean":
+            filtered[index] = np.mean(chunk, axis=0)
+        else:
+            raise ValueError(f"unknown reducer: {reducer}")
+    return filtered
+
+
+def smooth_corner_trajectory(
+    trajectory: list[np.ndarray],
+    median_window: int,
+    average_window: int,
+) -> list[np.ndarray]:
+    points = np.asarray(trajectory, dtype=np.float32)
+    if len(points) == 0:
+        return []
+    points = centered_window_filter(points, median_window, "median")
+    points = centered_window_filter(points, average_window, "mean")
+    return [order_corners(corners).astype(np.float32) for corners in points]
+
+
+def select_reference_points(gray: np.ndarray) -> np.ndarray | None:
+    margin_x = max(20, gray.shape[1] // 50)
+    margin_y = max(20, gray.shape[0] // 50)
+    mask = np.zeros(gray.shape, dtype=np.uint8)
+    mask[margin_y : gray.shape[0] - margin_y, margin_x : gray.shape[1] - margin_x] = 255
+    points = cv2.goodFeaturesToTrack(
+        gray,
+        maxCorners=1200,
+        qualityLevel=0.004,
+        minDistance=9,
+        mask=mask,
+        blockSize=7,
+    )
+    if points is None or len(points) < 20:
+        return None
+    return points.astype(np.float32)
+
+
+def estimate_reference_alignment(
+    reference_gray: np.ndarray,
+    gray: np.ndarray,
+    reference_points: np.ndarray | None,
+    motion: str,
+) -> np.ndarray | None:
+    if reference_points is None or len(reference_points) < 20:
+        return None
+
+    current_points, status, _ = cv2.calcOpticalFlowPyrLK(
+        reference_gray,
+        gray,
+        reference_points,
+        None,
+        winSize=(41, 41),
+        maxLevel=4,
+        criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 60, 0.001),
+    )
+    if current_points is None or status is None:
+        return None
+
+    reference_back, back_status, _ = cv2.calcOpticalFlowPyrLK(
+        gray,
+        reference_gray,
+        current_points,
+        None,
+        winSize=(41, 41),
+        maxLevel=4,
+        criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 60, 0.001),
+    )
+    if reference_back is None or back_status is None:
+        return None
+
+    forward_ok = status.reshape(-1).astype(bool)
+    backward_ok = back_status.reshape(-1).astype(bool)
+    round_trip_error = np.linalg.norm(
+        reference_points.reshape(-1, 2) - reference_back.reshape(-1, 2),
+        axis=1,
+    )
+    valid = forward_ok & backward_ok & (round_trip_error < 1.5)
+    reference_good = reference_points.reshape(-1, 2)[valid]
+    current_good = current_points.reshape(-1, 2)[valid]
+    if len(reference_good) < 20:
+        return None
+
+    if motion == "homography":
+        transform, inlier_mask = cv2.findHomography(current_good, reference_good, cv2.RANSAC, 2.0)
+        if transform is None or inlier_mask is None or int(inlier_mask.sum()) < 20:
+            return None
+        return transform.astype(np.float32)
+
+    affine, inlier_mask = cv2.estimateAffinePartial2D(
+        current_good,
+        reference_good,
+        method=cv2.RANSAC,
+        ransacReprojThreshold=2.0,
+        maxIters=3000,
+        confidence=0.995,
+    )
+    if affine is None or inlier_mask is None or int(inlier_mask.sum()) < 20:
+        return None
+    transform = np.eye(3, dtype=np.float32)
+    transform[:2] = affine.astype(np.float32)
+    return transform
+
+
 def encode_warped_video(
     capture: cv2.VideoCapture,
     output: Path,
     fallback_corners: np.ndarray,
+    corner_trajectory: list[np.ndarray] | None,
     width: int,
     height: int,
     fps: float,
@@ -195,6 +522,8 @@ def encode_warped_video(
     crop_top: float,
     crop_right: float,
     crop_bottom: float,
+    reference_align: bool,
+    reference_motion: str,
 ) -> int:
     destination_corners = np.array(
         [[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]],
@@ -203,6 +532,8 @@ def encode_warped_video(
     frame_count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     last_corners: np.ndarray | None = None
     fallback_transform = cv2.getPerspectiveTransform(fallback_corners, destination_corners)
+    reference_gray: np.ndarray | None = None
+    reference_points: np.ndarray | None = None
 
     command = [
         "ffmpeg",
@@ -242,7 +573,10 @@ def encode_warped_video(
             ok, frame = capture.read()
             if not ok:
                 break
-            if auto_detect:
+            if corner_trajectory is not None:
+                source_corners = corner_trajectory[min(processed, len(corner_trajectory) - 1)]
+                transform = cv2.getPerspectiveTransform(source_corners, destination_corners)
+            elif auto_detect:
                 detected_corners = detect_screen_corners(frame)
                 if detected_corners is None:
                     source_corners = last_corners if last_corners is not None else fallback_corners
@@ -274,6 +608,27 @@ def encode_warped_video(
                     (width, height),
                     interpolation=cv2.INTER_CUBIC,
                 )
+
+            if reference_align:
+                gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
+                if reference_gray is None:
+                    reference_gray = gray
+                    reference_points = select_reference_points(reference_gray)
+                else:
+                    residual_transform = estimate_reference_alignment(
+                        reference_gray,
+                        gray,
+                        reference_points,
+                        reference_motion,
+                    )
+                    if residual_transform is not None:
+                        warped = cv2.warpPerspective(
+                            warped,
+                            residual_transform,
+                            (width, height),
+                            flags=cv2.INTER_CUBIC,
+                            borderMode=cv2.BORDER_REPLICATE,
+                        )
             process.stdin.write(warped.tobytes())
             processed += 1
             if frame_count and (processed % 60 == 0 or processed == frame_count):
@@ -333,11 +688,31 @@ def main() -> None:
         fallback_corners = parse_corners(DEFAULT_FALLBACK_CORNERS)
 
     with tempfile.TemporaryDirectory() as tmp:
+        corner_trajectory = None
+        if auto_detect:
+            corner_trajectory = estimate_corner_trajectory(
+                capture=capture,
+                fallback_corners=fallback_corners,
+                auto_detect=auto_detect,
+                tracker=args.tracker,
+                smooth=args.smooth,
+                detect_correction=args.detect_correction,
+                feature_refresh=args.feature_refresh,
+            )
+            capture.release()
+            corner_trajectory = smooth_corner_trajectory(
+                corner_trajectory,
+                median_window=args.median_window,
+                average_window=args.trajectory_window,
+            )
+            capture = open_capture(source)
+
         silent_video = Path(tmp) / "screen_normalized_silent.mp4"
         processed = encode_warped_video(
             capture=capture,
             output=silent_video,
             fallback_corners=fallback_corners,
+            corner_trajectory=corner_trajectory,
             width=args.width,
             height=args.height,
             fps=fps,
@@ -349,6 +724,8 @@ def main() -> None:
             crop_top=args.crop_top,
             crop_right=args.crop_right,
             crop_bottom=args.crop_bottom,
+            reference_align=args.reference_align,
+            reference_motion=args.reference_motion,
         )
         mux_audio(silent_video, source, output)
 

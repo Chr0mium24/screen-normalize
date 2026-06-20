@@ -4,7 +4,7 @@ __pycache__/
 # Source and generated media are kept on disk, not in git.
 VID*.mp4
 screen_normalized*.mp4
-screen_recording_like*.mp4
+screen_recording*.mp4
 frame_*.jpg
 diagnostic_*.jpg
 preview_*.jpg
@@ -14,3 +14,8 @@ approxdiag_*.jpg
 mask*.jpg
 crop*.jpg
 recording_like_*.jpg
+flow_*.jpg
+ref_align_*.jpg
+vidstab_*.jpg
+ecc_*.jpg
+*.trf
