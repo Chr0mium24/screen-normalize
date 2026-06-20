@@ -69,6 +69,13 @@ def crop_fraction(value: str) -> float:
     return parsed
 
 
+def nonnegative_fraction(value: str) -> float:
+    parsed = float(value)
+    if parsed < 0.0:
+        raise argparse.ArgumentTypeError("value must be >= 0")
+    return parsed
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Perspective-correct a filmed monitor into a screen-recording-like video."
@@ -123,6 +130,36 @@ def parse_args() -> argparse.Namespace:
         help="Blend weight for color-detected corners when optical-flow tracking is valid.",
     )
     parser.add_argument("--feature-refresh", type=positive_int, default=15)
+    parser.add_argument(
+        "--reference-min-inliers",
+        type=positive_int,
+        default=40,
+        help="Minimum RANSAC inliers required before accepting a reference tracker update.",
+    )
+    parser.add_argument(
+        "--reference-min-inlier-ratio",
+        type=nonnegative_fraction,
+        default=0.25,
+        help="Minimum inlier ratio required before accepting a reference tracker update.",
+    )
+    parser.add_argument(
+        "--reference-max-reprojection-error",
+        type=nonnegative_fraction,
+        default=2.5,
+        help="Maximum median inlier reprojection error in pixels for reference tracking.",
+    )
+    parser.add_argument(
+        "--reference-max-scale-step",
+        type=nonnegative_fraction,
+        default=0.035,
+        help="Maximum accepted frame-to-frame side-length scale change; 0 disables.",
+    )
+    parser.add_argument(
+        "--reference-max-area-step",
+        type=nonnegative_fraction,
+        default=0.08,
+        help="Maximum accepted frame-to-frame screen-area change; 0 disables.",
+    )
     parser.add_argument(
         "--reference-align",
         action="store_true",
@@ -186,6 +223,63 @@ def detected_corners_are_valid(corners: np.ndarray, frame_shape: tuple[int, ...]
 
     projected_aspect = avg_width / avg_height
     return 1.25 <= projected_aspect <= 2.35
+
+
+def corner_edge_lengths(corners: np.ndarray) -> np.ndarray:
+    return np.array(
+        [
+            np.linalg.norm(corners[1] - corners[0]),
+            np.linalg.norm(corners[2] - corners[1]),
+            np.linalg.norm(corners[2] - corners[3]),
+            np.linalg.norm(corners[3] - corners[0]),
+        ],
+        dtype=np.float32,
+    )
+
+
+def ratio_is_within(value: float, previous: float, max_step: float) -> bool:
+    if max_step <= 0:
+        return True
+    if previous <= 0:
+        return False
+    ratio = value / previous
+    return (1.0 - max_step) <= ratio <= (1.0 + max_step)
+
+
+def geometry_update_is_reasonable(
+    corners: np.ndarray,
+    previous_corners: np.ndarray,
+    max_scale_step: float,
+    max_area_step: float,
+) -> bool:
+    previous_edges = corner_edge_lengths(previous_corners)
+    edges = corner_edge_lengths(corners)
+    if np.any(previous_edges <= 0) or np.any(edges <= 0):
+        return False
+    for edge, previous_edge in zip(edges, previous_edges, strict=True):
+        if not ratio_is_within(float(edge), float(previous_edge), max_scale_step):
+            return False
+
+    area = abs(cv2.contourArea(corners))
+    previous_area = abs(cv2.contourArea(previous_corners))
+    return ratio_is_within(float(area), float(previous_area), max_area_step)
+
+
+def homography_median_reprojection_error(
+    source_points: np.ndarray,
+    target_points: np.ndarray,
+    homography: np.ndarray,
+    inlier_mask: np.ndarray,
+) -> float:
+    inliers = inlier_mask.reshape(-1).astype(bool)
+    if not np.any(inliers):
+        return float("inf")
+    projected = cv2.perspectiveTransform(
+        source_points[inliers].reshape(-1, 1, 2).astype(np.float32),
+        homography,
+    ).reshape(-1, 2)
+    errors = np.linalg.norm(projected - target_points[inliers], axis=1)
+    return float(np.median(errors))
 
 
 def detect_screen_corners(frame: np.ndarray) -> np.ndarray | None:
@@ -356,6 +450,11 @@ def estimate_reference_corner_trajectory(
     fallback_corners: np.ndarray,
     auto_detect: bool,
     feature_refresh: int,
+    reference_min_inliers: int,
+    reference_min_inlier_ratio: float,
+    reference_max_reprojection_error: float,
+    reference_max_scale_step: float,
+    reference_max_area_step: float,
 ) -> list[np.ndarray]:
     frame_count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     ok, first_frame = capture.read()
@@ -376,6 +475,7 @@ def estimate_reference_corner_trajectory(
     trajectory = [reference_corners]
     previous_corners = reference_corners
     frame_index = 1
+    rejected_updates = 0
 
     while True:
         ok, frame = capture.read()
@@ -433,10 +533,27 @@ def estimate_reference_corner_trajectory(
         else:
             current_to_reference, inlier_mask = None, None
 
+        accepted_transform = None
+        if current_to_reference is not None and inlier_mask is not None:
+            inlier_count = int(inlier_mask.sum())
+            inlier_ratio = inlier_count / max(1, len(reference_good))
+            reprojection_error = homography_median_reprojection_error(
+                current_good,
+                reference_good,
+                current_to_reference,
+                inlier_mask,
+            )
+        else:
+            inlier_count = 0
+            inlier_ratio = 0.0
+            reprojection_error = float("inf")
+
         if (
             current_to_reference is not None
             and inlier_mask is not None
-            and int(inlier_mask.sum()) >= 20
+            and inlier_count >= reference_min_inliers
+            and inlier_ratio >= reference_min_inlier_ratio
+            and reprojection_error <= reference_max_reprojection_error
         ):
             reference_to_current = np.linalg.inv(current_to_reference)
             corners = cv2.perspectiveTransform(
@@ -444,12 +561,22 @@ def estimate_reference_corner_trajectory(
                 reference_to_current,
             ).reshape(4, 2)
             corners = order_corners(corners).astype(np.float32)
-            if detected_corners_are_valid(corners, gray.shape):
+            if detected_corners_are_valid(corners, gray.shape) and geometry_update_is_reasonable(
+                corners,
+                previous_corners,
+                max_scale_step=reference_max_scale_step,
+                max_area_step=reference_max_area_step,
+            ):
                 previous_corners = corners
+                accepted_transform = current_to_reference
+            else:
+                rejected_updates += 1
+        elif current_to_reference is not None:
+            rejected_updates += 1
         trajectory.append(previous_corners)
 
         keep = valid
-        if inlier_mask is not None and len(reference_good) == int(valid.sum()):
+        if accepted_transform is not None and inlier_mask is not None and len(reference_good) == int(valid.sum()):
             valid_indices = np.flatnonzero(valid)
             keep = np.zeros_like(valid)
             keep[valid_indices[inlier_mask.reshape(-1).astype(bool)]] = True
@@ -459,11 +586,11 @@ def estimate_reference_corner_trajectory(
         if (
             len(current_points) < 140
             or frame_index % feature_refresh == 0
-        ) and current_to_reference is not None:
+        ) and accepted_transform is not None:
             reference_points, current_points = append_reference_points(
                 gray,
                 previous_corners,
-                current_to_reference,
+                accepted_transform,
                 reference_points,
                 current_points,
             )
@@ -473,7 +600,7 @@ def estimate_reference_corner_trajectory(
         if frame_count and (frame_index % 60 == 0 or frame_index == frame_count):
             print(
                 f"reference-tracked corners {frame_index}/{frame_count} frames "
-                f"with {len(current_points)} points",
+                f"with {len(current_points)} points, rejected {rejected_updates} updates",
                 file=sys.stderr,
             )
 
@@ -488,6 +615,11 @@ def estimate_corner_trajectory(
     smooth: float,
     detect_correction: float,
     feature_refresh: int,
+    reference_min_inliers: int,
+    reference_min_inlier_ratio: float,
+    reference_max_reprojection_error: float,
+    reference_max_scale_step: float,
+    reference_max_area_step: float,
 ) -> list[np.ndarray]:
     if tracker == "reference":
         return estimate_reference_corner_trajectory(
@@ -495,6 +627,11 @@ def estimate_corner_trajectory(
             fallback_corners=fallback_corners,
             auto_detect=auto_detect,
             feature_refresh=feature_refresh,
+            reference_min_inliers=reference_min_inliers,
+            reference_min_inlier_ratio=reference_min_inlier_ratio,
+            reference_max_reprojection_error=reference_max_reprojection_error,
+            reference_max_scale_step=reference_max_scale_step,
+            reference_max_area_step=reference_max_area_step,
         )
 
     frame_count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
@@ -868,6 +1005,11 @@ def main() -> None:
                 smooth=args.smooth,
                 detect_correction=args.detect_correction,
                 feature_refresh=args.feature_refresh,
+                reference_min_inliers=args.reference_min_inliers,
+                reference_min_inlier_ratio=args.reference_min_inlier_ratio,
+                reference_max_reprojection_error=args.reference_max_reprojection_error,
+                reference_max_scale_step=args.reference_max_scale_step,
+                reference_max_area_step=args.reference_max_area_step,
             )
             capture.release()
             if args.tracker != "reference":
