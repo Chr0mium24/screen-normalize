@@ -237,6 +237,59 @@ def parse_args() -> argparse.Namespace:
         default="affine",
         help="Residual motion model used by --reference-align.",
     )
+    parser.add_argument(
+        "--line-roll-correction",
+        action="store_true",
+        help="Use stable horizontal UI lines to apply a small residual roll correction.",
+    )
+    parser.add_argument(
+        "--line-mask-top",
+        type=crop_fraction,
+        default=0.34,
+        help="Top screen fraction used for line roll estimation.",
+    )
+    parser.add_argument(
+        "--line-mask-right",
+        type=crop_fraction,
+        default=0.30,
+        help="Right screen fraction used for line roll estimation.",
+    )
+    parser.add_argument(
+        "--line-mask-bottom",
+        type=crop_fraction,
+        default=0.0,
+        help="Bottom screen fraction used for line roll estimation.",
+    )
+    parser.add_argument(
+        "--line-min-segments",
+        type=positive_int,
+        default=20,
+        help="Minimum horizontal line segments before accepting a roll estimate.",
+    )
+    parser.add_argument(
+        "--line-min-total-length",
+        type=positive_int,
+        default=5000,
+        help="Minimum total accepted horizontal line length in pixels.",
+    )
+    parser.add_argument(
+        "--line-max-correction-deg",
+        type=nonnegative_fraction,
+        default=1.0,
+        help="Maximum absolute roll correction in degrees.",
+    )
+    parser.add_argument(
+        "--line-max-step-deg",
+        type=nonnegative_fraction,
+        default=0.12,
+        help="Maximum frame-to-frame change in the smoothed roll correction.",
+    )
+    parser.add_argument(
+        "--line-smooth",
+        type=smoothing_weight,
+        default=0.80,
+        help="Previous-frame smoothing weight for line roll estimates.",
+    )
     parser.add_argument("--crop-left", type=crop_fraction, default=0.0)
     parser.add_argument("--crop-top", type=crop_fraction, default=0.0)
     parser.add_argument("--crop-right", type=crop_fraction, default=0.0)
@@ -879,6 +932,121 @@ def estimate_reference_alignment(
     return transform
 
 
+def weighted_median(values: np.ndarray, weights: np.ndarray) -> float:
+    if len(values) == 0:
+        return float("nan")
+    order = np.argsort(values)
+    sorted_values = values[order]
+    sorted_weights = weights[order]
+    midpoint = sorted_weights.sum() * 0.5
+    return float(sorted_values[np.searchsorted(np.cumsum(sorted_weights), midpoint)])
+
+
+def line_roll_mask(
+    shape: tuple[int, ...],
+    top_fraction: float,
+    right_fraction: float,
+    bottom_fraction: float,
+) -> np.ndarray:
+    height, width = shape[:2]
+    mask = np.zeros((height, width), dtype=np.uint8)
+    if top_fraction:
+        mask[: int(round(height * top_fraction)), :] = 255
+    if right_fraction:
+        mask[:, int(round(width * (1.0 - right_fraction))) :] = 255
+    if bottom_fraction:
+        mask[int(round(height * (1.0 - bottom_fraction))) :, :] = 255
+    return mask
+
+
+def normalize_line_angle_degrees(angle: float) -> float:
+    while angle <= -90.0:
+        angle += 180.0
+    while angle > 90.0:
+        angle -= 180.0
+    return angle
+
+
+def estimate_line_roll_angle(
+    frame: np.ndarray,
+    top_fraction: float,
+    right_fraction: float,
+    bottom_fraction: float,
+    min_segments: int,
+    min_total_length: int,
+) -> tuple[float | None, int, float]:
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    mask = line_roll_mask(gray.shape, top_fraction, right_fraction, bottom_fraction)
+    masked = cv2.bitwise_and(gray, gray, mask=mask)
+    edges = cv2.Canny(masked, 60, 160)
+    min_line_length = max(140, gray.shape[1] // 10)
+    lines = cv2.HoughLinesP(
+        edges,
+        1,
+        np.pi / 180.0,
+        threshold=110,
+        minLineLength=min_line_length,
+        maxLineGap=18,
+    )
+    if lines is None:
+        return None, 0, 0.0
+
+    angles = []
+    weights = []
+    for x1, y1, x2, y2 in lines.reshape(-1, 4):
+        length = float(np.hypot(x2 - x1, y2 - y1))
+        if length < min_line_length:
+            continue
+        angle = normalize_line_angle_degrees(
+            float(np.degrees(np.arctan2(y2 - y1, x2 - x1)))
+        )
+        if abs(angle) > 3.0:
+            continue
+        angles.append(angle)
+        weights.append(length)
+
+    if len(angles) < min_segments:
+        return None, len(angles), float(np.sum(weights))
+
+    angle_values = np.asarray(angles, dtype=np.float32)
+    weight_values = np.asarray(weights, dtype=np.float32)
+    total_length = float(weight_values.sum())
+    if total_length < min_total_length:
+        return None, len(angles), total_length
+
+    return weighted_median(angle_values, weight_values), len(angles), total_length
+
+
+def update_line_roll_angle(
+    previous_angle: float | None,
+    measured_angle: float,
+    max_correction: float,
+    max_step: float,
+    smooth: float,
+) -> float:
+    target = float(np.clip(measured_angle, -max_correction, max_correction))
+    if previous_angle is None:
+        return target
+
+    smoothed = previous_angle * smooth + target * (1.0 - smooth)
+    if max_step > 0:
+        smoothed = previous_angle + float(np.clip(smoothed - previous_angle, -max_step, max_step))
+    return float(np.clip(smoothed, -max_correction, max_correction))
+
+
+def apply_roll_correction(frame: np.ndarray, angle: float) -> np.ndarray:
+    height, width = frame.shape[:2]
+    center = ((width - 1) / 2.0, (height - 1) / 2.0)
+    transform = cv2.getRotationMatrix2D(center, angle, 1.0)
+    return cv2.warpAffine(
+        frame,
+        transform,
+        (width, height),
+        flags=cv2.INTER_CUBIC,
+        borderMode=cv2.BORDER_REPLICATE,
+    )
+
+
 def encode_warped_video(
     capture: cv2.VideoCapture,
     output: Path,
@@ -897,6 +1065,15 @@ def encode_warped_video(
     crop_bottom: float,
     reference_align: bool,
     reference_motion: str,
+    line_roll_correction: bool,
+    line_mask_top: float,
+    line_mask_right: float,
+    line_mask_bottom: float,
+    line_min_segments: int,
+    line_min_total_length: int,
+    line_max_correction_deg: float,
+    line_max_step_deg: float,
+    line_smooth: float,
 ) -> int:
     destination_corners = np.array(
         [[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]],
@@ -907,6 +1084,9 @@ def encode_warped_video(
     fallback_transform = cv2.getPerspectiveTransform(fallback_corners, destination_corners)
     reference_gray: np.ndarray | None = None
     reference_points: np.ndarray | None = None
+    line_roll_angle: float | None = None
+    line_roll_updates = 0
+    line_roll_misses = 0
 
     command = [
         "ffmpeg",
@@ -982,6 +1162,28 @@ def encode_warped_video(
                     interpolation=cv2.INTER_CUBIC,
                 )
 
+            if line_roll_correction:
+                measured_angle, segment_count, total_length = estimate_line_roll_angle(
+                    warped,
+                    top_fraction=line_mask_top,
+                    right_fraction=line_mask_right,
+                    bottom_fraction=line_mask_bottom,
+                    min_segments=line_min_segments,
+                    min_total_length=line_min_total_length,
+                )
+                if measured_angle is None:
+                    line_roll_misses += 1
+                else:
+                    line_roll_angle = update_line_roll_angle(
+                        previous_angle=line_roll_angle,
+                        measured_angle=measured_angle,
+                        max_correction=line_max_correction_deg,
+                        max_step=line_max_step_deg,
+                        smooth=line_smooth,
+                    )
+                    warped = apply_roll_correction(warped, line_roll_angle)
+                    line_roll_updates += 1
+
             if reference_align:
                 gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
                 if reference_gray is None:
@@ -1005,7 +1207,16 @@ def encode_warped_video(
             process.stdin.write(warped.tobytes())
             processed += 1
             if frame_count and (processed % 60 == 0 or processed == frame_count):
-                print(f"processed {processed}/{frame_count} frames", file=sys.stderr)
+                if line_roll_correction:
+                    angle_text = "none" if line_roll_angle is None else f"{line_roll_angle:.3f} deg"
+                    print(
+                        f"processed {processed}/{frame_count} frames, "
+                        f"line roll {angle_text}, updates {line_roll_updates}, "
+                        f"misses {line_roll_misses}",
+                        file=sys.stderr,
+                    )
+                else:
+                    print(f"processed {processed}/{frame_count} frames", file=sys.stderr)
     finally:
         process.stdin.close()
         capture.release()
@@ -1104,6 +1315,15 @@ def main() -> None:
             crop_bottom=args.crop_bottom,
             reference_align=args.reference_align,
             reference_motion=args.reference_motion,
+            line_roll_correction=args.line_roll_correction,
+            line_mask_top=args.line_mask_top,
+            line_mask_right=args.line_mask_right,
+            line_mask_bottom=args.line_mask_bottom,
+            line_min_segments=args.line_min_segments,
+            line_min_total_length=args.line_min_total_length,
+            line_max_correction_deg=args.line_max_correction_deg,
+            line_max_step_deg=args.line_max_step_deg,
+            line_smooth=args.line_smooth,
         )
         mux_audio(silent_video, source, output)
 

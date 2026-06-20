@@ -46,3 +46,11 @@ uv run scripts/normalize_screen.py inputs/VID20260621024117.mp4 --tracker refere
 ```
 
 `--tracker reference` locks the video to the first detected screen plane, tracks screen features with Lucas-Kanade optical flow, estimates a RANSAC homography, and rejects updates with weak inliers or abnormal scale/area changes.
+
+If the normalized screen still has a small residual tilt and the page has stable browser or UI lines, add line-based roll correction:
+
+```bash
+uv run scripts/normalize_screen.py inputs/VID20260621031719.mp4 --tracker reference --line-roll-correction --crop-right 0.02 --crop-bottom 0.055
+```
+
+`--line-roll-correction` estimates long horizontal lines only in stable mask regions, by default the top browser/page area and right-side UI. It then applies a small smoothed rotation; it does not recompute screen corners or use moving video content as geometry.
