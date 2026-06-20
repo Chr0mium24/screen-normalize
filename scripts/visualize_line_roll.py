@@ -27,6 +27,13 @@ def positive_int(value: str) -> int:
     return parsed
 
 
+def byte_int(value: str) -> int:
+    parsed = int(value)
+    if not 0 <= parsed <= 255:
+        raise argparse.ArgumentTypeError("value must be between 0 and 255")
+    return parsed
+
+
 def nonnegative_float(value: str) -> float:
     parsed = float(value)
     if parsed < 0:
@@ -38,6 +45,13 @@ def crop_fraction(value: str) -> float:
     parsed = float(value)
     if not 0.0 <= parsed < 0.5:
         raise argparse.ArgumentTypeError("value must be >= 0 and < 0.5")
+    return parsed
+
+
+def percentile_float(value: str) -> float:
+    parsed = float(value)
+    if not 0.0 <= parsed <= 100.0:
+        raise argparse.ArgumentTypeError("value must be between 0 and 100")
     return parsed
 
 
@@ -84,6 +98,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mask-top", type=crop_fraction, default=0.34)
     parser.add_argument("--mask-right", type=crop_fraction, default=0.30)
     parser.add_argument("--mask-bottom", type=crop_fraction, default=0.0)
+    parser.add_argument("--ignore-top", type=crop_fraction, default=0.0)
     parser.add_argument(
         "--full-mask",
         action="store_true",
@@ -91,16 +106,26 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--detector",
-        choices=("hough", "contour"),
-        default="hough",
+        choices=("binary-contour", "hough", "contour"),
+        default="binary-contour",
         help="Line detector used for the diagnostic overlay.",
+    )
+    parser.add_argument(
+        "--view",
+        choices=("overlay", "binary", "horizontal"),
+        default="overlay",
+        help="Render the normal overlay, the inverse binary foreground, or the final horizontal edge mask.",
     )
     parser.add_argument("--angle-limit-deg", type=nonnegative_float, default=3.0)
     parser.add_argument("--cluster-deg", type=nonnegative_float, default=0.35)
-    parser.add_argument("--min-segments", type=positive_int, default=20)
-    parser.add_argument("--min-total-length", type=positive_int, default=5000)
+    parser.add_argument("--min-segments", type=positive_int, default=2)
+    parser.add_argument("--min-total-length", type=positive_int, default=1000)
     parser.add_argument("--horizontal-kernel", type=positive_int, default=81)
     parser.add_argument("--max-line-thickness", type=positive_int, default=24)
+    parser.add_argument("--white-threshold", type=byte_int, default=246)
+    parser.add_argument("--background-percentile", type=percentile_float, default=75.0)
+    parser.add_argument("--dark-margin", type=nonnegative_float, default=24.0)
+    parser.add_argument("--saturation-threshold", type=byte_int, default=24)
     parser.add_argument("--max-frames", type=positive_int, default=None)
     parser.add_argument("--crf", type=positive_int, default=18)
     parser.add_argument("--preset", default="medium")
@@ -129,7 +154,13 @@ def weighted_median(values: np.ndarray, weights: np.ndarray) -> float:
     return float(sorted_values[np.searchsorted(np.cumsum(sorted_weights), midpoint)])
 
 
-def line_roll_mask(shape: tuple[int, ...], top: float, right: float, bottom: float) -> np.ndarray:
+def line_roll_mask(
+    shape: tuple[int, ...],
+    top: float,
+    right: float,
+    bottom: float,
+    ignore_top: float,
+) -> np.ndarray:
     height, width = shape[:2]
     mask = np.zeros((height, width), dtype=np.uint8)
     if top:
@@ -138,6 +169,8 @@ def line_roll_mask(shape: tuple[int, ...], top: float, right: float, bottom: flo
         mask[:, int(round(width * (1.0 - right))) :] = 255
     if bottom:
         mask[int(round(height * (1.0 - bottom))) :, :] = 255
+    if ignore_top:
+        mask[: int(round(height * ignore_top)), :] = 0
     return mask
 
 
@@ -286,6 +319,225 @@ def contour_line_candidates(
     return candidates
 
 
+def binary_foreground_mask(
+    frame: np.ndarray,
+    mask: np.ndarray,
+    white_threshold: int,
+    background_percentile: float,
+    dark_margin: float,
+    saturation_threshold: int,
+) -> np.ndarray:
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    masked_gray = gray[mask > 0]
+    if masked_gray.size:
+        background_level = min(
+            float(white_threshold),
+            float(np.percentile(masked_gray, background_percentile)),
+        )
+    else:
+        background_level = float(np.percentile(gray, background_percentile))
+    dark_threshold = max(0.0, background_level - dark_margin)
+    color_threshold = max(0.0, background_level - (dark_margin * 0.5))
+    foreground = np.where(
+        (gray < dark_threshold)
+        | ((hsv[:, :, 1] > saturation_threshold) & (gray < color_threshold)),
+        255,
+        0,
+    ).astype(np.uint8)
+    return cv2.bitwise_and(foreground, foreground, mask=mask)
+
+
+def binary_horizontal_edge_mask(foreground: np.ndarray, horizontal_kernel: int) -> np.ndarray:
+    boundary_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    boundary = cv2.morphologyEx(foreground, cv2.MORPH_GRADIENT, boundary_kernel)
+    close_width = max(3, horizontal_kernel // 4)
+    close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (close_width, 3))
+    connected = cv2.morphologyEx(boundary, cv2.MORPH_CLOSE, close_kernel)
+    line_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (horizontal_kernel, 3))
+    return cv2.morphologyEx(connected, cv2.MORPH_OPEN, line_kernel)
+
+
+def binary_contour_line_candidates(
+    frame: np.ndarray,
+    mask: np.ndarray,
+    angle_limit: float,
+    horizontal_kernel: int,
+    max_line_thickness: int,
+    white_threshold: int,
+    background_percentile: float,
+    dark_margin: float,
+    saturation_threshold: int,
+) -> tuple[list[dict[str, object]], np.ndarray, np.ndarray]:
+    full_mask = np.full(mask.shape, 255, dtype=np.uint8)
+    full_foreground = binary_foreground_mask(
+        frame,
+        full_mask,
+        white_threshold=white_threshold,
+        background_percentile=background_percentile,
+        dark_margin=dark_margin,
+        saturation_threshold=saturation_threshold,
+    )
+    candidates = binary_component_line_candidates(
+        full_foreground,
+        selection_mask=mask,
+        angle_limit=angle_limit,
+        min_line_length=max(180, frame.shape[1] // 8),
+        min_area=frame.shape[0] * frame.shape[1] * 0.002,
+        min_short_side=max(28.0, float(max_line_thickness)),
+    )
+    foreground = cv2.bitwise_and(full_foreground, full_foreground, mask=mask)
+    horizontal = binary_horizontal_edge_mask(foreground, horizontal_kernel=horizontal_kernel)
+    contours, _ = cv2.findContours(horizontal, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    min_line_length = max(180, frame.shape[1] // 8)
+    for contour in contours:
+        if len(contour) < 2:
+            continue
+        rect = cv2.minAreaRect(contour)
+        (cx, cy), (rect_width, rect_height), rect_angle = rect
+        long_side = float(max(rect_width, rect_height))
+        short_side = float(min(rect_width, rect_height))
+        if long_side < min_line_length or short_side > max_line_thickness:
+            continue
+
+        angle = float(rect_angle)
+        if rect_width < rect_height:
+            angle += 90.0
+        angle = normalize_line_angle_degrees(angle)
+        if abs(angle) > angle_limit:
+            continue
+
+        theta = np.deg2rad(angle)
+        dx = np.cos(theta) * long_side * 0.5
+        dy = np.sin(theta) * long_side * 0.5
+        p1 = (int(round(cx - dx)), int(round(cy - dy)))
+        p2 = (int(round(cx + dx)), int(round(cy + dy)))
+        candidates.append(
+            {
+                "p1": p1,
+                "p2": p2,
+                "angle": angle,
+                "length": long_side,
+            }
+        )
+
+    return candidates, foreground, horizontal
+
+
+def binary_component_line_candidates(
+    foreground: np.ndarray,
+    selection_mask: np.ndarray,
+    angle_limit: float,
+    min_line_length: int,
+    min_area: float,
+    min_short_side: float,
+) -> list[dict[str, object]]:
+    contours, _ = cv2.findContours(foreground, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    height, width = foreground.shape[:2]
+    candidates: list[dict[str, object]] = []
+    for contour in contours:
+        if len(contour) < 2:
+            continue
+        area = float(cv2.contourArea(contour))
+        if area < min_area:
+            continue
+
+        x, y, box_width, box_height = cv2.boundingRect(contour)
+        if np.count_nonzero(selection_mask[y : y + box_height, x : x + box_width]) == 0:
+            continue
+        touches_frame = (
+            x <= 1
+            or y <= 1
+            or x + box_width >= width - 1
+            or y + box_height >= height - 1
+        )
+        if touches_frame and (box_width > width * 0.90 or box_height > height * 0.90):
+            continue
+
+        rect = cv2.minAreaRect(contour)
+        (cx, cy), (rect_width, rect_height), rect_angle = rect
+        long_side = float(max(rect_width, rect_height))
+        short_side = float(min(rect_width, rect_height))
+        if long_side < min_line_length or short_side < min_short_side:
+            continue
+
+        rect_area = max(float(rect_width * rect_height), 1.0)
+        fill_ratio = area / rect_area
+        aspect_ratio = long_side / max(short_side, 1.0)
+        if fill_ratio < 0.35 or aspect_ratio < 1.2:
+            continue
+
+        angle = float(rect_angle)
+        if rect_width < rect_height:
+            angle += 90.0
+        angle = normalize_line_angle_degrees(angle)
+        if abs(angle) > angle_limit:
+            continue
+
+        p1, p2 = selected_component_edge(
+            rect,
+            selection_mask=selection_mask,
+            angle_limit=angle_limit,
+        )
+        candidates.append(
+            {
+                "p1": p1,
+                "p2": p2,
+                "angle": angle,
+                "length": long_side * min(fill_ratio, 1.0),
+            }
+        )
+    return candidates
+
+
+def selected_component_edge(
+    rect: tuple[tuple[float, float], tuple[float, float], float],
+    selection_mask: np.ndarray,
+    angle_limit: float,
+) -> tuple[tuple[int, int], tuple[int, int]]:
+    box = cv2.boxPoints(rect)
+    height, width = selection_mask.shape[:2]
+    edges = []
+    for index in range(4):
+        p1 = box[index]
+        p2 = box[(index + 1) % 4]
+        length = float(np.hypot(*(p2 - p1)))
+        if length <= 0:
+            continue
+        angle = normalize_line_angle_degrees(
+            float(np.degrees(np.arctan2(p2[1] - p1[1], p2[0] - p1[0])))
+        )
+        if abs(angle) > angle_limit:
+            continue
+        midpoint = (p1 + p2) * 0.5
+        mx = int(np.clip(round(float(midpoint[0])), 0, width - 1))
+        my = int(np.clip(round(float(midpoint[1])), 0, height - 1))
+        inside_mask = selection_mask[my, mx] > 0
+        edges.append((inside_mask, length, p1, p2))
+    if not edges:
+        center, (rect_width, rect_height), rect_angle = rect
+        angle = float(rect_angle)
+        if rect_width < rect_height:
+            angle += 90.0
+        angle = normalize_line_angle_degrees(angle)
+        theta = np.deg2rad(angle)
+        long_side = max(rect_width, rect_height)
+        dx = np.cos(theta) * long_side * 0.5
+        dy = np.sin(theta) * long_side * 0.5
+        cx, cy = center
+        return (
+            (int(round(cx - dx)), int(round(cy - dy))),
+            (int(round(cx + dx)), int(round(cy + dy))),
+        )
+
+    _, _, start, end = max(edges, key=lambda item: (item[0], item[1]))
+    return (
+        (int(round(float(start[0]))), int(round(float(start[1])))),
+        (int(round(float(end[0]))), int(round(float(end[1])))),
+    )
+
+
 def detect_lines(
     frame: np.ndarray,
     mask: np.ndarray,
@@ -296,8 +548,26 @@ def detect_lines(
     min_total_length: int,
     horizontal_kernel: int,
     max_line_thickness: int,
+    white_threshold: int,
+    background_percentile: float,
+    dark_margin: float,
+    saturation_threshold: int,
 ) -> dict[str, object]:
-    if detector == "contour":
+    foreground = None
+    horizontal = None
+    if detector == "binary-contour":
+        candidates, foreground, horizontal = binary_contour_line_candidates(
+            frame,
+            mask,
+            angle_limit=angle_limit,
+            horizontal_kernel=horizontal_kernel,
+            max_line_thickness=max_line_thickness,
+            white_threshold=white_threshold,
+            background_percentile=background_percentile,
+            dark_margin=dark_margin,
+            saturation_threshold=saturation_threshold,
+        )
+    elif detector == "contour":
         candidates = contour_line_candidates(
             frame,
             mask,
@@ -312,12 +582,15 @@ def detect_lines(
             angle_limit=angle_limit,
         )
 
-    return group_line_candidates(
+    detection = group_line_candidates(
         candidates,
         cluster_deg=cluster_deg,
         min_segments=min_segments,
         min_total_length=min_total_length,
     )
+    detection["foreground_mask"] = foreground
+    detection["horizontal_mask"] = horizontal
+    return detection
 
 
 def draw_overlay(
@@ -326,11 +599,17 @@ def draw_overlay(
     detection: dict[str, object],
     frame_index: int,
     detector: str,
+    view: str,
 ) -> np.ndarray:
-    output = frame.copy()
-    mask_overlay = np.zeros_like(output)
-    mask_overlay[mask > 0] = (255, 120, 0)
-    output = cv2.addWeighted(output, 1.0, mask_overlay, 0.16, 0.0)
+    if view == "binary" and detection["foreground_mask"] is not None:
+        output = cv2.cvtColor(cv2.bitwise_not(detection["foreground_mask"]), cv2.COLOR_GRAY2BGR)
+    elif view == "horizontal" and detection["horizontal_mask"] is not None:
+        output = cv2.cvtColor(detection["horizontal_mask"], cv2.COLOR_GRAY2BGR)
+    else:
+        output = frame.copy()
+        mask_overlay = np.zeros_like(output)
+        mask_overlay[mask > 0] = (255, 120, 0)
+        output = cv2.addWeighted(output, 1.0, mask_overlay, 0.16, 0.0)
 
     inlier_ids = {id(line) for line in detection["inliers"]}
     for line in detection["candidates"]:
@@ -344,6 +623,7 @@ def draw_overlay(
     text_lines = [
         f"frame {frame_index}",
         f"detector: {detector}",
+        f"view: {view}",
         f"raw horizontal candidates: {len(detection['candidates'])}",
         f"same-direction inliers: {len(detection['inliers'])}",
         f"dominant angle: {dominant_angle:.3f} deg" if dominant_angle is not None else "dominant angle: none",
@@ -384,8 +664,16 @@ def main() -> None:
     output_video, output_csv, run_dir = resolve_outputs(args, source)
     if args.full_mask:
         mask = np.full((height, width), 255, dtype=np.uint8)
+        if args.ignore_top:
+            mask[: int(round(height * args.ignore_top)), :] = 0
     else:
-        mask = line_roll_mask((height, width), args.mask_top, args.mask_right, args.mask_bottom)
+        mask = line_roll_mask(
+            (height, width),
+            args.mask_top,
+            args.mask_right,
+            args.mask_bottom,
+            args.ignore_top,
+        )
 
     command = [
         "ffmpeg",
@@ -436,8 +724,19 @@ def main() -> None:
                 min_total_length=args.min_total_length,
                 horizontal_kernel=args.horizontal_kernel,
                 max_line_thickness=args.max_line_thickness,
+                white_threshold=args.white_threshold,
+                background_percentile=args.background_percentile,
+                dark_margin=args.dark_margin,
+                saturation_threshold=args.saturation_threshold,
             )
-            overlay = draw_overlay(frame, mask, detection, processed, detector=args.detector)
+            overlay = draw_overlay(
+                frame,
+                mask,
+                detection,
+                processed,
+                detector=args.detector,
+                view=args.view,
+            )
             process.stdin.write(overlay.tobytes())
             rows.append(
                 {

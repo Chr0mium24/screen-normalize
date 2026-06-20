@@ -47,18 +47,20 @@ uv run scripts/normalize_screen.py inputs/VID20260621024117.mp4 --tracker refere
 
 `--tracker reference` locks the video to the first detected screen plane, tracks screen features with Lucas-Kanade optical flow, estimates a RANSAC homography, and rejects updates with weak inliers or abnormal scale/area changes.
 
-If the normalized screen still has a small residual tilt and the page has stable structural edges, add contour-based roll correction:
+If the normalized screen still has a small residual tilt and the page has stable structural edges, add binary-contour roll correction with a restricted mask:
 
 ```bash
-uv run scripts/normalize_screen.py inputs/VID20260621031719.mp4 --tracker reference --line-roll-correction --crop-right 0.02 --crop-bottom 0.055
+uv run scripts/normalize_screen.py inputs/VID20260621031719.mp4 --tracker reference --line-roll-correction --line-detector binary-contour --no-line-full-mask --line-mask-top 0 --line-mask-right 0.33 --line-mask-bottom 0.30 --line-ignore-top 0.22 --crop-right 0.02 --crop-bottom 0.055
 ```
 
-`--line-roll-correction` defaults to `--line-detector contour`: it runs Canny, applies a horizontal morphology kernel, finds long thin contours, clusters same-direction structural edges, and applies a small smoothed rotation. Missed frames reuse the previous accepted roll angle instead of dropping the correction to zero. This does not recompute screen corners.
+`--line-roll-correction` defaults to `--line-detector binary-contour`: it estimates the light page background per frame, thresholds darker or saturated content into a binary foreground mask, extracts large rectangular contours and horizontal edges, clusters same-direction structural lines, and applies a small smoothed rotation. Missed or temporally inconsistent measurements reuse the previous accepted roll angle instead of dropping the correction to zero. This does not recompute screen corners.
+
+Keep the mask away from browser chrome and text-heavy top UI. For the current Bilibili input, the right-side recommendation column plus lower player region is more stable than full-frame detection.
 
 To inspect which lines are being used, render a diagnostic overlay:
 
 ```bash
-uv run scripts/visualize_line_roll.py runs/run_other_input_no_line_roll/VID20260621031719_normalized.mp4 --detector contour --full-mask --run-name debug_contour_structural_full
+uv run scripts/visualize_line_roll.py runs/run_other_input_no_line_roll/VID20260621031719_normalized.mp4 --detector binary-contour --mask-top 0 --mask-right 0.33 --mask-bottom 0.30 --ignore-top 0.22 --run-name debug_binary_component_selected_edges
 ```
 
-The debug video draws same-direction inlier lines in green, other horizontal candidates in orange, and writes per-frame measurements to a CSV next to the video.
+The debug video draws same-direction inlier lines in green, other horizontal candidates in orange, and writes per-frame measurements to a CSV next to the video. Add `--view binary` to see the inverse threshold mask directly, or `--view horizontal` to see the final horizontal edge mask.

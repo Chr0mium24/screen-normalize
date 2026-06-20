@@ -49,6 +49,13 @@ def positive_int(value: str) -> int:
     return parsed
 
 
+def byte_int(value: str) -> int:
+    parsed = int(value)
+    if not 0 <= parsed <= 255:
+        raise argparse.ArgumentTypeError("value must be between 0 and 255")
+    return parsed
+
+
 def odd_positive_int(value: str) -> int:
     parsed = positive_int(value)
     if parsed % 2 == 0:
@@ -67,6 +74,13 @@ def crop_fraction(value: str) -> float:
     parsed = float(value)
     if not 0.0 <= parsed < 0.4:
         raise argparse.ArgumentTypeError("value must be >= 0 and < 0.4")
+    return parsed
+
+
+def percentile_float(value: str) -> float:
+    parsed = float(value)
+    if not 0.0 <= parsed <= 100.0:
+        raise argparse.ArgumentTypeError("value must be between 0 and 100")
     return parsed
 
 
@@ -244,8 +258,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--line-detector",
-        choices=("contour", "hough"),
-        default="contour",
+        choices=("binary-contour", "contour", "hough"),
+        default="binary-contour",
         help="Horizontal-line detector used by --line-roll-correction.",
     )
     parser.add_argument(
@@ -271,6 +285,12 @@ def parse_args() -> argparse.Namespace:
         type=crop_fraction,
         default=0.0,
         help="Bottom screen fraction used for line roll estimation.",
+    )
+    parser.add_argument(
+        "--line-ignore-top",
+        type=crop_fraction,
+        default=0.0,
+        help="Top screen fraction excluded from line roll estimation.",
     )
     parser.add_argument(
         "--line-min-segments",
@@ -303,6 +323,30 @@ def parse_args() -> argparse.Namespace:
         help="Maximum contour thickness in pixels for structural line candidates.",
     )
     parser.add_argument(
+        "--line-white-threshold",
+        type=byte_int,
+        default=246,
+        help="Binary detector cap for adaptive background brightness.",
+    )
+    parser.add_argument(
+        "--line-background-percentile",
+        type=percentile_float,
+        default=75.0,
+        help="Binary detector percentile used to estimate the light page background.",
+    )
+    parser.add_argument(
+        "--line-dark-margin",
+        type=nonnegative_fraction,
+        default=24.0,
+        help="Binary detector foreground margin below the estimated background brightness.",
+    )
+    parser.add_argument(
+        "--line-saturation-threshold",
+        type=byte_int,
+        default=24,
+        help="Binary detector threshold for saturated foreground below the light background.",
+    )
+    parser.add_argument(
         "--line-max-correction-deg",
         type=nonnegative_fraction,
         default=1.0,
@@ -313,6 +357,12 @@ def parse_args() -> argparse.Namespace:
         type=nonnegative_fraction,
         default=0.12,
         help="Maximum frame-to-frame change in the smoothed roll correction.",
+    )
+    parser.add_argument(
+        "--line-max-measurement-step-deg",
+        type=nonnegative_fraction,
+        default=0.45,
+        help="Reject line roll measurements this far from the current smoothed correction; 0 disables.",
     )
     parser.add_argument(
         "--line-smooth",
@@ -977,6 +1027,7 @@ def line_roll_mask(
     top_fraction: float,
     right_fraction: float,
     bottom_fraction: float,
+    ignore_top_fraction: float,
 ) -> np.ndarray:
     height, width = shape[:2]
     mask = np.zeros((height, width), dtype=np.uint8)
@@ -986,6 +1037,8 @@ def line_roll_mask(
         mask[:, int(round(width * (1.0 - right_fraction))) :] = 255
     if bottom_fraction:
         mask[int(round(height * (1.0 - bottom_fraction))) :, :] = 255
+    if ignore_top_fraction:
+        mask[: int(round(height * ignore_top_fraction)), :] = 0
     return mask
 
 
@@ -1067,6 +1120,149 @@ def contour_line_candidates(
     return candidates
 
 
+def binary_foreground_mask(
+    frame: np.ndarray,
+    mask: np.ndarray,
+    white_threshold: int,
+    background_percentile: float,
+    dark_margin: float,
+    saturation_threshold: int,
+) -> np.ndarray:
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    masked_gray = gray[mask > 0]
+    if masked_gray.size:
+        background_level = min(
+            float(white_threshold),
+            float(np.percentile(masked_gray, background_percentile)),
+        )
+    else:
+        background_level = float(np.percentile(gray, background_percentile))
+    dark_threshold = max(0.0, background_level - dark_margin)
+    color_threshold = max(0.0, background_level - (dark_margin * 0.5))
+    foreground = np.where(
+        (gray < dark_threshold)
+        | ((hsv[:, :, 1] > saturation_threshold) & (gray < color_threshold)),
+        255,
+        0,
+    ).astype(np.uint8)
+    return cv2.bitwise_and(foreground, foreground, mask=mask)
+
+
+def binary_horizontal_edge_mask(foreground: np.ndarray, horizontal_kernel: int) -> np.ndarray:
+    boundary_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    boundary = cv2.morphologyEx(foreground, cv2.MORPH_GRADIENT, boundary_kernel)
+    close_width = max(3, horizontal_kernel // 4)
+    close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (close_width, 3))
+    connected = cv2.morphologyEx(boundary, cv2.MORPH_CLOSE, close_kernel)
+    line_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (horizontal_kernel, 3))
+    return cv2.morphologyEx(connected, cv2.MORPH_OPEN, line_kernel)
+
+
+def binary_contour_line_candidates(
+    frame: np.ndarray,
+    mask: np.ndarray,
+    angle_limit: float,
+    horizontal_kernel: int,
+    max_thickness: int,
+    white_threshold: int,
+    background_percentile: float,
+    dark_margin: float,
+    saturation_threshold: int,
+) -> list[dict[str, object]]:
+    full_mask = np.full(mask.shape, 255, dtype=np.uint8)
+    full_foreground = binary_foreground_mask(
+        frame,
+        full_mask,
+        white_threshold=white_threshold,
+        background_percentile=background_percentile,
+        dark_margin=dark_margin,
+        saturation_threshold=saturation_threshold,
+    )
+    candidates = binary_component_line_candidates(
+        full_foreground,
+        selection_mask=mask,
+        angle_limit=angle_limit,
+        min_line_length=max(180, frame.shape[1] // 8),
+        min_area=frame.shape[0] * frame.shape[1] * 0.002,
+        min_short_side=max(28.0, float(max_thickness)),
+    )
+    foreground = cv2.bitwise_and(full_foreground, full_foreground, mask=mask)
+    horizontal = binary_horizontal_edge_mask(foreground, horizontal_kernel=horizontal_kernel)
+    contours, _ = cv2.findContours(horizontal, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    min_line_length = max(180, frame.shape[1] // 8)
+    for contour in contours:
+        if len(contour) < 2:
+            continue
+        (_, _), (rect_width, rect_height), rect_angle = cv2.minAreaRect(contour)
+        long_side = float(max(rect_width, rect_height))
+        short_side = float(min(rect_width, rect_height))
+        if long_side < min_line_length or short_side > max_thickness:
+            continue
+
+        angle = float(rect_angle)
+        if rect_width < rect_height:
+            angle += 90.0
+        angle = normalize_line_angle_degrees(angle)
+        if abs(angle) > angle_limit:
+            continue
+        candidates.append({"angle": angle, "length": long_side})
+    return candidates
+
+
+def binary_component_line_candidates(
+    foreground: np.ndarray,
+    selection_mask: np.ndarray,
+    angle_limit: float,
+    min_line_length: int,
+    min_area: float,
+    min_short_side: float,
+) -> list[dict[str, object]]:
+    contours, _ = cv2.findContours(foreground, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    height, width = foreground.shape[:2]
+    candidates: list[dict[str, object]] = []
+    for contour in contours:
+        if len(contour) < 2:
+            continue
+        area = float(cv2.contourArea(contour))
+        if area < min_area:
+            continue
+
+        x, y, box_width, box_height = cv2.boundingRect(contour)
+        if np.count_nonzero(selection_mask[y : y + box_height, x : x + box_width]) == 0:
+            continue
+        touches_frame = (
+            x <= 1
+            or y <= 1
+            or x + box_width >= width - 1
+            or y + box_height >= height - 1
+        )
+        if touches_frame and (box_width > width * 0.90 or box_height > height * 0.90):
+            continue
+
+        (_, _), (rect_width, rect_height), rect_angle = cv2.minAreaRect(contour)
+        long_side = float(max(rect_width, rect_height))
+        short_side = float(min(rect_width, rect_height))
+        if long_side < min_line_length or short_side < min_short_side:
+            continue
+
+        rect_area = max(float(rect_width * rect_height), 1.0)
+        fill_ratio = area / rect_area
+        aspect_ratio = long_side / max(short_side, 1.0)
+        if fill_ratio < 0.35 or aspect_ratio < 1.2:
+            continue
+
+        angle = float(rect_angle)
+        if rect_width < rect_height:
+            angle += 90.0
+        angle = normalize_line_angle_degrees(angle)
+        if abs(angle) > angle_limit:
+            continue
+        candidates.append({"angle": angle, "length": long_side * min(fill_ratio, 1.0)})
+    return candidates
+
+
 def estimate_line_roll_angle(
     frame: np.ndarray,
     detector: str,
@@ -1074,18 +1270,43 @@ def estimate_line_roll_angle(
     top_fraction: float,
     right_fraction: float,
     bottom_fraction: float,
+    ignore_top_fraction: float,
     min_segments: int,
     min_total_length: int,
     cluster_deg: float,
     horizontal_kernel: int,
     max_thickness: int,
+    white_threshold: int,
+    background_percentile: float,
+    dark_margin: float,
+    saturation_threshold: int,
 ) -> tuple[float | None, int, float]:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     if full_mask:
         mask = np.full(gray.shape, 255, dtype=np.uint8)
+        if ignore_top_fraction:
+            mask[: int(round(gray.shape[0] * ignore_top_fraction)), :] = 0
     else:
-        mask = line_roll_mask(gray.shape, top_fraction, right_fraction, bottom_fraction)
-    if detector == "contour":
+        mask = line_roll_mask(
+            gray.shape,
+            top_fraction,
+            right_fraction,
+            bottom_fraction,
+            ignore_top_fraction,
+        )
+    if detector == "binary-contour":
+        candidates = binary_contour_line_candidates(
+            frame,
+            mask,
+            angle_limit=3.0,
+            horizontal_kernel=horizontal_kernel,
+            max_thickness=max_thickness,
+            white_threshold=white_threshold,
+            background_percentile=background_percentile,
+            dark_margin=dark_margin,
+            saturation_threshold=saturation_threshold,
+        )
+    elif detector == "contour":
         candidates = contour_line_candidates(
             frame,
             mask,
@@ -1169,13 +1390,19 @@ def encode_warped_video(
     line_mask_top: float,
     line_mask_right: float,
     line_mask_bottom: float,
+    line_ignore_top: float,
     line_min_segments: int,
     line_min_total_length: int,
     line_cluster_deg: float,
     line_horizontal_kernel: int,
     line_max_thickness: int,
+    line_white_threshold: int,
+    line_background_percentile: float,
+    line_dark_margin: float,
+    line_saturation_threshold: int,
     line_max_correction_deg: float,
     line_max_step_deg: float,
+    line_max_measurement_step_deg: float,
     line_smooth: float,
 ) -> int:
     destination_corners = np.array(
@@ -1273,16 +1500,28 @@ def encode_warped_video(
                     top_fraction=line_mask_top,
                     right_fraction=line_mask_right,
                     bottom_fraction=line_mask_bottom,
+                    ignore_top_fraction=line_ignore_top,
                     min_segments=line_min_segments,
                     min_total_length=line_min_total_length,
                     cluster_deg=line_cluster_deg,
                     horizontal_kernel=line_horizontal_kernel,
                     max_thickness=line_max_thickness,
+                    white_threshold=line_white_threshold,
+                    background_percentile=line_background_percentile,
+                    dark_margin=line_dark_margin,
+                    saturation_threshold=line_saturation_threshold,
                 )
                 if measured_angle is None:
                     line_roll_misses += 1
                     if line_roll_angle is not None:
                         warped = apply_roll_correction(warped, line_roll_angle)
+                elif (
+                    line_roll_angle is not None
+                    and line_max_measurement_step_deg > 0
+                    and abs(measured_angle - line_roll_angle) > line_max_measurement_step_deg
+                ):
+                    line_roll_misses += 1
+                    warped = apply_roll_correction(warped, line_roll_angle)
                 else:
                     line_roll_angle = update_line_roll_angle(
                         previous_angle=line_roll_angle,
@@ -1431,13 +1670,19 @@ def main() -> None:
             line_mask_top=args.line_mask_top,
             line_mask_right=args.line_mask_right,
             line_mask_bottom=args.line_mask_bottom,
+            line_ignore_top=args.line_ignore_top,
             line_min_segments=args.line_min_segments,
             line_min_total_length=args.line_min_total_length,
             line_cluster_deg=args.line_cluster_deg,
             line_horizontal_kernel=args.line_horizontal_kernel,
             line_max_thickness=args.line_max_thickness,
+            line_white_threshold=args.line_white_threshold,
+            line_background_percentile=args.line_background_percentile,
+            line_dark_margin=args.line_dark_margin,
+            line_saturation_threshold=args.line_saturation_threshold,
             line_max_correction_deg=args.line_max_correction_deg,
             line_max_step_deg=args.line_max_step_deg,
+            line_max_measurement_step_deg=args.line_max_measurement_step_deg,
             line_smooth=args.line_smooth,
         )
         mux_audio(silent_video, source, output)
