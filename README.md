@@ -237,6 +237,29 @@ uv run scripts/make_comparison_strip.py \
 
 输出是一张 PNG：第一行是原视频，第二行是矫正后视频；`--points` 只用于在原视频行画出手动点，方便确认取样位置。
 
+如果是做 presentation 演示，不想依赖当前自动跟踪结果，而是想表达“最后应该达到的理想矫正效果”，可以手动标 8 个关键帧，然后直接用这 8 组人工四点渲染目标效果图：
+
+```bash
+uv run scripts/make_manual_demo_strip.py inputs/my_screen_video.mp4 \
+  --count 8 \
+  --run-name manual_target_demo
+```
+
+脚本会依次打开 8 帧，逐帧按 `TL,TR,BR,BL` 点四个角，按 Enter 进入下一帧。输出包含：
+
+```text
+runs/manual_target_demo/my_screen_video_manual_demo_strip.png
+runs/manual_target_demo/manual_demo_annotations.json
+```
+
+这张 PNG 的第一行是带人工四点的原视频帧，第二行是仅由这些人工标注渲染出的理想矫正帧，适合放在报告或 PPT 里说明目标效果。之后如果只想重渲染同一组标注，可以复用 JSON：
+
+```bash
+uv run scripts/make_manual_demo_strip.py inputs/my_screen_video.mp4 \
+  --annotations runs/manual_target_demo/manual_demo_annotations.json \
+  --run-name manual_target_demo_rerender
+```
+
 如果需要分析跟踪过程：
 
 ```bash
