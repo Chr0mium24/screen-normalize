@@ -1,0 +1,233 @@
+# Proposal 内容稿
+
+题目：**基于传统图像处理的拍屏幕视频几何归一化与稳定化**
+
+本文件先作为 PPT 和报告的唯一内容源。先审内容、图和数据逻辑，确认后再导出 PPT/Word。
+
+## 参考模板在做什么
+
+`reference/proposal/example_proposal_presentation.pdf` 的结构很简单，不是在写 Final：
+
+1. **Title + Motivation**  
+   一句话说明问题为什么值得做。
+2. **Goal and Methodology**  
+   说明目标和 3-4 步方法。
+3. **Dataset and Initial Results**  
+   给出数据来源、初步图像结果和下一步评价方向。
+
+`reference/proposal/proposal_template.docx` 也只要求一页：
+
+- Description
+- Task and goal
+- Dataset and experiment
+- Expected results
+- Timeline / To-do list
+
+所以本项目 Proposal 不应该写成完整 Final，也不应该堆很多没有实验证据的内容。当前要讲清楚的是：**拍屏视频如何通过传统几何方法变成接近录屏的视频，以及已有初步结果证明主流程能跑通。**
+
+## 当前内容边界
+
+本 Proposal 只讲几何问题：
+
+- 屏幕区域定位；
+- 透视矫正；
+- 参考平面跟踪；
+- 鲁棒几何估计；
+- 输出视频的残余晃动评价。
+
+## 一页报告内容草稿
+
+### Names & IDs
+
+待填写
+
+### Title
+
+基于传统图像处理的拍屏幕视频几何归一化与稳定化
+
+### Description
+
+手机拍摄电脑屏幕时，视频中通常会同时出现屏幕外背景、斜拍造成的透视变形、手持拍摄带来的轻微晃动，以及屏幕内部内容变化。对于课程项目，本工作希望把这类拍屏视频转换成接近正常录屏的视频：画面只保留屏幕内容，屏幕被拉正到固定比例，并且在时间上尽量稳定。
+
+这个问题可以建模为平面目标的几何归一化问题。电脑屏幕近似是一个平面，屏幕平面到相机图像之间可以用单应变换描述。难点在于：如果每帧都重新检测屏幕角点，角点误差会直接表现为画面抖动；如果直接依赖屏幕内部文字、播放器画面或网页内容，这些动态内容又可能错误地影响屏幕姿态估计。因此，本项目采用参考平面跟踪和鲁棒几何估计来稳定估计屏幕位置。
+
+### Task and goal
+
+输入是一段拍摄电脑屏幕的视频。输出是一段固定 16:9、固定分辨率的正面屏幕视频。
+
+目标包括：
+
+- 去掉墙面、桌面和屏幕外背景；
+- 把斜拍屏幕校正为正面矩形画面；
+- 保持输出长宽比固定；
+- 降低逐帧角点误差造成的平移、旋转和缩放抖动；
+- 保留屏幕内部真实内容变化。
+
+### Dataset and experiment
+
+当前 Proposal 阶段使用一段本地拍屏视频作为初步样例：
+
+- 输入：`inputs/VID20260621024117.mp4`
+- 分辨率：1920x1080
+- 帧数：317
+- 时长：约 5.27 秒
+- 内容：电脑屏幕中的文本页面，屏幕外包含墙面和桌面背景，存在明显透视倾斜。
+
+当前实验不靠“多补几个视频”来撑内容，而是在同一段输入、同一分辨率、同一帧数下比较三种几何轨迹来源：
+
+| 方法 | 作用 | 输出 |
+| --- | --- | --- |
+| 逐帧检测角点 | 作为抖动基线 | `runs/verify_old_detect_current/VID20260621024117_normalized.mp4` |
+| 普通光流跟踪 | 作为跟踪基线 | `runs/verify_old_flow_current/VID20260621024117_normalized.mp4` |
+| 参考平面跟踪 | 当前主方法 | `runs/proposal_best_geometry_gate/VID20260621024117_normalized.mp4` |
+
+评价脚本 `scripts/analyze_stability.py` 估计归一化后相邻帧之间的残余仿射运动。这个指标衡量输出视频还剩多少帧间晃动，不等价于有真实录屏 ground truth 的重建误差。
+
+当前同视频初步结果：
+
+| 方法 | 最后 2 秒残余平移 p95 | 最后 2 秒残余旋转 p95 | 最后 2 秒尺度变化 p95 |
+| --- | ---: | ---: | ---: |
+| 逐帧检测角点 | 1.927 px | 0.0425 deg | 0.001079 |
+| 普通光流跟踪 | 1.929 px | 0.0263 deg | 0.000589 |
+| 参考平面跟踪 | 0.118 px | 0.0044 deg | 0.000118 |
+
+这组数据只支持一个结论：在当前样例上，参考平面跟踪比逐帧角点检测和普通光流跟踪产生更低的残余晃动。它还不能支持“所有拍屏视频都稳定”的 Final 结论。
+
+### Expected results
+
+最终希望证明：把屏幕当作参考平面并用 LK 光流 + RANSAC 估计单应变换，比逐帧独立检测角点更适合拍屏视频归一化。预期输出是接近录屏的固定比例视频，并能通过残余平移、旋转和尺度变化指标说明稳定性提升。
+
+Final 阶段不应只追加视频数量，而应补齐以下证据：
+
+- 同一输入上的方法消融；
+- 屏幕四角点可视化；
+- 归一化前后帧对比；
+- 失败或不稳定场景的原因说明；
+- 每个数字对应的运行命令和输出路径。
+
+### Timeline / To-do list
+
+- 已完成：传统几何主线确定；实现屏幕透视归一化；实现参考平面跟踪；生成同视频初步对比结果。
+- 下一步：把本内容稿整理成 Proposal PPT 和一页报告。
+- Final 前：补齐消融图表、失败案例图、运行命令和结果目录说明。
+
+## PPT 内容草稿
+
+按 example proposal 做 3 页即可。
+
+### Slide 1: Title and Motivation
+
+标题：基于传统图像处理的拍屏幕视频几何归一化与稳定化
+
+Motivation:
+
+手机拍摄电脑屏幕时，视频里会包含墙面和桌面背景，屏幕也会因为斜拍产生透视变形。目标是把这种拍屏视频转换为接近正常录屏的视频：只保留屏幕内容，校正为正面矩形，并尽量减少帧间抖动。
+
+推荐图：
+
+- `assets/input_frame_4s.jpg`  
+  原始拍屏帧，展示墙面、桌面和透视倾斜。
+- 或 `assets/screen_corners_overlay_4s.jpg`  
+  在原始帧上标出屏幕四角点，直观说明问题是屏幕平面的几何归一化。
+
+### Slide 2: Goal and Methodology
+
+Goal:
+
+输入拍屏视频，输出固定 16:9 的正面屏幕视频，并降低由角点估计误差造成的帧间晃动。
+
+Plan of Action:
+
+1. 在首帧定位屏幕四角点。
+2. 用单应变换把屏幕映射到固定矩形画布。
+3. 在屏幕参考平面内跟踪特征点。
+4. 用 RANSAC 估计参考平面到当前帧的单应变换。
+5. 用残余帧间运动指标评价输出稳定性。
+
+推荐图：
+
+- 方法流程图，用文字框即可：
+
+```text
+input video
+  -> screen corners
+  -> homography rectification
+  -> LK feature tracking on reference plane
+  -> RANSAC homography
+  -> normalized video
+```
+
+暂时不放“raw vs smoothed trajectory”图。原因是当前最好样例里 `trajectory_debug.csv` 的 raw 和 smoothed 完全相同，放这个图不能证明平滑有效。
+
+### Slide 3: Dataset and Initial Results
+
+Dataset:
+
+- 本地拍屏视频：`inputs/VID20260621024117.mp4`
+- 1920x1080，317 帧，约 5.27 秒。
+
+Initial results:
+
+- `assets/comparison_4s.jpg`  
+  左边是原始拍屏帧，右边是归一化输出帧。
+- `assets/method_ablation_translation_p95.png`  
+  同一输入视频上，三种方法的最后 2 秒残余平移 p95 对比。
+
+Slide 上只写关键结论：
+
+参考平面跟踪把最后 2 秒残余平移 p95 从约 1.93 px 降到 0.118 px。这个结果说明主流程在当前样例上能显著降低输出视频的帧间晃动。
+
+## 图表清单
+
+| 编号 | 文件 | 放在哪里 | 作用 | 当前状态 |
+| --- | --- | --- | --- | --- |
+| Fig. 1 | `assets/input_frame_4s.jpg` | Slide 1 / 报告 Description | 展示原始拍屏问题 | 已有 |
+| Fig. 2 | `assets/screen_corners_overlay_4s.jpg` | Slide 1 或 Slide 2 | 展示屏幕平面和四角点 | 已生成 |
+| Fig. 3 | `assets/comparison_4s.jpg` | Slide 3 / 报告 Initial Results | 展示归一化前后对比 | 已有 |
+| Fig. 4 | `assets/method_ablation_translation_p95.png` | Slide 3 / 报告 Dataset and experiment | 展示同视频方法对比 | 已生成 |
+| Table 1 | `evidence/proposal_ablation_summary.csv` | 报告 Dataset and experiment | 记录三种方法的指标来源 | 已生成 |
+
+暂时不放的图：
+
+- raw/interpolated/smoothed 轨迹图：当前样例 raw 和 smoothed 没有差异，不能支撑结论。
+- 多视频平均表：当前没有清晰实验设计，单纯增加视频数量不会让 Proposal 更有说服力。
+
+## 当前最好结果和证据路径
+
+当前最好输出：
+
+```text
+runs/proposal_best_geometry_gate/VID20260621024117_normalized.mp4
+```
+
+交付包内复制件：
+
+```text
+deliverables/proposal_20260622/evidence/best_result_normalized.mp4
+```
+
+稳定性摘要：
+
+```text
+deliverables/proposal_20260622/evidence/stability_summary.json
+```
+
+同视频消融表：
+
+```text
+deliverables/proposal_20260622/evidence/proposal_ablation_summary.csv
+```
+
+## 现在不应该怎么写
+
+不要写“已经完整解决拍屏视频转录屏”。当前只能说：
+
+> 在一个 1920x1080 本地拍屏样例上，参考平面跟踪相比逐帧检测和普通光流跟踪明显降低残余帧间运动，说明传统几何归一化主流程可行。
+
+不要用不清楚的数据。每个数字必须能追到：
+
+- 输入视频；
+- 运行目录；
+- 评价脚本；
+- JSON/CSV 结果；
+- 对应图表。

@@ -4,15 +4,17 @@
 
 ## 文件
 
-- `proposal_presentation.pptx`：按 Example Proposal 结构整理的 6 页 PPT。
-- `proposal_report.docx`：按 Proposal 报告模板字段整理的中文报告。
-- `proposal_report.md`：报告源文本，便于继续修改。
-- `proposal_presentation_outline.md`：PPT 结构源文本。
-- `assets/`：原始帧、归一化帧和左右对比图。
+- `proposal_content.md`：当前主稿。先审这个文件，再决定是否导出 PPT/Word。
+- `proposal_presentation.pptx`：早期生成稿，暂不作为当前主稿。
+- `proposal_report.docx`：早期生成稿，暂不作为当前主稿。
+- `proposal_report.md`：早期报告源文本。
+- `proposal_presentation_outline.md`：早期 PPT 结构源文本。
+- `assets/`：原始帧、角点覆盖图、归一化帧、左右对比图和方法对比图。
 - `evidence/best_result_normalized.mp4`：当前最新最好输出视频。
 - `evidence/stability_summary.json`：稳定性分析摘要。
 - `evidence/stability_metrics.csv`：逐帧稳定性指标。
 - `evidence/trajectory_debug.csv`：角点轨迹调试数据。
+- `evidence/proposal_ablation_summary.csv`：同一输入视频上的三种方法对比表。
 
 ## 当前最好结果
 
@@ -23,4 +25,4 @@
 
 ## 定位
 
-这套材料适合作为 Proposal：问题边界明确、传统视觉方法路线明确、已有初步结果和可复现实验命令。作为 Final PRO+ 还偏薄，后续需要补足多视频实验、消融对比、失败案例和更完整的结果讨论。
+当前先固定 Proposal 内容，不直接继续改 PPT/Word。`proposal_content.md` 已按参考示例重写为三页 Proposal 逻辑：动机、目标方法、数据与初步结果。数据部分只使用能追溯到具体运行目录的同视频消融，不用不清楚的数字，也不靠简单增加视频数量来撑结论。
