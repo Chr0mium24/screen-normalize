@@ -187,6 +187,21 @@ uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
   --corners "124,116:1488,132:1516,850:145,934"
 ```
 
+如果不想手打坐标，可以打开第一帧 GUI 点选四个角点。按顺序点击 `TL,TR,BR,BL`，点完后可以拖动微调，按 Enter 接受。脚本会在终端输出可直接粘贴到 `--corners` 的字符串，并复制到剪贴板：
+
+```bash
+uv run scripts/select_corners.py inputs/my_screen_video.mp4
+```
+
+也可以点完后自动跑一版预览：
+
+```bash
+uv run scripts/select_corners.py inputs/my_screen_video.mp4 \
+  --run-preview \
+  --preview-run-name manual_preview \
+  --extra-normalize-args "--tracker reference --reference-profile low-latency"
+```
+
 如果输出中还留有边框或播放器边缘，可以在透视矫正后裁切：
 
 ```bash
@@ -270,6 +285,8 @@ runs/analyze_geometry_test/stability_summary.json
 ├── scripts/      # 视频处理和分析脚本
 └── test/         # 预留测试目录
 ```
+
+其中 `scripts/select_corners.py` 是手动角点 GUI；`scripts/normalize_screen.py` 是主处理脚本。
 
 根目录只保留文件夹、`.gitignore` 和 `README.md`。输入视频和实验结果不要散落在根目录。
 
