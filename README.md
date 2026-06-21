@@ -267,6 +267,7 @@ runs/analyze_geometry_test/stability_summary.json
 - `doc/`：当前阅读和保存的相关论文，包括视频稳定、单应性估计、线段检测、消失点和相机路径平滑等方向。
 - `doc/project-goal.md`：当前项目题目、边界、成功标准和实验计划。
 - `doc/application-pipeline-story.md`：把本项目定位为拍屏视频恢复前置链路的说明，包含与 video demoiréing 论文和 log-homography 视频稳定论文的关系。
+- `doc/final-experiment-plan.md`：Final 阶段实验规划，说明当前输入视频、测试矩阵、失败案例和报告结构。
 - `doc/project-upgrade-decision.md`：关于主线取舍、实验补强和可选模型探针的决策文档。
 - `doc/learned-homography-probe.md`：SuperPoint + LightGlue 作为可选 homography 匹配对照的初步探针结果。
 - `doc/traditional-geometry-stabilization-references/`：本项目当前传统视觉方向的论文 PDF 和中文索引。
