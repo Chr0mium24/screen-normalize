@@ -6,7 +6,11 @@
 
 **基于传统图像处理的拍屏视频几何归一化与稳定化。**
 
-项目不依赖深度学习模型，核心问题也不再放在图像恢复上，而是处理拍屏幕视频里最主要的几何退化：屏幕外背景、透视畸变、手持抖动和逐帧检测误差。
+当前可运行实现以传统几何方法为主，适合作为 baseline。为了让 Final 项目更完整，后续推荐升级为：
+
+**传统几何 baseline + 学习式特征匹配 + 合成拍屏 benchmark。**
+
+也就是说，模型不用于画质恢复，而是作为 homography 估计中的特征匹配分支，和现有 LK 光流方案做可量化对比。具体决策见 `doc/project-upgrade-decision.md`。
 
 ## 项目目标
 
@@ -81,7 +85,7 @@ uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
 
 ## 当前结论
 
-当前主流程已经可以作为课程项目的核心实现：
+当前传统主流程已经可以作为课程项目的核心 baseline：
 
 - 有完整可运行脚本 `scripts/normalize_screen.py`；
 - 支持自动角点检测，也支持手动角点覆盖；
@@ -91,11 +95,12 @@ uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
 - 支持稳定性分析脚本 `scripts/analyze_stability.py`；
 - 每次运行自动写入 `runs/<时间>_<脚本名>/`，便于复现实验和写报告。
 
-还需要在 final 阶段补充：
+但如果只停留在传统流程，Final 会偏像工程 demo。建议在 final 阶段补充：
 
-- 多个输入视频的对比实验；
-- 自动角点和手动角点的对比；
-- 是否使用参考跟踪、残余对齐、轨迹平滑的消融实验；
+- 合成拍屏 benchmark，提供每帧真实四角点和 homography；
+- 学习式特征匹配 tracker，和当前 LK tracker 做同条件比较；
+- 多个真实输入视频的场景覆盖，而不是简单堆数量；
+- 自动角点、参考跟踪、学习式匹配、残余对齐、轨迹平滑的消融实验；
 - 失败案例分析，例如强反光、屏幕边缘遮挡、画面内容大幅运动。
 
 ## 环境
@@ -249,6 +254,7 @@ runs/analyze_geometry_test/stability_summary.json
 - `reference/`：课程 proposal、cover letter、final report 和 presentation 示例。
 - `doc/`：当前阅读和保存的相关论文，包括视频稳定、单应性估计、线段检测、消失点和相机路径平滑等方向。
 - `doc/project-goal.md`：当前项目题目、边界、成功标准和实验计划。
+- `doc/project-upgrade-decision.md`：关于是否加入模型、如何补数据和如何把项目升级成完整实验的决策文档。
 - `doc/traditional-geometry-stabilization-references/`：本项目当前传统视觉方向的论文 PDF 和中文索引。
 - `doc/stabilization-roadmap.md`：从稳定化目标、失败原因、实验结果到后续路线的详细分析。
 
