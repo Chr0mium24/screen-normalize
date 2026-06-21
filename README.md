@@ -193,13 +193,15 @@ uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
 uv run scripts/select_corners.py inputs/my_screen_video.mp4
 ```
 
+滚动网页或屏幕内播放视频时，不要用正在滚动/播放的内容块做四角点。四个点应该选稳定的物理屏幕边界、浏览器窗口边界或播放器窗口边界；不想保留的地址栏、系统栏和边框再用 `--crop-*` 裁掉。否则 LK reference tracker 会把滚动内容当成屏幕平面运动，后几帧容易出现拉伸或重影。
+
 也可以点完后自动跑一版预览：
 
 ```bash
 uv run scripts/select_corners.py inputs/my_screen_video.mp4 \
   --run-preview \
   --preview-run-name manual_preview \
-  --extra-normalize-args "--tracker reference --reference-profile low-latency"
+  --extra-normalize-args "--tracker reference --reference-profile dynamic --write-tracker-debug --write-trajectory-debug"
 ```
 
 如果输出中还留有边框或播放器边缘，可以在透视矫正后裁切：

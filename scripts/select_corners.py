@@ -77,7 +77,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--preview-run-name", default="manual_corner_preview")
     parser.add_argument(
         "--extra-normalize-args",
-        default="--tracker reference --reference-profile low-latency",
+        default=(
+            "--tracker reference --reference-profile dynamic "
+            "--write-tracker-debug --write-trajectory-debug"
+        ),
         help="Extra arguments used only with --run-preview.",
     )
     return parser.parse_args()
@@ -168,7 +171,7 @@ class CornerPicker:
             left,
             text=(
                 "Click points in order: TL, TR, BR, BL. Drag a point to adjust. "
-                "Enter accepts, u undoes, r resets."
+                "For scrolling/video, select a stable screen/window boundary, then crop later."
             ),
             anchor="w",
         )
