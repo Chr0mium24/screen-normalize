@@ -51,11 +51,13 @@ The tracker should therefore prefer long-lived, reference-consistent points and 
 
 Use `--tracker reference` without line-roll first for inputs that contain video playback or other dynamic content.
 
-The current best path is:
+The current safe path for `VID20260621031719.mp4` is:
 
 ```bash
-uv run scripts/normalize_screen.py inputs/VID20260621031719.mp4 --tracker reference --crop-right 0.02 --crop-bottom 0.055
+uv run scripts/normalize_screen.py inputs/VID20260621031719.mp4 --tracker reference --reference-align --reference-motion affine --crop-right 0.02 --crop-bottom 0.055
 ```
+
+`--reference-align` now performs residual affine alignment only when a whole-video preflight says the residual track is globally reliable. It is allowed to improve difficult inputs, but it should disable itself when the residual track collapses on another input.
 
 Line-roll should be treated as experimental. It should only be enabled after diagnostics show that the detected lines are stable screen-fixed structures, not text or playback content.
 
@@ -144,7 +146,51 @@ Observed on `VID20260621031719.mp4`:
 
 Interpretation: the current mature-point tracker is not failing through obvious rejected frames or low coverage. The remaining shake should be investigated in the trajectory model and offline optimization, not by adding more website-specific masks or per-frame line correction.
 
-### 3. Strengthen Stable-Track Selection
+### 3. Add Residual Alignment, But Gate It Globally
+
+Residual affine alignment after perspective correction is useful on the difficult dynamic-video input, but it is not safe as a blind per-frame correction.
+
+Implemented options:
+
+```bash
+uv run scripts/normalize_screen.py <input-video> --tracker reference --reference-align --reference-motion affine --write-align-debug
+```
+
+It writes:
+
+- `runs/<run-name>/align_debug.csv`
+
+The debug file records measured and applied residual translation, rotation, scale, inlier counts, coverage, per-frame rejection reason, whole-video accept ratio, and whether residual alignment was globally enabled.
+
+Experiments on `VID20260621031719.mp4`:
+
+| Output | Translation p95 | Rotation p95 | Scale delta p95 | Decision |
+| --- | ---: | ---: | ---: | --- |
+| reference mature, no residual | 0.970 px | 0.0191 deg | 0.000517 | baseline |
+| raw residual affine | 0.650 px | 0.0193 deg | 0.000436 | best metric, unsafe alone |
+| online residual smooth 0.85 | 0.790 px | 0.0191 deg | 0.000423 | smoother correction, worse output |
+| online residual smooth 0.50 | 0.691 px | 0.0213 deg | 0.000487 | acceptable, still worse than raw |
+| residual step-limit only | 0.740 px | 0.0231 deg | 0.000461 | worse than raw |
+| offline residual filter 5 | 0.782 px | 0.0216 deg | 0.000452 | centered filtering still under-corrects |
+| global-gated residual affine | 0.728 px | 0.0232 deg | 0.000479 | safe default improvement |
+
+Interpretation:
+
+- The residual affine estimate is real signal on this input; smoothing it too much leaves camera motion uncorrected.
+- Per-frame or short-window smoothing is not the right fix for this case.
+- Raw residual affine can be the most aggressive diagnostic run, but it should not be the default without whole-video reliability checks.
+
+Cross-input validation:
+
+| Input/run | Result |
+| --- | --- |
+| `VID20260621031719.mp4` global-gated residual | accepted ratio 0.991, globally enabled |
+| `VID20260621024117.mp4` global-gated residual | accepted ratio 0.057, globally disabled |
+| `VID20260621024117.mp4` same-command no residual vs global-disabled residual | identical metrics |
+
+Important caveat: the archived old-input output `runs/20260621-033412_normalize_screen/VID20260621024117_normalized.mp4` still measures much better than the current code's no-residual reference path. That is a separate regression target. The new residual gate prevents this change from making it worse, but it does not recover the archived old-input quality by itself.
+
+### 4. Strengthen Stable-Track Selection
 
 Extend the mature-point idea into track-level scoring:
 
@@ -156,7 +202,7 @@ Extend the mature-point idea into track-level scoring:
 
 The point is not to hardcode screen regions. The point is to let temporal consistency identify the stable screen layer.
 
-### 4. Replace Greedy Per-Frame Pose With Offline Trajectory Optimization
+### 5. Replace Greedy Per-Frame Pose With Offline Trajectory Optimization
 
 Do not directly trust each frame's best homography.
 
@@ -169,7 +215,7 @@ Collect candidate observations and solve a robust low-frequency trajectory:
 
 This should become the main stabilizer for difficult hand-shot inputs.
 
-### 5. Rework Line-Roll Into Global or Low-Frequency Bias
+### 6. Rework Line-Roll Into Global or Low-Frequency Bias
 
 Line-roll should not rotate the output frame by frame.
 
@@ -182,7 +228,7 @@ If needed:
 
 For moving-video inputs, default to no line-roll unless the diagnostics prove it helps.
 
-### 6. Validate Against Both Inputs
+### 7. Validate Against Both Inputs
 
 Every stabilization change should be tested on both known inputs:
 
