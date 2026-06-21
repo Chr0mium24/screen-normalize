@@ -244,6 +244,7 @@ runs/analyze_geometry_test/stability_summary.json
 
 - `reference/`：课程 proposal、cover letter、final report 和 presentation 示例。
 - `doc/`：当前阅读和保存的相关论文，包括视频稳定、单应性估计、线段检测、消失点和相机路径平滑等方向。
+- `doc/traditional-geometry-stabilization-references/`：本项目当前传统视觉方向的论文 PDF 和中文索引。
 - `doc/stabilization-roadmap.md`：从稳定化目标、失败原因、实验结果到后续路线的详细分析。
 
 ## 后续工作
