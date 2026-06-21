@@ -52,6 +52,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-display-width", type=positive_int, default=1100)
     parser.add_argument("--max-display-height", type=positive_int, default=760)
     parser.add_argument(
+        "--point-radius",
+        type=positive_int,
+        default=4,
+        help="Displayed control-point radius in pixels.",
+    )
+    parser.add_argument(
+        "--hit-radius",
+        type=positive_int,
+        default=10,
+        help="Drag-selection radius around existing points in pixels.",
+    )
+    parser.add_argument(
+        "--label-font-size",
+        type=positive_int,
+        default=10,
+        help="Displayed TL/TR/BR/BL label font size.",
+    )
+    parser.add_argument(
         "--run-preview",
         action="store_true",
         help="After accepting points, run normalize_screen.py with the selected corners.",
@@ -119,6 +137,9 @@ class CornerPicker:
     run_preview: bool
     preview_run_name: str
     extra_normalize_args: str
+    point_radius: int
+    hit_radius: int
+    label_font_size: int
 
     def __post_init__(self) -> None:
         self.points: list[tuple[float, float]] = []
@@ -187,7 +208,7 @@ class CornerPicker:
         canvas_points = [self.to_canvas_point(point) for point in self.points]
         distances = [np.hypot(px - x, py - y) for px, py in canvas_points]
         nearest = int(np.argmin(distances))
-        return nearest if distances[nearest] <= 14 else None
+        return nearest if distances[nearest] <= self.hit_radius else None
 
     def on_click(self, event: object) -> None:
         x = float(getattr(event, "x"))
@@ -235,13 +256,21 @@ class CornerPicker:
             for first, second in zip(line_points, line_points[1:]):
                 self.canvas.create_line(*first, *second, fill="#00ff66", width=2)
         for index, (x, y) in enumerate(canvas_points):
-            self.canvas.create_oval(x - 6, y - 6, x + 6, y + 6, fill="#ff3355", outline="white")
+            radius = self.point_radius
+            self.canvas.create_oval(
+                x - radius,
+                y - radius,
+                x + radius,
+                y + radius,
+                fill="#ff3355",
+                outline="white",
+            )
             self.canvas.create_text(
                 x + 18,
                 y - 16,
                 text=POINT_LABELS[index],
                 fill="white",
-                font=("Helvetica", 14, "bold"),
+                font=("Helvetica", self.label_font_size, "bold"),
             )
 
         if len(self.points) < 4:
@@ -332,6 +361,9 @@ def main() -> None:
         run_preview=args.run_preview,
         preview_run_name=args.preview_run_name,
         extra_normalize_args=args.extra_normalize_args,
+        point_radius=args.point_radius,
+        hit_radius=args.hit_radius,
+        label_font_size=args.label_font_size,
     )
     root.mainloop()
 
