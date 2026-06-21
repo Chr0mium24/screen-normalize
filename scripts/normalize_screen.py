@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import shutil
 import subprocess
 import sys
@@ -270,6 +271,11 @@ def parse_args() -> argparse.Namespace:
         help="Residual motion model used by --reference-align.",
     )
     parser.add_argument(
+        "--write-tracker-debug",
+        action="store_true",
+        help="Write per-frame tracker diagnostics to tracker_debug.csv in the run directory.",
+    )
+    parser.add_argument(
         "--line-roll-correction",
         action="store_true",
         help="Use stable horizontal UI lines to apply a small residual roll correction.",
@@ -526,6 +532,89 @@ def homography_inlier_screen_coverage(
     return float(coverage[0]), float(coverage[1])
 
 
+def append_tracker_debug_row(
+    rows: list[dict[str, object]] | None,
+    frame: int,
+    accepted: bool,
+    reason: str,
+    corners: np.ndarray,
+    point_count: int,
+    mature_point_count: int,
+    valid_count: int,
+    mature_valid_count: int,
+    inlier_count: int,
+    inlier_ratio: float,
+    reprojection_error: float,
+    coverage_x: float,
+    coverage_y: float,
+    rejected_updates: int,
+) -> None:
+    if rows is None:
+        return
+
+    sides = corner_edge_lengths(corners)
+    area = abs(cv2.contourArea(corners.astype(np.float32)))
+    center = corners.mean(axis=0)
+    row: dict[str, object] = {
+        "frame": frame,
+        "accepted": accepted,
+        "reason": reason,
+        "point_count": point_count,
+        "mature_point_count": mature_point_count,
+        "valid_count": valid_count,
+        "mature_valid_count": mature_valid_count,
+        "inlier_count": inlier_count,
+        "inlier_ratio": inlier_ratio,
+        "reprojection_error": reprojection_error,
+        "coverage_x": coverage_x,
+        "coverage_y": coverage_y,
+        "rejected_updates": rejected_updates,
+        "area": float(area),
+        "center_x": float(center[0]),
+        "center_y": float(center[1]),
+        "top_edge": float(sides[0]),
+        "right_edge": float(sides[1]),
+        "bottom_edge": float(sides[2]),
+        "left_edge": float(sides[3]),
+    }
+    for index, label in enumerate(("tl", "tr", "br", "bl")):
+        row[f"{label}_x"] = float(corners[index, 0])
+        row[f"{label}_y"] = float(corners[index, 1])
+    rows.append(row)
+
+
+def reference_reject_reason(
+    current_to_reference: np.ndarray | None,
+    inlier_mask: np.ndarray | None,
+    mature_valid_count: int,
+    inlier_count: int,
+    inlier_ratio: float,
+    reprojection_error: float,
+    coverage_x: float,
+    coverage_y: float,
+    reference_min_inliers: int,
+    reference_min_inlier_ratio: float,
+    reference_max_reprojection_error: float,
+    reference_min_coverage_x: float,
+    reference_min_coverage_y: float,
+) -> str:
+    if mature_valid_count < 20:
+        return "not_enough_mature_points"
+    if current_to_reference is None or inlier_mask is None:
+        return "homography_failed"
+    if inlier_count < reference_min_inliers:
+        return "not_enough_inliers"
+    if inlier_ratio < reference_min_inlier_ratio:
+        return "low_inlier_ratio"
+    if reprojection_error > reference_max_reprojection_error:
+        return "high_reprojection_error"
+    if coverage_x < reference_min_coverage_x:
+        return "low_coverage_x"
+    if coverage_y < reference_min_coverage_y:
+        return "low_coverage_y"
+    return "invalid_geometry"
+
+
 def detect_screen_corners(frame: np.ndarray) -> np.ndarray | None:
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, (85, 20, 50), (130, 255, 255))
@@ -706,6 +795,7 @@ def estimate_reference_corner_trajectory(
     reference_min_point_age: int,
     reference_min_coverage_x: float,
     reference_min_coverage_y: float,
+    tracker_debug_rows: list[dict[str, object]] | None,
 ) -> list[np.ndarray]:
     frame_count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     ok, first_frame = capture.read()
@@ -728,6 +818,23 @@ def estimate_reference_corner_trajectory(
     previous_corners = reference_corners
     frame_index = 1
     rejected_updates = 0
+    append_tracker_debug_row(
+        tracker_debug_rows,
+        frame=0,
+        accepted=True,
+        reason="initial_reference",
+        corners=previous_corners,
+        point_count=len(current_points),
+        mature_point_count=int(np.count_nonzero(point_ages >= reference_min_point_age)),
+        valid_count=len(current_points),
+        mature_valid_count=int(np.count_nonzero(point_ages >= reference_min_point_age)),
+        inlier_count=len(current_points),
+        inlier_ratio=1.0,
+        reprojection_error=0.0,
+        coverage_x=1.0,
+        coverage_y=1.0,
+        rejected_updates=rejected_updates,
+    )
 
     while True:
         ok, frame = capture.read()
@@ -746,6 +853,23 @@ def estimate_reference_corner_trajectory(
         )
         if next_points is None or status is None:
             trajectory.append(previous_corners)
+            append_tracker_debug_row(
+                tracker_debug_rows,
+                frame=frame_index,
+                accepted=False,
+                reason="flow_failed",
+                corners=previous_corners,
+                point_count=len(current_points),
+                mature_point_count=int(np.count_nonzero(point_ages >= reference_min_point_age)),
+                valid_count=0,
+                mature_valid_count=0,
+                inlier_count=0,
+                inlier_ratio=0.0,
+                reprojection_error=float("inf"),
+                coverage_x=0.0,
+                coverage_y=0.0,
+                rejected_updates=rejected_updates,
+            )
             previous_gray = gray
             frame_index += 1
             continue
@@ -761,6 +885,23 @@ def estimate_reference_corner_trajectory(
         )
         if previous_back is None or back_status is None:
             trajectory.append(previous_corners)
+            append_tracker_debug_row(
+                tracker_debug_rows,
+                frame=frame_index,
+                accepted=False,
+                reason="backflow_failed",
+                corners=previous_corners,
+                point_count=len(current_points),
+                mature_point_count=int(np.count_nonzero(point_ages >= reference_min_point_age)),
+                valid_count=0,
+                mature_valid_count=0,
+                inlier_count=0,
+                inlier_ratio=0.0,
+                reprojection_error=float("inf"),
+                coverage_x=0.0,
+                coverage_y=0.0,
+                rejected_updates=rejected_updates,
+            )
             previous_gray = gray
             frame_index += 1
             continue
@@ -775,6 +916,8 @@ def estimate_reference_corner_trajectory(
         mature = valid & (point_ages >= reference_min_point_age)
         reference_good = reference_points.reshape(-1, 2)[mature]
         current_good = next_points.reshape(-1, 2)[mature]
+        valid_count = int(np.count_nonzero(valid))
+        mature_valid_count = int(np.count_nonzero(mature))
 
         if len(reference_good) >= 20:
             current_to_reference, inlier_mask = cv2.findHomography(
@@ -817,6 +960,7 @@ def estimate_reference_corner_trajectory(
             and coverage_x >= reference_min_coverage_x
             and coverage_y >= reference_min_coverage_y
         ):
+            reject_reason = "accepted"
             reference_to_current = np.linalg.inv(current_to_reference)
             corners = cv2.perspectiveTransform(
                 reference_corners.reshape(1, 4, 2),
@@ -833,8 +977,40 @@ def estimate_reference_corner_trajectory(
                 accepted_transform = current_to_reference
             else:
                 rejected_updates += 1
+                reject_reason = "invalid_geometry"
         elif current_to_reference is not None:
             rejected_updates += 1
+            reject_reason = reference_reject_reason(
+                current_to_reference=current_to_reference,
+                inlier_mask=inlier_mask,
+                mature_valid_count=mature_valid_count,
+                inlier_count=inlier_count,
+                inlier_ratio=inlier_ratio,
+                reprojection_error=reprojection_error,
+                coverage_x=coverage_x,
+                coverage_y=coverage_y,
+                reference_min_inliers=reference_min_inliers,
+                reference_min_inlier_ratio=reference_min_inlier_ratio,
+                reference_max_reprojection_error=reference_max_reprojection_error,
+                reference_min_coverage_x=reference_min_coverage_x,
+                reference_min_coverage_y=reference_min_coverage_y,
+            )
+        else:
+            reject_reason = reference_reject_reason(
+                current_to_reference=current_to_reference,
+                inlier_mask=inlier_mask,
+                mature_valid_count=mature_valid_count,
+                inlier_count=inlier_count,
+                inlier_ratio=inlier_ratio,
+                reprojection_error=reprojection_error,
+                coverage_x=coverage_x,
+                coverage_y=coverage_y,
+                reference_min_inliers=reference_min_inliers,
+                reference_min_inlier_ratio=reference_min_inlier_ratio,
+                reference_max_reprojection_error=reference_max_reprojection_error,
+                reference_min_coverage_x=reference_min_coverage_x,
+                reference_min_coverage_y=reference_min_coverage_y,
+            )
         trajectory.append(previous_corners)
 
         keep = valid
@@ -869,6 +1045,24 @@ def estimate_reference_corner_trajectory(
                 point_ages,
             )
 
+        append_tracker_debug_row(
+            tracker_debug_rows,
+            frame=frame_index,
+            accepted=accepted_transform is not None,
+            reason=reject_reason,
+            corners=previous_corners,
+            point_count=len(current_points),
+            mature_point_count=int(np.count_nonzero(point_ages >= reference_min_point_age)),
+            valid_count=valid_count,
+            mature_valid_count=mature_valid_count,
+            inlier_count=inlier_count,
+            inlier_ratio=inlier_ratio,
+            reprojection_error=reprojection_error,
+            coverage_x=coverage_x,
+            coverage_y=coverage_y,
+            rejected_updates=rejected_updates,
+        )
+
         previous_gray = gray
         frame_index += 1
         if frame_count and (frame_index % 60 == 0 or frame_index == frame_count):
@@ -899,6 +1093,7 @@ def estimate_corner_trajectory(
     reference_min_point_age: int,
     reference_min_coverage_x: float,
     reference_min_coverage_y: float,
+    tracker_debug_rows: list[dict[str, object]] | None,
 ) -> list[np.ndarray]:
     if tracker == "reference":
         return estimate_reference_corner_trajectory(
@@ -914,6 +1109,7 @@ def estimate_corner_trajectory(
             reference_min_point_age=reference_min_point_age,
             reference_min_coverage_x=reference_min_coverage_x,
             reference_min_coverage_y=reference_min_coverage_y,
+            tracker_debug_rows=tracker_debug_rows,
         )
 
     frame_count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
@@ -1683,6 +1879,43 @@ def mux_audio(video_without_audio: Path, source: Path, output: Path) -> None:
     subprocess.run(command, check=True)
 
 
+def write_tracker_debug_csv(path: Path, rows: list[dict[str, object]]) -> None:
+    fieldnames = [
+        "frame",
+        "accepted",
+        "reason",
+        "point_count",
+        "mature_point_count",
+        "valid_count",
+        "mature_valid_count",
+        "inlier_count",
+        "inlier_ratio",
+        "reprojection_error",
+        "coverage_x",
+        "coverage_y",
+        "rejected_updates",
+        "area",
+        "center_x",
+        "center_y",
+        "top_edge",
+        "right_edge",
+        "bottom_edge",
+        "left_edge",
+        "tl_x",
+        "tl_y",
+        "tr_x",
+        "tr_y",
+        "br_x",
+        "br_y",
+        "bl_x",
+        "bl_y",
+    ]
+    with path.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(rows)
+
+
 def main() -> None:
     args = parse_args()
     require_ffmpeg()
@@ -1704,6 +1937,9 @@ def main() -> None:
 
     with tempfile.TemporaryDirectory() as tmp:
         corner_trajectory = None
+        tracker_debug_rows: list[dict[str, object]] | None = (
+            [] if args.write_tracker_debug else None
+        )
         if auto_detect:
             corner_trajectory = estimate_corner_trajectory(
                 capture=capture,
@@ -1721,6 +1957,7 @@ def main() -> None:
                 reference_min_point_age=args.reference_min_point_age,
                 reference_min_coverage_x=args.reference_min_coverage_x,
                 reference_min_coverage_y=args.reference_min_coverage_y,
+                tracker_debug_rows=tracker_debug_rows,
             )
             capture.release()
             corner_trajectory = smooth_corner_trajectory(
@@ -1771,6 +2008,11 @@ def main() -> None:
             line_smooth=args.line_smooth,
         )
         mux_audio(silent_video, source, output)
+
+    if tracker_debug_rows is not None:
+        tracker_debug_output = run_dir / "tracker_debug.csv"
+        write_tracker_debug_csv(tracker_debug_output, tracker_debug_rows)
+        print(f"wrote {tracker_debug_output}")
 
     print(f"run directory: {run_dir}")
     print(f"wrote {output} from {processed} frames")

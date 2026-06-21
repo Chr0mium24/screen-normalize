@@ -115,6 +115,35 @@ Add an optional tracker-debug output to `normalize_screen.py`:
 
 This makes it possible to diagnose the actual homography source instead of inspecting only the final video.
 
+Implemented option:
+
+```bash
+uv run scripts/normalize_screen.py <input-video> --tracker reference --write-tracker-debug
+```
+
+It writes:
+
+- `runs/<run-name>/tracker_debug.csv`
+
+Current debug run:
+
+```text
+runs/debug_tracker_reference_mature/
+```
+
+Observed on `VID20260621031719.mp4`:
+
+- rows: 580
+- accepted frames: 580
+- reasons: `initial_reference` for frame 0, `accepted` for the rest
+- mature point count median: 701
+- inlier count median: 669
+- inlier ratio median: 0.986
+- coverage median: x 0.752, y 0.934
+- reprojection error median: 0.374 px
+
+Interpretation: the current mature-point tracker is not failing through obvious rejected frames or low coverage. The remaining shake should be investigated in the trajectory model and offline optimization, not by adding more website-specific masks or per-frame line correction.
+
 ### 3. Strengthen Stable-Track Selection
 
 Extend the mature-point idea into track-level scoring:
