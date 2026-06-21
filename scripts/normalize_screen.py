@@ -241,6 +241,12 @@ def parse_args() -> argparse.Namespace:
         help="Maximum accepted frame-to-frame screen-area change; 0 disables.",
     )
     parser.add_argument(
+        "--reference-min-point-age",
+        type=positive_int,
+        default=15,
+        help="Newly refreshed reference points must survive this many accepted frames before driving homography.",
+    )
+    parser.add_argument(
         "--reference-min-coverage-x",
         type=nonnegative_fraction,
         default=0.25,
@@ -659,10 +665,11 @@ def append_reference_points(
     current_to_reference: np.ndarray,
     reference_points: np.ndarray,
     current_points: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray]:
+    point_ages: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     new_points = select_tracking_points(gray, current_corners)
     if new_points is None:
-        return reference_points, current_points
+        return reference_points, current_points, point_ages
 
     existing = current_points.reshape(-1, 2)
     fresh = []
@@ -674,13 +681,16 @@ def append_reference_points(
             break
 
     if not fresh:
-        return reference_points, current_points
+        return reference_points, current_points, point_ages
 
     fresh_current = np.asarray(fresh, dtype=np.float32).reshape(-1, 1, 2)
     fresh_reference = cv2.perspectiveTransform(fresh_current, current_to_reference)
     reference_points = np.concatenate([reference_points, fresh_reference.astype(np.float32)])
     current_points = np.concatenate([current_points, fresh_current.astype(np.float32)])
-    return reference_points, current_points
+    point_ages = np.concatenate(
+        [point_ages, np.zeros((len(fresh_current),), dtype=np.int32)]
+    )
+    return reference_points, current_points, point_ages
 
 
 def estimate_reference_corner_trajectory(
@@ -693,6 +703,7 @@ def estimate_reference_corner_trajectory(
     reference_max_reprojection_error: float,
     reference_max_scale_step: float,
     reference_max_area_step: float,
+    reference_min_point_age: int,
     reference_min_coverage_x: float,
     reference_min_coverage_y: float,
 ) -> list[np.ndarray]:
@@ -711,6 +722,7 @@ def estimate_reference_corner_trajectory(
     if reference_points is None:
         reference_points = reference_corners.reshape(-1, 1, 2).astype(np.float32)
     current_points = reference_points.copy()
+    point_ages = np.full((len(reference_points),), reference_min_point_age, dtype=np.int32)
 
     trajectory = [reference_corners]
     previous_corners = reference_corners
@@ -760,8 +772,9 @@ def estimate_reference_corner_trajectory(
             axis=1,
         )
         valid = forward_ok & backward_ok & (round_trip_error < 2.0)
-        reference_good = reference_points.reshape(-1, 2)[valid]
-        current_good = next_points.reshape(-1, 2)[valid]
+        mature = valid & (point_ages >= reference_min_point_age)
+        reference_good = reference_points.reshape(-1, 2)[mature]
+        current_good = next_points.reshape(-1, 2)[mature]
 
         if len(reference_good) >= 20:
             current_to_reference, inlier_mask = cv2.findHomography(
@@ -825,23 +838,35 @@ def estimate_reference_corner_trajectory(
         trajectory.append(previous_corners)
 
         keep = valid
-        if accepted_transform is not None and inlier_mask is not None and len(reference_good) == int(valid.sum()):
+        if accepted_transform is not None:
             valid_indices = np.flatnonzero(valid)
+            valid_current = next_points.reshape(-1, 2)[valid]
+            valid_reference = reference_points.reshape(-1, 2)[valid]
+            projected_reference = cv2.perspectiveTransform(
+                valid_current.reshape(-1, 1, 2).astype(np.float32),
+                accepted_transform,
+            ).reshape(-1, 2)
+            reprojection_errors = np.linalg.norm(projected_reference - valid_reference, axis=1)
+            max_keep_error = max(3.0, reference_max_reprojection_error * 1.5)
             keep = np.zeros_like(valid)
-            keep[valid_indices[inlier_mask.reshape(-1).astype(bool)]] = True
+            keep[valid_indices[reprojection_errors <= max_keep_error]] = True
 
         reference_points = reference_points[keep]
         current_points = next_points[keep].astype(np.float32)
+        point_ages = point_ages[keep]
+        if accepted_transform is not None:
+            point_ages += 1
         if (
             len(current_points) < 140
             or frame_index % feature_refresh == 0
         ) and accepted_transform is not None:
-            reference_points, current_points = append_reference_points(
+            reference_points, current_points, point_ages = append_reference_points(
                 gray,
                 previous_corners,
                 accepted_transform,
                 reference_points,
                 current_points,
+                point_ages,
             )
 
         previous_gray = gray
@@ -849,7 +874,9 @@ def estimate_reference_corner_trajectory(
         if frame_count and (frame_index % 60 == 0 or frame_index == frame_count):
             print(
                 f"reference-tracked corners {frame_index}/{frame_count} frames "
-                f"with {len(current_points)} points, rejected {rejected_updates} updates",
+                f"with {len(current_points)} points "
+                f"({int(np.count_nonzero(point_ages >= reference_min_point_age))} mature), "
+                f"rejected {rejected_updates} updates",
                 file=sys.stderr,
             )
 
@@ -869,6 +896,7 @@ def estimate_corner_trajectory(
     reference_max_reprojection_error: float,
     reference_max_scale_step: float,
     reference_max_area_step: float,
+    reference_min_point_age: int,
     reference_min_coverage_x: float,
     reference_min_coverage_y: float,
 ) -> list[np.ndarray]:
@@ -883,6 +911,7 @@ def estimate_corner_trajectory(
             reference_max_reprojection_error=reference_max_reprojection_error,
             reference_max_scale_step=reference_max_scale_step,
             reference_max_area_step=reference_max_area_step,
+            reference_min_point_age=reference_min_point_age,
             reference_min_coverage_x=reference_min_coverage_x,
             reference_min_coverage_y=reference_min_coverage_y,
         )
@@ -1689,6 +1718,7 @@ def main() -> None:
                 reference_max_reprojection_error=args.reference_max_reprojection_error,
                 reference_max_scale_step=args.reference_max_scale_step,
                 reference_max_area_step=args.reference_max_area_step,
+                reference_min_point_age=args.reference_min_point_age,
                 reference_min_coverage_x=args.reference_min_coverage_x,
                 reference_min_coverage_y=args.reference_min_coverage_y,
             )
