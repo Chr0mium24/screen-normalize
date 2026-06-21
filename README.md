@@ -135,6 +135,12 @@ Final 阶段的实验规划、报告和提交材料已整理到：
 uv run scripts/normalize_screen.py --help
 ```
 
+默认 `--help` 只显示常用参数。内部跟踪、门控、残余对齐和 line-roll 调参仍然兼容旧命令，但默认隐藏；需要查看完整参数时使用：
+
+```bash
+uv run scripts/normalize_screen.py --advanced-help
+```
+
 还需要本机安装 `ffmpeg`，用于把处理后的帧重新编码成视频。
 
 ## 快速开始
@@ -276,7 +282,7 @@ uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
 runs/debug_tracker/tracker_debug.csv
 ```
 
-## 关键参数
+## 常用参数
 
 | 参数 | 作用 |
 | --- | --- |
@@ -285,14 +291,14 @@ runs/debug_tracker/tracker_debug.csv
 | `--reference-profile dynamic` | 适合内部内容变化更大的实验输入。 |
 | `--reference-align` | 在透视归一化后做可选残余对齐。 |
 | `--reference-motion affine` | 残余对齐使用仿射模型，通常比再次估计单应更稳。 |
-| `--trajectory-geometry-gate` | 默认开启。离线拒绝面积或边长突变的角点观测，避免局部错角点导致突然缩放。 |
-| `--trajectory-interpolate` | 默认开启。对被门控拒绝的角点观测做前后可靠帧插值，再进入轨迹平滑。 |
 | `--corners "x,y:x,y:x,y:x,y"` | 手动指定四个屏幕角点，覆盖自动检测。 |
 | `--crop-left/top/right/bottom` | 透视矫正后按比例裁切输出画面。 |
 | `--width`, `--height` | 设置输出分辨率，默认 `1920x1080`。 |
 | `--run-name` | 固定本次运行的输出目录名。 |
 | `--write-tracker-debug` | 输出每帧跟踪诊断信息。 |
 | `--write-trajectory-debug` | 输出原始、插值后、平滑后的角点轨迹，便于分析坏帧和插值效果。 |
+
+内部阈值仍可通过旧参数覆盖，例如 `--reference-min-inliers`、`--trajectory-window` 和 `--line-mask-top`，但这些属于实验调参，不建议作为日常命令的一部分。完整列表用 `--advanced-help` 查看。
 
 ## 稳定性评估
 
@@ -330,11 +336,12 @@ runs/analyze_geometry_test/stability_summary.json
 ├── inputs/       # 本地输入视频，默认不提交到 git
 ├── reference/    # 课程 proposal/final 模板和示例
 ├── runs/         # 每次运行生成的结果，默认不提交到 git
-├── scripts/      # 视频处理和分析脚本
+├── screen_normalize/ # 主处理逻辑和工具模块
+├── scripts/      # 薄入口脚本，保留 uv run 命令兼容
 └── test/         # 预留测试目录
 ```
 
-其中 `scripts/select_corners.py` 是手动角点 GUI；`scripts/normalize_screen.py` 是主处理脚本。
+其中 `scripts/normalize_screen.py`、`scripts/make_manual_demo_strip.py` 和 `scripts/visualize_line_roll.py` 只保留为命令入口；核心实现已经拆到 `screen_normalize/`。`scripts/select_corners.py` 是手动角点 GUI。
 
 根目录只保留文件夹、`.gitignore` 和 `README.md`。输入视频和实验结果不要散落在根目录。
 
