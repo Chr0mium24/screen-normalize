@@ -45,7 +45,7 @@ The most stable mode for filmed screens is:
 uv run scripts/normalize_screen.py inputs/VID20260621024117.mp4 --tracker reference --crop-right 0.02 --crop-bottom 0.055
 ```
 
-`--tracker reference` locks the video to the first detected screen plane, tracks screen features with Lucas-Kanade optical flow, estimates a RANSAC homography, and rejects updates with weak inliers or abnormal scale/area changes.
+`--tracker reference` locks the video to the first detected screen plane, tracks screen features with Lucas-Kanade optical flow, estimates a RANSAC homography, and rejects updates with weak inliers, poor inlier screen coverage, or abnormal scale/area changes. The resulting corner trajectory is filtered offline with the same median and moving-average windows used by the other trackers, which reduces late-frame perspective jitter without relying on page-specific regions.
 
 If the normalized screen still has a small residual tilt and the page has stable structural edges, add binary-contour roll correction with a restricted mask:
 

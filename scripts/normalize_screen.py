@@ -241,6 +241,18 @@ def parse_args() -> argparse.Namespace:
         help="Maximum accepted frame-to-frame screen-area change; 0 disables.",
     )
     parser.add_argument(
+        "--reference-min-coverage-x",
+        type=nonnegative_fraction,
+        default=0.25,
+        help="Minimum robust normalized x coverage of RANSAC inliers; 0 disables.",
+    )
+    parser.add_argument(
+        "--reference-min-coverage-y",
+        type=nonnegative_fraction,
+        default=0.20,
+        help="Minimum robust normalized y coverage of RANSAC inliers; 0 disables.",
+    )
+    parser.add_argument(
         "--reference-align",
         action="store_true",
         help="After perspective correction, align each frame back to the first corrected frame.",
@@ -481,6 +493,33 @@ def homography_median_reprojection_error(
     return float(np.median(errors))
 
 
+def homography_inlier_screen_coverage(
+    reference_points: np.ndarray,
+    inlier_mask: np.ndarray,
+    reference_corners: np.ndarray,
+) -> tuple[float, float]:
+    inliers = inlier_mask.reshape(-1).astype(bool)
+    if int(inliers.sum()) < 2:
+        return 0.0, 0.0
+
+    unit_corners = np.array(
+        [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]],
+        dtype=np.float32,
+    )
+    reference_to_unit = cv2.getPerspectiveTransform(
+        reference_corners.astype(np.float32),
+        unit_corners,
+    )
+    unit_points = cv2.perspectiveTransform(
+        reference_points.reshape(-1, 1, 2).astype(np.float32),
+        reference_to_unit,
+    ).reshape(-1, 2)[inliers]
+    lower = np.percentile(unit_points, 5, axis=0)
+    upper = np.percentile(unit_points, 95, axis=0)
+    coverage = np.maximum(upper - lower, 0.0)
+    return float(coverage[0]), float(coverage[1])
+
+
 def detect_screen_corners(frame: np.ndarray) -> np.ndarray | None:
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, (85, 20, 50), (130, 255, 255))
@@ -654,6 +693,8 @@ def estimate_reference_corner_trajectory(
     reference_max_reprojection_error: float,
     reference_max_scale_step: float,
     reference_max_area_step: float,
+    reference_min_coverage_x: float,
+    reference_min_coverage_y: float,
 ) -> list[np.ndarray]:
     frame_count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     ok, first_frame = capture.read()
@@ -742,10 +783,17 @@ def estimate_reference_corner_trajectory(
                 current_to_reference,
                 inlier_mask,
             )
+            coverage_x, coverage_y = homography_inlier_screen_coverage(
+                reference_good,
+                inlier_mask,
+                reference_corners,
+            )
         else:
             inlier_count = 0
             inlier_ratio = 0.0
             reprojection_error = float("inf")
+            coverage_x = 0.0
+            coverage_y = 0.0
 
         if (
             current_to_reference is not None
@@ -753,6 +801,8 @@ def estimate_reference_corner_trajectory(
             and inlier_count >= reference_min_inliers
             and inlier_ratio >= reference_min_inlier_ratio
             and reprojection_error <= reference_max_reprojection_error
+            and coverage_x >= reference_min_coverage_x
+            and coverage_y >= reference_min_coverage_y
         ):
             reference_to_current = np.linalg.inv(current_to_reference)
             corners = cv2.perspectiveTransform(
@@ -819,6 +869,8 @@ def estimate_corner_trajectory(
     reference_max_reprojection_error: float,
     reference_max_scale_step: float,
     reference_max_area_step: float,
+    reference_min_coverage_x: float,
+    reference_min_coverage_y: float,
 ) -> list[np.ndarray]:
     if tracker == "reference":
         return estimate_reference_corner_trajectory(
@@ -831,6 +883,8 @@ def estimate_corner_trajectory(
             reference_max_reprojection_error=reference_max_reprojection_error,
             reference_max_scale_step=reference_max_scale_step,
             reference_max_area_step=reference_max_area_step,
+            reference_min_coverage_x=reference_min_coverage_x,
+            reference_min_coverage_y=reference_min_coverage_y,
         )
 
     frame_count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
@@ -1635,14 +1689,15 @@ def main() -> None:
                 reference_max_reprojection_error=args.reference_max_reprojection_error,
                 reference_max_scale_step=args.reference_max_scale_step,
                 reference_max_area_step=args.reference_max_area_step,
+                reference_min_coverage_x=args.reference_min_coverage_x,
+                reference_min_coverage_y=args.reference_min_coverage_y,
             )
             capture.release()
-            if args.tracker != "reference":
-                corner_trajectory = smooth_corner_trajectory(
-                    corner_trajectory,
-                    median_window=args.median_window,
-                    average_window=args.trajectory_window,
-                )
+            corner_trajectory = smooth_corner_trajectory(
+                corner_trajectory,
+                median_window=args.median_window,
+                average_window=args.trajectory_window,
+            )
             capture = open_capture(source)
 
         silent_video = Path(tmp) / "screen_normalized_silent.mp4"
