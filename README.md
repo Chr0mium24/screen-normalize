@@ -37,15 +37,23 @@ Use `--run-name` for a deterministic run folder name:
 uv run scripts/normalize_screen.py inputs/VID20260621024117.mp4 --run-name test_reference_gate --tracker reference
 ```
 
-## Current Recommended Mode
+## Current Recommended Modes
 
-The most stable mode for filmed screens is:
+For screens with moving playback, subtitles, scrolling content, or other dynamic regions, use the mature reference profile and gated residual affine alignment:
 
 ```bash
-uv run scripts/normalize_screen.py inputs/VID20260621024117.mp4 --tracker reference --crop-right 0.02 --crop-bottom 0.055
+uv run scripts/normalize_screen.py inputs/VID20260621031719.mp4 --tracker reference --reference-profile dynamic --reference-align --reference-motion affine --crop-right 0.02 --crop-bottom 0.055
 ```
 
-`--tracker reference` locks the video to the first detected screen plane, tracks screen features with Lucas-Kanade optical flow, estimates a RANSAC homography, and rejects updates with weak inliers, immature refreshed points, poor inlier screen coverage, or abnormal scale/area changes. Newly refreshed points must survive several accepted frames before they can drive homography estimation, so moving video content is less likely to take over the screen plane. The resulting corner trajectory is filtered offline with the same median and moving-average windows used by the other trackers, which reduces late-frame perspective jitter without relying on page-specific regions.
+For mostly stable screen content where the main problem is smoothing lag, use the low-latency reference profile:
+
+```bash
+uv run scripts/normalize_screen.py inputs/VID20260621024117.mp4 --tracker reference --reference-profile low-latency
+```
+
+`--tracker reference` locks the video to the first detected screen plane, tracks screen features with Lucas-Kanade optical flow, estimates a RANSAC homography, and rejects updates with weak inliers, poor inlier screen coverage, or abnormal scale/area changes. The `dynamic` profile waits for refreshed points to survive before they can drive homography estimation and applies offline trajectory smoothing. The `low-latency` profile uses immediate points and disables trajectory smoothing; it can recover sharper camera motion, but it is unsafe when moving screen content can take over the estimate.
+
+`--reference-align` runs a residual affine alignment after perspective correction. It now performs a whole-video reliability preflight and disables itself when the residual track is not globally reliable.
 
 If the normalized screen still has a small residual tilt and the page has stable structural edges, add binary-contour roll correction with a restricted mask:
 

@@ -193,6 +193,15 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--reference-profile",
+        choices=("dynamic", "low-latency"),
+        default=None,
+        help=(
+            "Preset reference-tracker parameters. dynamic uses mature points and "
+            "offline smoothing; low-latency uses immediate points with no trajectory smoothing."
+        ),
+    )
+    parser.add_argument(
         "--trajectory-window",
         type=odd_positive_int,
         default=31,
@@ -488,6 +497,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--crop-right", type=crop_fraction, default=0.0)
     parser.add_argument("--crop-bottom", type=crop_fraction, default=0.0)
     return parser.parse_args()
+
+
+def apply_reference_profile(args: argparse.Namespace) -> None:
+    if args.reference_profile == "dynamic":
+        args.reference_min_point_age = 15
+        args.median_window = 5
+        args.trajectory_window = 31
+    elif args.reference_profile == "low-latency":
+        args.reference_min_point_age = 1
+        args.median_window = 1
+        args.trajectory_window = 1
 
 
 def require_ffmpeg() -> None:
@@ -2672,6 +2692,7 @@ def write_align_debug_csv(path: Path, rows: list[dict[str, object]]) -> None:
 
 def main() -> None:
     args = parse_args()
+    apply_reference_profile(args)
     require_ffmpeg()
 
     source = args.input.resolve()

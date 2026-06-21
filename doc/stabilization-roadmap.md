@@ -190,7 +190,42 @@ Cross-input validation:
 
 Important caveat: the archived old-input output `runs/20260621-033412_normalize_screen/VID20260621024117_normalized.mp4` still measures much better than the current code's no-residual reference path. That is a separate regression target. The new residual gate prevents this change from making it worse, but it does not recover the archived old-input quality by itself.
 
-### 4. Strengthen Stable-Track Selection
+### 4. Split Reference Tracker Latency Profiles
+
+The old input and the dynamic-video input need different reference tracker latency.
+
+On `VID20260621024117.mp4`, the archived reference-track outputs are very stable:
+
+| Output | Translation p95 | Rotation p95 | Scale delta p95 |
+| --- | ---: | ---: | ---: |
+| archived `screen_recording_reference_track` | 0.072 px | 0.0042 deg | 0.000092 |
+| archived `screen_recording_reference_gated_tight` | 0.050 px | 0.0025 deg | 0.000049 |
+| current reference default | 2.181 px | 0.0068 deg | 0.000400 |
+| current `--trajectory-window 1` | 0.347 px | 0.0151 deg | 0.000269 |
+| current no median/no average | 0.234 px | 0.0156 deg | 0.000314 |
+| current `--reference-min-point-age 1 --median-window 1 --trajectory-window 1` | 0.118 px | 0.0044 deg | 0.000118 |
+
+Interpretation: the current mature-point plus long-window smoothing path adds too much latency for the old input. The low-latency reference path recovers most of the archived quality.
+
+The same low-latency profile is unsafe for `VID20260621031719.mp4`:
+
+| Output | Translation p95 | Rotation p95 | Scale delta p95 |
+| --- | ---: | ---: | ---: |
+| mature reference, no residual | 0.970 px | 0.0191 deg | 0.000517 |
+| global-gated residual affine | 0.728 px | 0.0232 deg | 0.000479 |
+| low-latency reference | 4.093 px | 0.0834 deg | 0.003074 |
+| low-latency reference plus residual | 6.074 px | 0.1545 deg | 0.003276 |
+
+Implemented profile option:
+
+```bash
+uv run scripts/normalize_screen.py <input-video> --tracker reference --reference-profile low-latency
+uv run scripts/normalize_screen.py <input-video> --tracker reference --reference-profile dynamic
+```
+
+Use `low-latency` only when the screen content is mostly stable and the main error is smoothing lag. Use `dynamic` for moving playback or changing page content.
+
+### 5. Strengthen Stable-Track Selection
 
 Extend the mature-point idea into track-level scoring:
 
@@ -202,7 +237,7 @@ Extend the mature-point idea into track-level scoring:
 
 The point is not to hardcode screen regions. The point is to let temporal consistency identify the stable screen layer.
 
-### 5. Replace Greedy Per-Frame Pose With Offline Trajectory Optimization
+### 6. Replace Greedy Per-Frame Pose With Offline Trajectory Optimization
 
 Do not directly trust each frame's best homography.
 
@@ -215,7 +250,7 @@ Collect candidate observations and solve a robust low-frequency trajectory:
 
 This should become the main stabilizer for difficult hand-shot inputs.
 
-### 6. Rework Line-Roll Into Global or Low-Frequency Bias
+### 7. Rework Line-Roll Into Global or Low-Frequency Bias
 
 Line-roll should not rotate the output frame by frame.
 
@@ -228,7 +263,7 @@ If needed:
 
 For moving-video inputs, default to no line-roll unless the diagnostics prove it helps.
 
-### 7. Validate Against Both Inputs
+### 8. Validate Against Both Inputs
 
 Every stabilization change should be tested on both known inputs:
 
