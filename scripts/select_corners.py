@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import shlex
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -91,6 +92,21 @@ def scale_for_display(width: int, height: int, max_width: int, max_height: int) 
 
 def format_corners(points: list[tuple[float, float]]) -> str:
     return ":".join(f"{round(x)},{round(y)}" for x, y in points)
+
+
+def split_extra_args(value: str) -> list[str]:
+    tokens = shlex.split(value)
+    merged: list[str] = []
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        if token.endswith("-") and index + 1 < len(tokens):
+            merged.append(token + tokens[index + 1])
+            index += 2
+            continue
+        merged.append(token)
+        index += 1
+    return merged
 
 
 @dataclass
@@ -257,7 +273,7 @@ class CornerPicker:
         corners = format_corners(self.points)
         command = (
             f'uv run scripts/normalize_screen.py "{self.input_path}" '
-            f'--corners "{corners}" {self.extra_normalize_args}'
+            f'--corners "{corners}" {" ".join(split_extra_args(self.extra_normalize_args))}'
         )
         print(corners)
         print(command)
@@ -282,10 +298,15 @@ class CornerPicker:
             corners,
             "--run-name",
             self.preview_run_name,
-            *self.extra_normalize_args.split(),
+            *split_extra_args(self.extra_normalize_args),
         ]
         print("running:", " ".join(command), file=sys.stderr)
-        subprocess.run(command, check=True)
+        completed = subprocess.run(command, check=False)
+        if completed.returncode:
+            print(
+                f"preview command failed with exit code {completed.returncode}",
+                file=sys.stderr,
+            )
 
     def cancel(self) -> None:
         self.root.destroy()
