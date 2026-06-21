@@ -115,6 +115,18 @@ uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
 
 `scripts/probe_learned_homography.py` 中的 SuperPoint + LightGlue 探针可以保留为可选对照或 future work，用来说明现代特征匹配在拍屏 homography 估计上的可行性和局限；主方法仍然是当前的 LK + RANSAC 参考平面跟踪。
 
+## Final 实验材料
+
+Final 阶段的实验规划、报告和提交材料已整理到：
+
+- `doc/final-experiment-plan.md`：实验问题、输入视频、消融矩阵和报告结构；
+- `deliverables/final_20260622/final_report.md`：英文 final report 初稿；
+- `deliverables/final_20260622/experiment_summary.csv`：可追溯的实验指标表；
+- `deliverables/final_20260622/run_manifest.md`：每个 run 对应的执行命令；
+- `deliverables/final_20260622/final_presentation_outline.md`：final presentation 结构。
+
+本机还生成了 `runs/final_visuals/`，包含报告/PPT 可用的 input/output 关键帧截图。`runs/` 和视频文件默认不进 git，但 run 名已写入 manifest，便于复现。
+
 ## 环境
 
 本项目使用 `uv` 管理 Python 运行环境。脚本顶部已经写了依赖声明，直接用 `uv run` 执行即可。
