@@ -15,3 +15,7 @@ runs/*
 *.jpeg
 *.png
 *.trf
+
+# Third-party model repositories and their local CUDA environments.
+third_party/fpanet/
+third_party/.venvs/

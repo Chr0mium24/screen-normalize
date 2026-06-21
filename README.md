@@ -46,6 +46,8 @@
 4. 训练轻量模型预测去摩尔纹后的图像，或预测频域 mask 后再回到图像域。
 5. 与传统低通、带阻滤波、双边滤波等方法做对比。
 
+FPANet 已作为第二阶段候选视频去摩尔纹模型接入到本项目的部署脚本中。它需要 NVIDIA CUDA 环境和 DCNv2 编译，具体见 `doc/fpanet-deployment.md`。
+
 ### 阶段三：完整视频恢复
 
 尚未实现。
@@ -205,6 +207,7 @@ runs/analyze_stage1_test/stability_summary.json
 - `reference/`：课程 proposal、cover letter、final report 和 presentation 示例。
 - `doc/`：当前阅读和保存的相关论文，包括视频稳定、单应性估计、线段检测、消失点和相机路径平滑等方向。
 - `doc/stabilization-roadmap.md`：从稳定化目标、失败原因、实验结果到后续路线的详细分析。
+- `doc/fpanet-deployment.md`：FPANet CUDA 部署、数据集、权重和测试说明。
 
 ## 后续工作
 
