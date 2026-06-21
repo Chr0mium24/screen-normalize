@@ -214,6 +214,29 @@ uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
   --crop-bottom 0.04
 ```
 
+如果想快速检查“原视频第几帧开始晃/变形、矫正后是否改善”，可以把原视频和矫正后视频抽成上下两条横向拼图。先用 `select_corners.py` 拿到手动点，也可以直接填已有坐标：
+
+```bash
+uv run scripts/make_comparison_strip.py \
+  inputs/my_screen_video.mp4 \
+  runs/geometry_test/my_screen_video_normalized.mp4 \
+  --count 8 \
+  --points "124,116:1488,132:1516,850:145,934" \
+  --run-name geometry_test_strip
+```
+
+也可以精确指定要看的原视频帧号：
+
+```bash
+uv run scripts/make_comparison_strip.py \
+  inputs/my_screen_video.mp4 \
+  runs/geometry_test/my_screen_video_normalized.mp4 \
+  --frames 0,30,60,90,120 \
+  --run-name geometry_test_strip_frames
+```
+
+输出是一张 PNG：第一行是原视频，第二行是矫正后视频；`--points` 只用于在原视频行画出手动点，方便确认取样位置。
+
 如果需要分析跟踪过程：
 
 ```bash
