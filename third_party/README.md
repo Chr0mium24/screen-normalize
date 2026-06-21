@@ -1,11 +1,5 @@
 # third_party
 
-This directory holds external repositories and local model environments.
+This directory is reserved for optional external repositories used during experiments.
 
-`third_party/fpanet/` is an ignored clone of `kuai-lab/nn24_FPANet`. Recreate it with:
-
-```bash
-uv run scripts/setup_fpanet_cuda.py clone
-```
-
-Do not commit third-party source trees, model checkpoints, datasets, or CUDA virtual environments into this repository.
+The current project pipeline does not require external model repositories. Do not commit vendored source trees, checkpoints, datasets, or local virtual environments into this repository.

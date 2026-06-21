@@ -16,6 +16,6 @@ runs/*
 *.png
 *.trf
 
-# Third-party model repositories and their local CUDA environments.
-third_party/fpanet/
-third_party/.venvs/
+# Third-party experiments stay local unless explicitly documented and committed.
+third_party/*
+!third_party/README.md
