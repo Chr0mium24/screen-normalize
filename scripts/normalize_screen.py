@@ -385,6 +385,12 @@ def parse_args() -> argparse.Namespace:
         help="Interpolate rejected corner observations before trajectory smoothing.",
     )
     parser.add_argument(
+        "--trajectory-geometry-gate",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Reject offline corner observations with sudden area or side-length jumps.",
+    )
+    parser.add_argument(
         "--line-roll-correction",
         action="store_true",
         help="Use stable horizontal UI lines to apply a small residual roll correction.",
@@ -1380,6 +1386,39 @@ def interpolate_corner_trajectory(
                 values[reliable],
             )
     return [order_corners(corners).astype(np.float32) for corners in interpolated]
+
+
+def apply_offline_geometry_gate(
+    trajectory: list[np.ndarray],
+    reliable: np.ndarray,
+    max_scale_step: float,
+    max_area_step: float,
+) -> np.ndarray:
+    if len(trajectory) == 0:
+        return reliable
+    if len(reliable) != len(trajectory):
+        reliable = np.ones((len(trajectory),), dtype=bool)
+    gated = reliable.copy()
+    previous_reliable: np.ndarray | None = None
+    for index, corners in enumerate(trajectory):
+        if not gated[index]:
+            continue
+        ordered = order_corners(corners).astype(np.float32)
+        if previous_reliable is None:
+            previous_reliable = ordered
+            continue
+        if geometry_update_is_reasonable(
+            ordered,
+            previous_reliable,
+            max_scale_step=max_scale_step,
+            max_area_step=max_area_step,
+        ):
+            previous_reliable = ordered
+        else:
+            gated[index] = False
+    if len(gated):
+        gated[0] = True
+    return gated
 
 
 def build_trajectory_debug_rows(
@@ -2856,6 +2895,13 @@ def main() -> None:
                 trajectory_tracker_rows,
                 len(raw_corner_trajectory),
             )
+            if args.trajectory_geometry_gate:
+                reliable_mask = apply_offline_geometry_gate(
+                    raw_corner_trajectory,
+                    reliable_mask,
+                    max_scale_step=args.reference_max_scale_step,
+                    max_area_step=args.reference_max_area_step,
+                )
             interpolated_corner_trajectory = (
                 interpolate_corner_trajectory(raw_corner_trajectory, reliable_mask)
                 if args.trajectory_interpolate
