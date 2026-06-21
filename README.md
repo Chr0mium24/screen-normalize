@@ -1,28 +1,38 @@
 # screen-normalize
 
-把手持拍摄的电脑屏幕视频转换成接近正常录屏的视频。
+把手持拍摄的电脑屏幕视频转换成接近正常录屏的视频，并作为后续拍屏去摩尔纹、颜色校正和细节恢复的前置几何链路。
 
 这是一个数字图像处理课程大作业项目。当前方向确定为：
 
-**基于传统图像处理的拍屏视频几何归一化与稳定化。**
+**面向真实场景拍屏视频恢复的屏幕捕获矫正与时域稳定化。**
 
-当前可运行实现以传统几何方法为主，适合作为 baseline。为了让 Final 项目更完整，后续推荐升级为：
+当前可运行实现以传统几何方法为主，重点补足现有拍屏恢复论文在真实应用端常常默认或简化的前处理部分：
 
-**传统几何 baseline + 学习式特征匹配 + 合成拍屏 benchmark。**
+```text
+真实手持拍屏视频
+  -> 屏幕区域检测
+  -> 透视矫正
+  -> 屏幕平面跟踪
+  -> 时域稳定
+  -> 接近录屏视角的屏幕视频
+  -> 后续可接视频去摩尔纹 / 颜色校正 / 细节恢复
+```
 
-也就是说，模型不用于画质恢复，而是作为 homography 估计中的特征匹配分支，和现有 LK 光流方案做可量化对比。具体决策见 `doc/project-upgrade-decision.md`。
+也就是说，本项目不直接做去摩尔纹或画质恢复，而是先把真实拍摄场景中的屏幕内容定位、拉正并稳定。完整叙事见 `doc/application-pipeline-story.md`，项目取舍见 `doc/project-upgrade-decision.md`。SuperPoint + LightGlue 等学习式特征匹配只作为可选探针或对照实验，不再作为主线必做项。
 
 ## 项目目标
 
 输入是一段手机或相机拍摄的电脑屏幕视频，画面中通常包含墙面、桌面、屏幕边框、透视变形和轻微手抖。
 
-目标输出是只保留屏幕内容的正常视频：
+目标输出是只保留屏幕内容、几何上稳定的屏幕视频：
 
 - 去掉屏幕外的墙面、桌面和边框；
 - 把倾斜拍摄的屏幕透视校正成正面视角；
 - 保持输出长宽比固定，默认输出 `1920x1080`；
 - 减少由于手持拍摄和逐帧角点误差造成的画面晃动；
 - 保留屏幕内部真实内容变化，例如播放视频、滚动页面、鼠标移动和字幕。
+
+从应用链路看，这个输出可以作为后续 video demoiréing、OCR、归档或人工查看的更稳定输入。
 
 ## 方法路线
 
@@ -85,7 +95,7 @@ uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
 
 ## 当前结论
 
-当前传统主流程已经可以作为课程项目的核心 baseline：
+当前传统主流程已经可以作为课程项目的核心方法：
 
 - 有完整可运行脚本 `scripts/normalize_screen.py`；
 - 支持自动角点检测，也支持手动角点覆盖；
@@ -95,13 +105,15 @@ uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
 - 支持稳定性分析脚本 `scripts/analyze_stability.py`；
 - 每次运行自动写入 `runs/<时间>_<脚本名>/`，便于复现实验和写报告。
 
-但如果只停留在传统流程，Final 会偏像工程 demo。建议在 final 阶段补充：
+为了让 Final 不只是工程 demo，后续重点应该补齐应用链路和实验可信度：
 
-- 合成拍屏 benchmark，提供每帧真实四角点和 homography；
-- 学习式特征匹配 tracker，和当前 LK tracker 做同条件比较；
 - 多个真实输入视频的场景覆盖，而不是简单堆数量；
-- 自动角点、参考跟踪、学习式匹配、残余对齐、轨迹平滑的消融实验；
+- 同一输入上的消融实验：逐帧检测、普通光流、参考平面跟踪、残余对齐、轨迹平滑；
+- 屏幕四角点、透视矫正前后、稳定前后的关键帧可视化；
+- 可选的合成或人工标注样例，用来提供角点和 homography 的近似真值评价；
 - 失败案例分析，例如强反光、屏幕边缘遮挡、画面内容大幅运动。
+
+`scripts/probe_learned_homography.py` 中的 SuperPoint + LightGlue 探针可以保留为可选对照或 future work，用来说明现代特征匹配在拍屏 homography 估计上的可行性和局限；主方法仍然是当前的 LK + RANSAC 参考平面跟踪。
 
 ## 环境
 
@@ -254,8 +266,9 @@ runs/analyze_geometry_test/stability_summary.json
 - `reference/`：课程 proposal、cover letter、final report 和 presentation 示例。
 - `doc/`：当前阅读和保存的相关论文，包括视频稳定、单应性估计、线段检测、消失点和相机路径平滑等方向。
 - `doc/project-goal.md`：当前项目题目、边界、成功标准和实验计划。
-- `doc/project-upgrade-decision.md`：关于是否加入模型、如何补数据和如何把项目升级成完整实验的决策文档。
-- `doc/learned-homography-probe.md`：SuperPoint + LightGlue 作为学习式 homography 分支的初步探针结果。
+- `doc/application-pipeline-story.md`：把本项目定位为拍屏视频恢复前置链路的说明，包含与 video demoiréing 论文和 log-homography 视频稳定论文的关系。
+- `doc/project-upgrade-decision.md`：关于主线取舍、实验补强和可选模型探针的决策文档。
+- `doc/learned-homography-probe.md`：SuperPoint + LightGlue 作为可选 homography 匹配对照的初步探针结果。
 - `doc/traditional-geometry-stabilization-references/`：本项目当前传统视觉方向的论文 PDF 和中文索引。
 - `doc/stabilization-roadmap.md`：从稳定化目标、失败原因、实验结果到后续路线的详细分析。
 
@@ -267,4 +280,4 @@ runs/analyze_geometry_test/stability_summary.json
 2. 对每个样例保存原视频、归一化输出、debug CSV 和稳定性指标。
 3. 截图展示自动角点、手动角点、透视矫正前后对比。
 4. 做消融实验：逐帧检测、光流跟踪、参考平面跟踪、残余对齐、不同平滑窗口。
-5. 在 final report 中把项目完整表述为传统图像处理的几何校正与稳定化流程。
+5. 在 final report 中把项目完整表述为真实拍屏视频恢复的前置屏幕捕获矫正与时域稳定链路。

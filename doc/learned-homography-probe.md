@@ -6,7 +6,7 @@
 
 本次测试不是把模型直接接入最终视频处理流程，而是先回答一个问题：
 
-> 学习式特征点和匹配器能否在拍屏视频中稳定估计屏幕平面 homography，并值得作为 Final 项目的模型分支？
+> 学习式特征点和匹配器能否在拍屏视频中估计屏幕平面 homography，并作为可选对照或 future work 保留？
 
 新增脚本：
 
@@ -61,22 +61,24 @@ runs/debug_tracker_reference_mature/tracker_debug.csv
 
 ## 结论
 
-SuperPoint + LightGlue 值得加入 Final 项目，但定位应该是：
+SuperPoint + LightGlue 可以保留，但定位应该降级为可选探针：
 
-- 作为 **学习式特征匹配分支**；
-- 和传统 LK tracker 做对照实验；
+- 作为 **可选 homography 匹配对照**；
+- 不作为当前 Final 主线必做项；
+- 不要求完整接入 `normalize_screen.py` 的视频处理流程；
 - 不承诺直接提升当前最好结果；
 - 不用于去反光、去摩尔纹或画质恢复；
 - 必须继续使用 RANSAC、覆盖率检查、重投影误差和几何门控。
 
-当前最合理的项目升级方式是：
+当前最合理的项目主线是：
 
 ```text
-传统 LK + RANSAC baseline
-        vs
-SuperPoint/LightGlue + RANSAC model branch
-        +
-合成拍屏 benchmark 的真值评价
+真实拍屏视频
+  -> 屏幕检测
+  -> homography 透视归一化
+  -> LK + RANSAC 参考平面跟踪
+  -> 轨迹平滑和残余稳定
+  -> 后续可接 video demoiréing / OCR / 归档
 ```
 
-`testmoire.mp4` 的结果也说明：学习式匹配不是万能解。屏幕内容动态大、纹理变化强或画面质量差时，匹配数量和几何一致性会明显下降。因此 Final 报告中应把它作为可比较方法，而不是包装成一定更好的方法。
+SuperPoint/LightGlue 的探针结果可以作为附加实验说明：现代特征匹配在部分拍屏样例上可行，但在 `testmoire.mp4` 这类画面质量或纹理变化更复杂的输入上会明显不稳定。因此 Final 报告中不应把它包装成核心创新或一定更好的方法。
