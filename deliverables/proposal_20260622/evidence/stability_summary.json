@@ -1,0 +1,62 @@
+{
+  "generated_at": "2026-06-22T00:28:47",
+  "summary": [
+    {
+      "video": {
+        "path": "/Users/cr/Codes/screen-normalize/runs/proposal_best_geometry_gate/VID20260621024117_normalized.mp4",
+        "width": 1920,
+        "height": 1080,
+        "fps": 60.146476994887756,
+        "frame_count": 317,
+        "measured_pairs": 316,
+        "duration_seconds": 5.270466631436184
+      },
+      "all": {
+        "pairs": 316,
+        "ok_pairs": 316,
+        "translation_mean": 0.07622436226410069,
+        "translation_p95": 0.14617981126776763,
+        "translation_max": 2.0006758986211426,
+        "rotation_abs_mean": 0.0022087084317690708,
+        "rotation_abs_p95": 0.0047125308515029475,
+        "rotation_abs_max": 0.08317725095911759,
+        "scale_abs_delta_mean": 8.864946561688443e-05,
+        "scale_abs_delta_p95": 0.00015131603628229517,
+        "scale_abs_delta_max": 0.0029518668337333853,
+        "inlier_ratio_mean": 0.9950016235501626,
+        "inlier_ratio_p95": 1.0,
+        "inlier_ratio_max": 1.0,
+        "inlier_coverage_x_mean": 0.6940656715556036,
+        "inlier_coverage_x_p95": 0.7896560877561569,
+        "inlier_coverage_x_max": 0.8412975072860718,
+        "inlier_coverage_y_mean": 0.7304185902393316,
+        "inlier_coverage_y_p95": 0.7599281370639801,
+        "inlier_coverage_y_max": 0.8502317070960999
+      },
+      "last_seconds": {
+        "seconds": 2.0,
+        "start_time_seconds": 3.270466631436184,
+        "pairs": 120,
+        "ok_pairs": 120,
+        "translation_mean": 0.040391547840812364,
+        "translation_p95": 0.11792940200819119,
+        "translation_max": 0.48277784961570414,
+        "rotation_abs_mean": 0.0013507704894385358,
+        "rotation_abs_p95": 0.004403056677140965,
+        "rotation_abs_max": 0.007594468790276956,
+        "scale_abs_delta_mean": 4.319666489536374e-05,
+        "scale_abs_delta_p95": 0.00011837543392937409,
+        "scale_abs_delta_max": 0.0009291426440609651,
+        "inlier_ratio_mean": 0.9995520833333333,
+        "inlier_ratio_p95": 1.0,
+        "inlier_ratio_max": 1.0,
+        "inlier_coverage_x_mean": 0.694512988626957,
+        "inlier_coverage_x_p95": 0.7157087057828904,
+        "inlier_coverage_x_max": 0.7343146800994873,
+        "inlier_coverage_y_mean": 0.7086839596430461,
+        "inlier_coverage_y_p95": 0.7164503931999207,
+        "inlier_coverage_y_max": 0.7183039784431458
+      }
+    }
+  ]
+}
