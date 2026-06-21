@@ -38,6 +38,7 @@ inputs/my_screen_video.mp4
 - 透视归一化后的视频，例如 `my_screen_video_normalized.mp4`；
 - 可选的 `tracker_debug.csv`，记录每帧跟踪和门控状态；
 - 可选的 `align_debug.csv`，记录残余对齐状态；
+- 可选的 `trajectory_debug.csv`，记录原始、插值后和平滑后的角点轨迹；
 - 稳定性分析结果 `stability_metrics.csv` 和 `stability_summary.json`。
 
 输出视频应满足：
@@ -59,7 +60,7 @@ inputs/my_screen_video.mp4
   -> LK 光流跟踪参考平面特征点
   -> RANSAC 估计当前帧单应性
   -> 几何门控拒绝异常更新
-  -> 角点轨迹时域平滑
+  -> 坏帧插值和角点轨迹时域平滑
   -> 可选残余仿射稳定
   -> 固定尺寸输出视频
   -> 稳定性指标和消融对比
@@ -80,7 +81,7 @@ inputs/my_screen_video.mp4
    根据内点数量、内点比例、重投影误差、特征覆盖范围、面积变化和边长变化拒绝不可信更新。
 
 5. **轨迹平滑**  
-   对角点或运动参数序列做时域平滑，降低高频估计噪声。报告中可以把这部分解释为运动轨迹低通滤波。
+   对被门控拒绝的帧先用前后可靠帧插值，再对角点或运动参数序列做时域平滑，降低高频估计噪声。报告中可以把这部分解释为运动轨迹低通滤波。
 
 6. **残余稳定化**  
    在透视归一化后，可选地估计相对参考帧的小幅残余仿射运动。该模块只在整段视频预检可靠时启用，避免动态内容误导稳定化。
@@ -151,6 +152,7 @@ uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
   --tracker reference \
   --reference-profile low-latency \
   --write-tracker-debug \
+  --write-trajectory-debug \
   --run-name main_my_screen_video
 ```
 
@@ -161,6 +163,7 @@ uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
   --tracker reference \
   --reference-profile dynamic \
   --write-tracker-debug \
+  --write-trajectory-debug \
   --run-name main_dynamic_my_screen_video
 ```
 
