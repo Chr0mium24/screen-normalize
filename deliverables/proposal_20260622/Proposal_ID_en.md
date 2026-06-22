@@ -1,39 +1,19 @@
-# Screen Capture Rectification and Temporal Stabilization for Real-world Captured-screen Videos
+# Proposal for CIE6032 Final Project 2026
 
-**Group ID:** TODO | **Members:** Rongshuo Wen (Leader, 124020369), Bihua Wen (124090670), Ruiming Liu (124090375)
+**Names & IDs:** Rongshuo Wen (Leader, 124020369), Bihua Wen (124090670), Ruiming Liu (124090375)
 
-## Problem and Motivation
+**Title:** Screen Capture Rectification and Temporal Stabilization for Real-world Captured-screen Videos
 
-Existing screen demoiréing datasets validate the demand for captured-screen restoration, but their inputs are often controlled, cropped, paired, or spatially/temporally aligned. Real phone-captured screen videos still contain background regions, perspective distortion, hand-held camera shake, weak screen borders, and dynamic screen content. This project targets this missing pre-alignment stage before downstream demoiréing, OCR, or archival restoration.
+**Description:** Existing screen demoiréing and screen-image restoration studies show that captured-screen content is a meaningful image processing problem. However, many public datasets are collected in controlled settings, where the screen region is already cropped, aligned, or paired with a clean reference. In real phone-captured videos, the input usually contains background regions, perspective distortion, hand-held camera shake, weak or missing screen borders, moiré patterns, glare, and dynamic screen content. This project focuses on this missing preprocessing stage: converting a full captured-screen video into a rectified and temporally stable screen-coordinate video before downstream demoiréing, OCR, or archival restoration.
 
-## Task and Goal
+**Task and goal:** The input is a hand-held video of a computer screen. The output is a fixed-ratio, front-facing, temporally stable video of the screen content. The goal is to remove most non-screen background, correct perspective distortion, reduce frame-to-frame jitter, and provide a reliable normalized input for later restoration tasks.
 
-Input is a full camera video of a computer screen. Output is a fixed-ratio, front-facing, temporally stable screen video. The goal is to remove most non-screen background, rectify perspective distortion, reduce frame-to-frame jitter, and provide stable screen-coordinate input for downstream video demoiréing, OCR, or archival restoration.
+**Method:** The proposed pipeline first obtains the first-frame screen quadrilateral by automatic detection or manual annotation. A homography is then used to rectify the screen plane to a 16:9 output canvas. To avoid the jitter caused by independent frame-wise corner detection, reference-plane feature points are tracked using Lucas-Kanade optical flow, and a robust homography is estimated with RANSAC. Unreliable updates are rejected by geometric constraints, while missing or unstable trajectory segments are interpolated and smoothed before rendering the normalized video.
 
-## Method
+**Dataset and experiment:** The final evaluation will use a self-collected test set with 5 scenario classes, 10 clips per class, and about 5 seconds per clip. The classes are static webpages/documents, scrolling webpages, in-screen video playback, PPT or weak-border low-texture pages, and 4K/moiré/glare hard cases. Public demoiréing datasets will be discussed as related-work evidence because they mostly evaluate restoration after alignment, while this project evaluates the preceding video rectification and stabilization step.
 
-The proposed pipeline first detects or manually specifies the first-frame screen corners, then estimates a homography to rectify the screen to a 16:9 canvas. To avoid frame-wise corner jitter, it tracks reference-plane features with Lucas-Kanade optical flow and estimates a robust homography using RANSAC. Geometric gates reject unreliable updates, and the trajectory is interpolated and smoothed before generating the normalized output video.
+**Evaluation metrics:** The main quantitative metrics are residual adjacent-frame translation p95, rotation p95, and scale-delta p95 measured in the normalized output video. Tracker accept ratio, RANSAC inlier count, inlier ratio, and feature coverage will be used to explain failure cases. In an initial 317-frame local test video, reference-plane tracking reduced the last-two-second residual motion to 0.118 px translation p95 and 0.0044 deg rotation p95, compared with 1.927 px and 0.0425 deg for frame-wise detection.
 
-## Dataset and Experiment Plan
+**Expected results:** The expected result is a classical image-processing and geometric-vision pipeline that produces stable, rectified screen videos from realistic captured-screen inputs. The final report will compare frame-wise detection, ordinary optical-flow tracking, and reference-plane tracking; summarize successful and failed cases; and discuss when this preprocessing is sufficient for downstream screen video restoration.
 
-The final evaluation will use a self-collected test set: **5 scenario classes x 10 clips x about 5 s**. The classes are static pages/documents, scrolling webpages, in-screen video playback, PPT or weak-border low-texture pages, and 4K/moiré/glare hard cases. Public demoiréing datasets are used as related-work evidence rather than direct benchmarks for this pre-alignment task.
-
-## Evaluation Metrics
-
-We estimate residual affine motion between adjacent normalized frames. Main metrics are residual translation p95, residual rotation p95, and residual scale-delta p95. Tracker accept ratio, RANSAC inliers, inlier ratio, and feature coverage are used to explain failure cases. Lower residual motion means a more stable normalized video.
-
-## Initial Result
-
-One local 1920x1080 captured-screen video with 317 frames was used for an initial same-video ablation. The numbers below measure residual motion in the normalized output; they are not ground-truth reconstruction errors.
-
-| Method | Last 2 s translation p95 | Last 2 s rotation p95 | Interpretation |
-| --- | ---: | ---: | --- |
-| Frame-wise corner detection | 1.927 px | 0.0425 deg | jittery baseline |
-| Optical-flow tracking | 1.929 px | 0.0263 deg | lower rotation, still unstable |
-| Reference-plane tracking | **0.118 px** | **0.0044 deg** | best residual stability |
-
-## Expected Result and Timeline
-
-The expected result is a classical geometric preprocessing pipeline that converts realistic captured-screen videos into stable, rectified screen-coordinate videos. Proposal-stage work has fixed the application story, implemented the core normalization pipeline, and produced an initial ablation. Final-stage work will complete the 50-clip test set, run method ablations, visualize corners and tracking failures, and report both successful and unstable cases.
-
-Source files and evidence are stored under `deliverables/proposal_20260622/`. Current draft uses placeholder Group ID until the official group number is filled.
+**Tentative timeline/to-do list:** Jun. 22--24: finalize proposal and presentation. Jun. 25--30: complete the 50-clip self-collected test set. Jul. 1--7: run method ablations and metric evaluation. Jul. 8--12: prepare visual comparisons, failure analysis, and final report. Jul. 13--15: finalize code, sample data, and presentation.
