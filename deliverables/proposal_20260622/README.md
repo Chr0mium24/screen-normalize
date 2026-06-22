@@ -7,7 +7,7 @@
 - `proposal_content.md`：当前主稿。先审这个文件，再决定是否导出 PPT/Word。
 - `Proposal_ID_en.md` / `Proposal_ID_en.pdf`：英文一页 proposal 试版，`ID` 需替换为正式 group number。
 - `Proposal_ID_zh.md` / `Proposal_ID_zh.pdf`：中文一页 proposal 试版，`ID` 需替换为正式 group number。
-- `proposal_pdf_style.css`：中英文一页 proposal PDF 共用样式。
+- `proposal_pdf_style.css`：中英文一页 proposal PDF 共用样式，当前为白底、黑灰单色、正式文档排版。
 - `proposal_presentation.pptx`：早期生成稿，暂不作为当前主稿。
 - `proposal_report.docx`：早期生成稿，暂不作为当前主稿。
 - `proposal_report.md`：早期报告源文本。
