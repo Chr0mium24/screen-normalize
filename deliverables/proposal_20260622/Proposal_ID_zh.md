@@ -1,6 +1,6 @@
 # ECE4512 Final Project Proposal（2026）
 
-**Names & IDs:** 温镕硕 Rongshuo Wen（124020369），温璧华 Bihua Wen（124090670），刘明睿 Ruiming Liu（124090375）
+**Names & IDs:** 温镕硕 Rongshuo Wen（124020369），温璧华 Bihua Wen（124090670），刘明睿 Mingrui Liu（124090375）
 
 **Title:** 面向真实场景拍屏视频恢复的屏幕捕获矫正与时域稳定化
 

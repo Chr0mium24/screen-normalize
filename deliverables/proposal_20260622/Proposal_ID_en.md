@@ -1,6 +1,6 @@
 # Proposal for ECE4512 Final Project 2026
 
-**Names & IDs:** Rongshuo Wen (124020369), Bihua Wen (124090670), Ruiming Liu (124090375)
+**Names & IDs:** Rongshuo Wen (124020369), Bihua Wen (124090670), Mingrui Liu (124090375)
 
 **Title:** Screen Capture Rectification and Temporal Stabilization for Real-world Captured-screen Videos
 
