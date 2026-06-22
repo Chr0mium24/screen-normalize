@@ -2,6 +2,8 @@
 
 这份清单对应 `proposal_presentation.tex`。主讲部分设计为 6 页，约 3 分钟；另外有 2 页 QA 备用页。
 
+当前必须补充的素材：无。现有 `assets/` 已经可以生成完整 PPT。下面清单主要用于替换成更好的真实项目截图，或在正式提交前做内容确认。
+
 ## 编译命令
 
 推荐命令：
@@ -25,15 +27,19 @@ pdflatex proposal_presentation.tex
 
 | 页码 | LaTeX 中的文件路径 | 当前状态 | 需要提供或确认的内容 |
 | --- | --- | --- | --- |
-| 1. Title and Topic | `assets/comparison_1s.jpg` | 已有本地候选图 | 一张清晰的 before/after 对比图：左侧是手机原始拍屏画面，右侧是拉正后的屏幕坐标输出。优先使用项目真实帧。 |
+| 1. Title and Topic | `assets/comparison_1s.jpg` | 已使用 | 一张清晰的 before/after 对比图：左侧是手机原始拍屏画面，右侧是拉正后的屏幕坐标输出。当前已有项目真实帧。 |
 | 2. Motivation and Gap | `assets/screen_corners_overlay_4s.jpg` | 已有本地候选图 | 一张带屏幕四边形标注的原始帧。画面最好能明显看到屏幕外背景、透视倾斜和物理屏幕边界。 |
-| 4. Core Idea and Method | `assets/tracking_visualization.png` | 当前缺少这个精确格式 | 一张紧凑的方法示意图，区分“屏幕边框跟踪”和“屏幕内部内容运动”。可以把已有的 `assets/tracking_visualization.svg` 导出成 PNG，也可以把 LaTeX 路径改成 PDF/PNG 版本。 |
+| 3. Task and Goal | `assets/comparison_4s.jpg` | 已使用 | 真实 before/after 对比图，用于展示从完整拍屏画面到屏幕坐标输出的目标。 |
+| 4. Core Idea and Method | `assets/tracking_visualization.pdf` | 已补齐 | 已由 `assets/tracking_visualization.svg` 转换得到，展示屏幕边框跟踪和屏幕内部内容运动的区别。 |
+| 5. Experiments | `assets/self_collected_dataset_plan.pdf` | 已补齐 | 已由 `assets/self_collected_dataset_plan.svg` 转换得到，展示 5 类自采数据场景。 |
+| Backup. Metrics | `assets/metric_definition.pdf` | 已补齐 | 已由 `assets/metric_definition.svg` 转换得到，用于 QA 解释评价指标。 |
+| Backup. Failure Cases | `assets/failure_case_matrix.pdf` | 已补齐 | 已由 `assets/failure_case_matrix.svg` 转换得到，用于 QA 解释困难场景。 |
 
 ## 可选增强图片
 
 | 建议文件名 | 用途 | 内容要求 |
 | --- | --- | --- |
-| `assets/problem_examples_montage.png` | 替换或补充第 2 页 | 2x2 问题样例拼图：弱边框/PPT、滚动页面、反光或眩光、摩尔纹难例。每个小图加一个短标签。 |
+| `assets/problem_examples_montage.png` | 替换或补充第 2 页 | 2x2 问题样例拼图：弱边框/PPT、滚动页面、反光或眩光、摩尔纹难例。当前不是必须；如果你们有更典型的真实截图，可以后续替换。 |
 | `assets/self_collected_dataset_plan.png` | 补充第 5 页 | 展示 5 类计划场景、每类 10 段视频的数据集设计。已有 SVG 可转换成图片；当前 LaTeX 里也已有文字版说明。 |
 | `assets/proposal_timeline.png` | 补充第 6 页 | 从 6 月 22 日到 7 月 15 日的简短时间轴。当前第 6 页已有表格，所以这张图不是必须。 |
 

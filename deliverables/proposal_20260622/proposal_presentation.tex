@@ -8,13 +8,19 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning}
+\usetikzlibrary{arrows.meta,positioning,calc}
 
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{footline}[frame number]
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{block title}{size=\small,series=\bfseries}
+\setbeamerfont{block body}{size=\small}
+\setbeamercolor{block title}{fg=white,bg=blue!55!black}
+\setbeamercolor{block body}{fg=black,bg=blue!4}
+\setbeamercolor{alerted text}{fg=orange!70!black}
 
 \title[Screen Capture Rectification]{Screen Capture Rectification and Temporal Stabilization\\for Real-world Captured-screen Videos}
-\author{Rongshuo Wen \and Bihua Wen \and Ruiming Liu}
+\author[R. Wen, B. Wen, R. Liu]{Rongshuo Wen (124020369) \and Bihua Wen (124090670) \and Ruiming Liu (124090375)}
 \institute{CIE6032 Final Project Proposal}
 \date{June 24, 2026}
 
@@ -38,11 +44,16 @@
 \newcommand{\smalltag}[1]{%
   \tikz[baseline=(text.base)]\node[
     fill=blue!8,
-    draw=blue!30,
+    draw=blue!35,
     rounded corners=2pt,
     inner xsep=4pt,
     inner ysep=2pt
   ] (text) {\scriptsize #1};%
+}
+
+\newcommand{\talknote}[1]{%
+  \vspace{0.08cm}
+  {\footnotesize\color{black!68}#1}
 }
 
 \begin{document}
@@ -51,9 +62,9 @@
 
 \begin{frame}
   \titlepage
-  \vspace{-0.4cm}
+  \vspace{-0.45cm}
   \begin{center}
-    \imageorbox{assets/comparison_1s.jpg}{0.62\linewidth}{2.2cm}
+    \imageorbox{assets/comparison_1s.jpg}{0.72\linewidth}{2.35cm}
   \end{center}
   \centering
   \small Before restoration, OCR, or archiving, real filmed screens first need geometric normalization.
@@ -61,107 +72,113 @@
 
 \begin{frame}{Motivation: real captured-screen videos are not pre-aligned}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.48\textwidth}
-      \imageorbox{assets/screen_corners_overlay_4s.jpg}{\linewidth}{4.3cm}
+    \begin{column}{0.55\textwidth}
+      \begin{tikzpicture}
+        \node[anchor=south west,inner sep=0] (img) at (0,0)
+          {\imageorbox{assets/screen_corners_overlay_4s.jpg}{\linewidth}{4.65cm}};
+        \begin{scope}[x={(img.south east)},y={(img.north west)}]
+          \node[fill=white,draw=orange!70!black,rounded corners=2pt,inner sep=2pt,font=\scriptsize] at (0.24,0.82) {background};
+          \node[fill=white,draw=blue!65!black,rounded corners=2pt,inner sep=2pt,font=\scriptsize] at (0.70,0.70) {screen plane};
+          \node[fill=white,draw=red!65!black,rounded corners=2pt,inner sep=2pt,font=\scriptsize] at (0.42,0.18) {perspective + shake};
+        \end{scope}
+      \end{tikzpicture}
     \end{column}
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.42\textwidth}
+      \begin{block}{Gap}
+        Many screen restoration settings start after the screen is already cropped or aligned.
+      \end{block}
       \begin{itemize}
-        \item Many restoration datasets already assume the screen is cropped or aligned.
-        \item Real phone videos include background, perspective distortion, hand shake, weak borders, glare, moire, and dynamic screen content.
-        \item This project studies the missing geometric preprocessing step.
+        \item Real phone videos include background, perspective distortion, hand shake, weak borders, glare, moire, and dynamic content.
+        \item We target the missing geometric preprocessing step before restoration.
       \end{itemize}
-      \vspace{0.3cm}
-      \smalltag{gap: full scene input} \quad
-      \smalltag{goal: stable screen coordinates}
+      \vspace{0.2cm}
+      \smalltag{full scene input}
+      \smalltag{stable screen coordinates}
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}{Task and goal}
+\begin{frame}{Task: normalize a full camera video into screen coordinates}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.46\textwidth}
+    \begin{column}{0.61\textwidth}
+      \imageorbox{assets/comparison_4s.jpg}{\linewidth}{3.45cm}
+      \vspace{0.1cm}
+      \begin{center}
+        \smalltag{raw phone frame} \quad
+        \smalltag{rectified screen-coordinate output}
+      \end{center}
+    \end{column}
+    \begin{column}{0.36\textwidth}
       \begin{block}{Input}
-        Hand-held phone video of a computer screen.
+        Hand-held video of a computer screen in a full scene.
       \end{block}
       \begin{block}{Output}
-        Front-facing screen-content video with the physical aspect ratio preserved.
+        Front-facing screen-content video with aspect ratio preserved.
       \end{block}
-    \end{column}
-    \begin{column}{0.50\textwidth}
-      \begin{itemize}
-        \item Remove most non-screen background.
-        \item Correct perspective distortion.
-        \item Reduce frame-to-frame jitter.
-        \item Preserve real screen content motion such as scrolling and video playback.
+      \begin{itemize}\small
+        \item Suppress background.
+        \item Correct perspective.
+        \item Reduce jitter.
+        \item Preserve real content motion.
       \end{itemize}
     \end{column}
   \end{columns}
-  \vfill
-  \begin{center}
-    \begin{tikzpicture}[
-      node distance=0.65cm,
-      box/.style={draw, rounded corners=2pt, align=center, minimum height=0.75cm, minimum width=2.5cm},
-      arr/.style={-{Latex[length=2.2mm]}, thick}
-    ]
-      \node[box, fill=gray!8] (a) {full camera\\video};
-      \node[box, fill=blue!8, right=of a] (b) {screen plane\\estimation};
-      \node[box, fill=green!8, right=of b] (c) {homography\\rectification};
-      \node[box, fill=orange!10, right=of c] (d) {stable screen\\video};
-      \draw[arr] (a) -- (b);
-      \draw[arr] (b) -- (c);
-      \draw[arr] (c) -- (d);
-    \end{tikzpicture}
-  \end{center}
 \end{frame}
 
-\begin{frame}{Core idea: estimate the physical screen plane}
+\begin{frame}{Method: estimate the screen plane, not moving inner content}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.49\textwidth}
+    \begin{column}{0.54\textwidth}
+      \imageorbox{assets/tracking_visualization.pdf}{\linewidth}{4.75cm}
+    \end{column}
+    \begin{column}{0.43\textwidth}
       \begin{tikzpicture}[
-        node distance=0.38cm,
-        flowstep/.style={draw, rounded corners=2pt, align=center, minimum height=0.55cm, text width=4.4cm, font=\scriptsize},
-        arr/.style={-{Latex[length=2mm]}, thick}
+        node distance=0.29cm,
+        flowstep/.style={draw, rounded corners=2pt, align=center, minimum height=0.45cm, text width=4.35cm, font=\scriptsize},
+        arr/.style={-{Latex[length=1.8mm]}, thick}
       ]
         \node[flowstep, fill=blue!7] (s1) {screen quadrilateral initialization};
-        \node[flowstep, fill=blue!7, below=of s1] (s2) {border-based homography estimation};
-        \node[flowstep, fill=blue!7, below=of s2] (s3) {LK feature consistency check};
-        \node[flowstep, fill=blue!7, below=of s3] (s4) {RANSAC conflict filtering};
-        \node[flowstep, fill=blue!7, below=of s4] (s5) {re-detection or freeze on failure};
-        \node[flowstep, fill=blue!7, below=of s5] (s6) {aspect-ratio rectification and smoothing};
+        \node[flowstep, fill=blue!7, below=of s1] (s2) {edge filtering + LSD/Hough border lines};
+        \node[flowstep, fill=green!8, below=of s2] (s3) {border-based homography candidate};
+        \node[flowstep, fill=orange!10, below=of s3] (s4) {LK inner points as consistency check};
+        \node[flowstep, fill=orange!10, below=of s4] (s5) {RANSAC rejects conflicting content motion};
+        \node[flowstep, fill=green!8, below=of s5] (s6) {rectify, smooth, or re-detect/freeze};
         \foreach \x/\y in {s1/s2,s2/s3,s3/s4,s4/s5,s5/s6} {
           \draw[arr] (\x) -- (\y);
         }
       \end{tikzpicture}
     \end{column}
-    \begin{column}{0.49\textwidth}
-      \begin{itemize}
-        \item Physical borders are the main source for the screen homography.
-        \item Inner LK points are used as consistency evidence, not as the main motion model.
-        \item If inner motion conflicts with border motion, it is treated as screen-content motion.
-        \item Corner trajectories are smoothed to suppress high-frequency jitter.
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Experiments: self-collected scenarios and baselines}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.60\textwidth}
+      \imageorbox{assets/self_collected_dataset_plan.pdf}{\linewidth}{4.55cm}
+    \end{column}
+    \begin{column}{0.37\textwidth}
+      \begin{block}{Dataset plan}
+        5 scenario classes, 10 clips per class, about 5 seconds per clip.
+      \end{block}
+      \begin{itemize}\small
+        \item Static pages.
+        \item Scrolling pages.
+        \item In-screen video playback.
+        \item PPT or weak-border pages.
+        \item Glare, moire, or partial screen loss.
       \end{itemize}
-      \vspace{0.2cm}
-      \imageorbox{assets/tracking_visualization.png}{0.92\linewidth}{1.8cm}
+      \begin{block}{Baselines}
+        Frame-wise detection, content optical flow, and proposed border-guided tracking.
+      \end{block}
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}{Experiments and evaluation}
+\begin{frame}{Evaluation, expected result, and timeline}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Self-collected dataset plan}
-        \begin{itemize}
-          \item 5 scenario classes.
-          \item 10 clips per class.
-          \item About 5 seconds per clip.
-          \item Selected key frames manually annotated with four screen corners.
-        \end{itemize}
-      \end{block}
-      \small Static pages, scrolling pages, in-screen video playback, PPT or weak-border pages, and glare/moire/partial-loss hard cases.
-    \end{column}
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.46\textwidth}
       \begin{table}
         \scriptsize
+        \resizebox{\linewidth}{!}{%
         \begin{tabular}{@{}ll@{}}
           \toprule
           Aspect & Metrics \\
@@ -172,26 +189,15 @@
           Grid/moire & 2D FFT dominant direction check \\
           \bottomrule
         \end{tabular}
+        }%
       \end{table}
-      \vspace{0.1cm}
-      \begin{block}{Baselines}
-        Frame-wise detection, content optical flow, and proposed border-guided tracking.
+      \begin{block}{Expected result}
+        A classical geometric preprocessing pipeline that converts realistic captured-screen videos into stable, front-facing screen videos.
       \end{block}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}{Expected results and timeline}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.45\textwidth}
-      \begin{itemize}
-        \item Stable front-facing videos from real captured-screen inputs.
-        \item Better separation of screen-plane motion and screen-content motion.
-        \item Clear failure analysis for weak borders, dynamic content, glare, and moire.
-      \end{itemize}
     \end{column}
     \begin{column}{0.51\textwidth}
       \scriptsize
+      \resizebox{\linewidth}{!}{%
       \begin{tabular}{@{}ll@{}}
         \toprule
         Date & Task \\
@@ -199,50 +205,53 @@
         Jun. 22--24 & finalize proposal and presentation \\
         Jun. 25--26 & collect 50 self-captured clips \\
         Jun. 27--30 & organize data and annotate key frames \\
-        Jul. 1--7 & run ablations and metrics \\
+        Jul. 1--7 & run ablations and metric evaluation \\
         Jul. 8--10 & prepare visual comparison and analysis \\
         Jul. 11--15 & finalize report, code, data, slides \\
         \bottomrule
       \end{tabular}
+      }%
+      \vspace{0.2cm}
+      \begin{center}
+        \smalltag{geometry}
+        \smalltag{stability}
+        \smalltag{signal}
+      \end{center}
     \end{column}
   \end{columns}
-  \vfill
-  \begin{center}
-    \large Deliverable: a classical geometric preprocessing pipeline for realistic filmed-screen restoration workflows.
-  \end{center}
 \end{frame}
 
 \appendix
 
-\begin{frame}{Backup for QA: why this is not a demoireing model}
-  \begin{itemize}
-    \item Demoireing and restoration models usually need a stable screen-coordinate input.
-    \item Real usage starts with a full camera scene, not with a cropped and aligned screen.
-    \item This project handles the earlier geometric stage: locate, rectify, and stabilize the screen plane.
-  \end{itemize}
-  \vfill
-  \begin{center}
-    \begin{tikzpicture}[
-      node distance=0.5cm,
-      box/.style={draw, rounded corners=2pt, align=center, minimum height=0.65cm, text width=2.7cm, font=\scriptsize},
-      arr/.style={-{Latex[length=2mm]}, thick}
-    ]
-      \node[box, fill=gray!8] (a) {real filmed\\screen scene};
-      \node[box, fill=blue!8, right=of a] (b) {this project:\\geometric normalization};
-      \node[box, fill=green!8, right=of b] (c) {downstream:\\demoireing / OCR / archive};
-      \draw[arr] (a) -- (b);
-      \draw[arr] (b) -- (c);
-    \end{tikzpicture}
-  \end{center}
+\begin{frame}{Backup: evaluation metric visual}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.64\textwidth}
+      \imageorbox{assets/metric_definition.pdf}{\linewidth}{4.85cm}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \begin{itemize}
+        \item Annotated corners measure geometric correctness.
+        \item Adjacent-frame affine residuals measure stability.
+        \item Gradient, edge, and FFT checks measure signal preservation after rectification.
+      \end{itemize}
+    \end{column}
+  \end{columns}
 \end{frame}
 
-\begin{frame}{Backup for QA: how dynamic content is handled}
-  \begin{itemize}
-    \item The main homography is estimated from the physical screen boundary.
-    \item Inner LK features are useful only if they agree with the screen-plane motion.
-    \item RANSAC conflict filtering rejects feature motion caused by scrolling pages or in-screen playback.
-    \item If confidence is low, the system re-detects the border or freezes the last valid homography and marks invalid regions.
-  \end{itemize}
+\begin{frame}{Backup: expected failure cases for QA}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.62\textwidth}
+      \imageorbox{assets/failure_case_matrix.pdf}{\linewidth}{4.85cm}
+    \end{column}
+    \begin{column}{0.35\textwidth}
+      \begin{block}{Why not directly train demoireing?}
+        This project targets the earlier geometric stage needed before restoration.
+      \end{block}
+      \begin{block}{How handle dynamic content?}
+        Border motion drives the homography; inconsistent inner LK motion is rejected as content motion.
+      \end{block}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \end{document}
