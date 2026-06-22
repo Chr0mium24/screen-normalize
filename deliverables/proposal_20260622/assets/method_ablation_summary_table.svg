@@ -52,10 +52,7 @@
     <rect x="72" y="156" width="1456" height="614" rx="22" fill="#ffffff"/>
 
     <!-- Highlighted best method column -->
-    <rect x="1163" y="156" width="365" height="614" rx="22" fill="#e4f1eb" stroke="#1e7a63" stroke-width="3"/>
-    <rect x="1163" y="220" width="365" height="550" fill="#e4f1eb"/>
-    <line x1="1163" y1="156" x2="1163" y2="770" stroke="#1e7a63" stroke-width="3"/>
-    <line x1="1528" y1="178" x2="1528" y2="748" stroke="#1e7a63" stroke-width="3"/>
+    <rect x="1163" y="156" width="365" height="614" rx="22" fill="#e4f1eb"/>
 
     <!-- Header bottom rule -->
     <line x1="72" y1="270" x2="1528" y2="270" stroke="#cfcac0" stroke-width="1.5"/>
@@ -105,6 +102,9 @@
     <text class="value" x="504" y="717" text-anchor="middle">0.0425 deg</text>
     <text class="value" x="868" y="717" text-anchor="middle">0.0263 deg</text>
     <text class="best-value" x="1346" y="717" text-anchor="middle">0.0044 deg</text>
+
+    <!-- Closed outline for the highlighted best-method column. -->
+    <rect x="1163" y="156" width="365" height="614" rx="22" fill="none" stroke="#1e7a63" stroke-width="3"/>
   </g>
 
   <text class="footnote" x="76" y="823">Source: deliverables/proposal_20260622/evidence/proposal_ablation_summary.csv.</text>
