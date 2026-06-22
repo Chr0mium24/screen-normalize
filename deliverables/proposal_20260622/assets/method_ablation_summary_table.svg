@@ -1,74 +1,112 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="650" viewBox="0 0 1500 650" role="img" aria-labelledby="title desc">
-  <title id="title">几何轨迹方法消融结果表</title>
-  <desc id="desc">比较逐帧检测角点、普通光流跟踪和参考平面跟踪在全视频和最后 2 秒的残余平移与旋转 p95 指标。参考平面跟踪用深绿色高亮，表示残余运动最低。</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Ablation table for screen normalization stability</title>
+  <desc id="desc">An academic-style ablation table comparing frame-wise corner detection, optical flow tracking, and reference-plane tracking. The reference-plane tracking column is highlighted because it has the lowest residual motion.</desc>
   <defs>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%">
-      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.14"/>
-    </filter>
     <style>
-      .title { font: 700 40px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #172033; }
-      .subtitle { font: 400 22px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #5d687a; }
-      .header { font: 700 21px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #263244; }
-      .method { font: 700 23px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #172033; }
-      .value { font: 700 24px "SF Mono", "Roboto Mono", Consolas, monospace; fill: #172033; }
-      .muted { font: 400 18px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #6c7688; }
-      .best-method { font: 800 24px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #ffffff; }
-      .best-value { font: 800 25px "SF Mono", "Roboto Mono", Consolas, monospace; fill: #ffffff; }
-      .best-note { font: 700 19px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #dff8ef; }
-      .source { font: 400 17px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #6c7688; }
+      .title {
+        font: 700 40px Georgia, "Times New Roman", serif;
+        fill: #191919;
+      }
+      .subtitle {
+        font: 400 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        fill: #5d5f66;
+      }
+      .col-header {
+        font: 700 27px Georgia, "Times New Roman", serif;
+        fill: #191919;
+      }
+      .metric-main {
+        font: 700 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        fill: #202124;
+      }
+      .metric-sub {
+        font: 400 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        fill: #666a72;
+      }
+      .value {
+        font: 700 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        fill: #16181c;
+      }
+      .best-value {
+        font: 800 30px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        fill: #0f3f36;
+      }
+      .best-label {
+        font: 700 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        letter-spacing: 1.2px;
+        fill: #0f5d4f;
+      }
+      .footnote {
+        font: 400 17px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        fill: #666a72;
+      }
     </style>
   </defs>
 
-  <rect width="1500" height="650" fill="#f6f8fb"/>
+  <rect width="1600" height="900" fill="#fbfaf7"/>
 
-  <text class="title" x="72" y="78">几何轨迹方法消融结果</text>
-  <text class="subtitle" x="72" y="116">残余帧间运动 p95 越低，归一化后视频越稳定</text>
+  <text class="title" x="76" y="88">Ablation Study on Residual Screen Motion</text>
+  <text class="subtitle" x="76" y="122">p95 residual inter-frame motion after screen normalization. Lower values indicate more stable output.</text>
 
-  <g filter="url(#shadow)">
-    <rect x="58" y="155" width="1384" height="405" rx="24" fill="#ffffff"/>
+  <g id="table">
+    <rect x="72" y="156" width="1456" height="614" rx="22" fill="#ffffff"/>
 
-    <rect x="58" y="155" width="1384" height="78" rx="24" fill="#e8eef5"/>
-    <rect x="58" y="202" width="1384" height="31" fill="#e8eef5"/>
+    <!-- Highlighted best method column -->
+    <rect x="1163" y="156" width="365" height="614" rx="22" fill="#e4f1eb" stroke="#1e7a63" stroke-width="3"/>
+    <rect x="1163" y="220" width="365" height="550" fill="#e4f1eb"/>
+    <line x1="1163" y1="156" x2="1163" y2="770" stroke="#1e7a63" stroke-width="3"/>
+    <line x1="1528" y1="178" x2="1528" y2="748" stroke="#1e7a63" stroke-width="3"/>
 
-    <text class="header" x="92" y="205">方法</text>
-    <text class="header" x="365" y="205">全视频平移 p95</text>
-    <text class="header" x="620" y="205">全视频旋转 p95</text>
-    <text class="header" x="880" y="205">最后 2 秒平移 p95</text>
-    <text class="header" x="1172" y="205">最后 2 秒旋转 p95</text>
+    <!-- Header bottom rule -->
+    <line x1="72" y1="270" x2="1528" y2="270" stroke="#cfcac0" stroke-width="1.5"/>
 
-    <rect x="58" y="233" width="1384" height="96" fill="#f8fbff"/>
-    <line x1="58" y1="329" x2="1442" y2="329" stroke="#d9e1ec" stroke-width="2"/>
-    <rect x="58" y="329" width="1384" height="96" fill="#eef6ff"/>
-    <line x1="58" y1="425" x2="1442" y2="425" stroke="#d9e1ec" stroke-width="2"/>
-    <rect x="58" y="425" width="1384" height="135" rx="0" fill="#126b5d"/>
+    <!-- Row rules -->
+    <line x1="72" y1="395" x2="1528" y2="395" stroke="#d8d3c9" stroke-width="1.2"/>
+    <line x1="72" y1="520" x2="1528" y2="520" stroke="#d8d3c9" stroke-width="1.2"/>
+    <line x1="72" y1="645" x2="1528" y2="645" stroke="#d8d3c9" stroke-width="1.2"/>
+    <line x1="72" y1="770" x2="1528" y2="770" stroke="#cfcac0" stroke-width="1.5"/>
 
-    <line x1="332" y1="155" x2="332" y2="560" stroke="#d9e1ec" stroke-width="2"/>
-    <line x1="589" y1="155" x2="589" y2="560" stroke="#d9e1ec" stroke-width="2"/>
-    <line x1="849" y1="155" x2="849" y2="560" stroke="#d9e1ec" stroke-width="2"/>
-    <line x1="1143" y1="155" x2="1143" y2="560" stroke="#d9e1ec" stroke-width="2"/>
+    <!-- Column headings -->
+    <text class="col-header" x="96" y="221">Metric</text>
+    <text class="col-header" x="504" y="207" text-anchor="middle">Frame-wise</text>
+    <text class="col-header" x="504" y="239" text-anchor="middle">Corner Detection</text>
+    <text class="col-header" x="868" y="207" text-anchor="middle">Optical Flow</text>
+    <text class="col-header" x="868" y="239" text-anchor="middle">Tracking</text>
+    <text class="col-header" x="1346" y="207" text-anchor="middle">Reference-plane</text>
+    <text class="col-header" x="1346" y="239" text-anchor="middle">Tracking</text>
 
-    <text class="method" x="92" y="290">逐帧检测角点</text>
-    <text class="value" x="390" y="290">2.49 px</text>
-    <text class="value" x="645" y="290">0.0595 deg</text>
-    <text class="value" x="916" y="290">1.93 px</text>
-    <text class="value" x="1196" y="290">0.0425 deg</text>
+    <rect x="1255" y="166" width="182" height="28" rx="14" fill="#d0e8df" stroke="#1e7a63" stroke-width="1"/>
+    <text class="best-label" x="1346" y="186" text-anchor="middle">BEST OVERALL</text>
 
-    <text class="method" x="92" y="386">普通光流跟踪</text>
-    <text class="value" x="390" y="386">2.44 px</text>
-    <text class="value" x="645" y="386">0.0467 deg</text>
-    <text class="value" x="916" y="386">1.93 px</text>
-    <text class="value" x="1196" y="386">0.0263 deg</text>
+    <!-- Row 1 -->
+    <text class="metric-main" x="96" y="331">Residual translation</text>
+    <text class="metric-sub" x="96" y="360">Full video, p95, px</text>
+    <text class="value" x="504" y="342" text-anchor="middle">2.49 px</text>
+    <text class="value" x="868" y="342" text-anchor="middle">2.44 px</text>
+    <text class="best-value" x="1346" y="342" text-anchor="middle">0.146 px</text>
 
-    <text class="best-method" x="92" y="490">参考平面跟踪</text>
-    <text class="best-value" x="390" y="490">0.146 px</text>
-    <text class="best-value" x="645" y="490">0.0047 deg</text>
-    <text class="best-value" x="916" y="490">0.118 px</text>
-    <text class="best-value" x="1196" y="490">0.0044 deg</text>
+    <!-- Row 2 -->
+    <text class="metric-main" x="96" y="456">Residual rotation</text>
+    <text class="metric-sub" x="96" y="485">Full video, p95, degree</text>
+    <text class="value" x="504" y="467" text-anchor="middle">0.0595 deg</text>
+    <text class="value" x="868" y="467" text-anchor="middle">0.0467 deg</text>
+    <text class="best-value" x="1346" y="467" text-anchor="middle">0.0047 deg</text>
 
-    <rect x="92" y="512" width="312" height="32" rx="16" fill="#0b4f45"/>
-    <text class="best-note" x="110" y="535">Best: 残余平移约降低 94%</text>
-    <text class="best-note" x="916" y="535">最后 2 秒最稳定</text>
+    <!-- Row 3 -->
+    <text class="metric-main" x="96" y="581">Residual translation</text>
+    <text class="metric-sub" x="96" y="610">Last 2 s, p95, px</text>
+    <text class="value" x="504" y="592" text-anchor="middle">1.93 px</text>
+    <text class="value" x="868" y="592" text-anchor="middle">1.93 px</text>
+    <text class="best-value" x="1346" y="592" text-anchor="middle">0.118 px</text>
+
+    <!-- Row 4 -->
+    <text class="metric-main" x="96" y="706">Residual rotation</text>
+    <text class="metric-sub" x="96" y="735">Last 2 s, p95, degree</text>
+    <text class="value" x="504" y="717" text-anchor="middle">0.0425 deg</text>
+    <text class="value" x="868" y="717" text-anchor="middle">0.0263 deg</text>
+    <text class="best-value" x="1346" y="717" text-anchor="middle">0.0044 deg</text>
   </g>
 
-  <text class="source" x="72" y="610">Source: deliverables/proposal_20260622/evidence/proposal_ablation_summary.csv；指标为归一化输出视频的相邻帧残余运动，不代表有 ground truth 的重建误差。</text>
+  <text class="footnote" x="76" y="823">Source: deliverables/proposal_20260622/evidence/proposal_ablation_summary.csv.</text>
+  <text class="footnote" x="76" y="852">Metrics estimate residual adjacent-frame motion in the normalized output video; they are not ground-truth reconstruction errors.</text>
 </svg>
