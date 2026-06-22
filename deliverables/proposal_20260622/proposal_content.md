@@ -49,11 +49,31 @@
 
 ### Description
 
-手机拍摄电脑屏幕时，视频中通常会同时出现屏幕外背景、斜拍造成的透视变形、手持拍摄带来的轻微晃动，以及屏幕内部内容变化。现有拍屏图像/视频去摩尔纹研究说明屏幕恢复是一个真实问题，但很多方法依赖受控采集或已对齐的屏幕内容。在真实应用中，去摩尔纹、颜色校正或 OCR 之前，需要先把完整拍摄画面中的屏幕内容捕获、拉正并稳定。
+手机拍摄电脑屏幕时，视频中通常会同时出现屏幕外背景、斜拍造成的透视变形、手持拍摄带来的轻微晃动，以及屏幕内部内容变化。现有拍屏图像/视频去摩尔纹研究说明屏幕恢复是一个真实问题，但相关数据集通常服务于去摩尔纹或图像恢复任务，输入往往已经经过受控采集、裁剪、配对或时空对齐。在真实应用中，去摩尔纹、颜色校正或 OCR 之前，需要先把完整拍摄画面中的屏幕内容捕获、拉正并稳定。
 
 对于课程项目，本工作希望把这类拍屏视频转换成接近正常录屏视角的视频：画面只保留屏幕内容，屏幕被拉正到固定比例，并且在时间上尽量稳定。这个输出可以作为后续 video demoiréing、归档或人工查看的前置输入。
 
 这个问题可以建模为平面目标的几何归一化问题。电脑屏幕近似是一个平面，屏幕平面到相机图像之间可以用单应变换描述。难点在于：如果每帧都重新检测屏幕角点，角点误差会直接表现为画面抖动；如果直接依赖屏幕内部文字、播放器画面或网页内容，这些动态内容又可能错误地影响屏幕姿态估计。因此，本项目采用参考平面跟踪和鲁棒几何估计来稳定估计屏幕位置。
+
+### Related datasets and gap
+
+现有公开数据集可以证明拍屏恢复需求真实存在，但也能说明本项目补的是前置几何链路，而不是重复做一个去摩尔纹网络。
+
+| 数据集/工作 | 数据特点 | 对本项目的启发 |
+| --- | --- | --- |
+| LCDMoire / AIM 2019 | 10,200 对合成 moiré/clean 图像，面向 image demoiréing benchmark | 证明屏幕 moiré 是标准恢复问题，但它不是完整手机拍屏视频，也不评估屏幕捕获和稳定 |
+| UHDM | 5,000 对 4K 真实拍屏图像，覆盖不同设备和视角 | 更接近真实高清拍屏，但仍主要是图像对，重点不是视频中的透视稳定 |
+| CVPR 2022 Video Demoiréing | 290 个 720p 手持拍屏视频，每个 60 帧，数据采集流程保证输入和 clean frames 的空间/时间对齐 | 证明 video demoiréing 需求存在，但它的数据设计已经解决了对齐问题；本项目关注对齐之前的真实拍屏输入 |
+| RawVDemoiré | raw 域图像/视频 demoiréing，并构建 well-aligned raw video demoiréing dataset | 进一步说明主流 video demoiréing 工作需要良好对齐的数据，而本项目提供前置的几何归一化输入 |
+
+因此，Proposal 阶段不应说“公开数据集没有实拍图像”。更准确的表述是：公开数据集已有真实设备采集或手持视频，但多数处在受控、裁剪、配对或已对齐的数据形态；本项目要处理的是更靠前的应用端输入，即带背景、边框、透视倾斜、手持晃动和动态屏幕内容的完整拍屏视频。
+
+参考来源：
+
+- Video Demoireing with Relation-based Temporal Consistency, CVPR 2022: https://daipengwa.github.io/VDmoire_ProjectPage/
+- AIM 2019 Challenge on Image Demoireing / LCDMoire: https://ar5iv.labs.arxiv.org/html/1911.02498
+- Towards Efficient and Scale-Robust Ultra-High-Definition Image Demoiréing / UHDM: https://xinyu-andy.github.io/uhdm-page/
+- Recaptured Raw Screen Image and Video Demoiréing via Channel and Spatial Modulations / RawVDemoiré: https://arxiv.org/abs/2310.20332
 
 ### Task and goal
 
@@ -126,7 +146,7 @@ Final 阶段不应只追加视频数量，而应补齐以下证据：
 
 Motivation:
 
-手机拍摄电脑屏幕时，视频里会包含墙面和桌面背景，屏幕也会因为斜拍产生透视变形。已有 video demoiréing 方法主要处理已采集和对齐后的屏幕内容；真实应用中还需要先完成屏幕定位、透视矫正和时域稳定。目标是把这种拍屏视频转换为接近正常录屏的视频：只保留屏幕内容，校正为正面矩形，并尽量减少帧间抖动。
+手机拍摄电脑屏幕时，视频里会包含墙面和桌面背景，屏幕也会因为斜拍产生透视变形。已有 LCDMoire、UHDM、Video Demoiréing 和 RawVDemoiré 等数据集说明拍屏恢复是一个真实需求，但它们通常面向受控、裁剪、配对或已对齐的去摩尔纹输入；真实应用中还需要先完成屏幕定位、透视矫正和时域稳定。目标是把这种完整拍屏视频转换为接近正常录屏的视频：只保留屏幕内容，校正为正面矩形，并尽量减少帧间抖动。
 
 推荐图：
 
@@ -168,6 +188,7 @@ input video
 
 Dataset:
 
+- Related datasets: LCDMoire、UHDM、Video Demoiréing、RawVDemoiré 证明拍屏恢复需求存在，但主要服务于去摩尔纹/恢复模型，不直接覆盖完整拍屏视频的前置捕获和稳定。
 - 本地拍屏视频：`inputs/VID20260621024117.mp4`
 - 1920x1080，317 帧，约 5.27 秒。
 
