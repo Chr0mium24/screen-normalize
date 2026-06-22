@@ -1,4 +1,4 @@
-# Proposal for CIE6032 Final Project 2026
+# Proposal for ECE4512 Final Project 2026
 
 **Names & IDs:** Rongshuo Wen (124020369), Bihua Wen (124090670), Ruiming Liu (124090375)
 

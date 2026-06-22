@@ -1,4 +1,4 @@
-# CIE6032 Final Project Proposal（2026）
+# ECE4512 Final Project Proposal（2026）
 
 **Names & IDs:** 温镕硕 Rongshuo Wen（124020369），温璧华 Bihua Wen（124090670），刘明睿 Ruiming Liu（124090375）
 
