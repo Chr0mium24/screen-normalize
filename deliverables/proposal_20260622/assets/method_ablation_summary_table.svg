@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
-  <title id="title">Ablation table for screen normalization stability</title>
-  <desc id="desc">An academic-style ablation table comparing frame-wise corner detection, optical flow tracking, and reference-plane tracking. The reference-plane tracking column is highlighted because it has the lowest residual motion.</desc>
+  <title id="title">Preliminary ablation table for screen normalization stability</title>
+  <desc id="desc">An academic-style preliminary ablation table comparing frame-wise corner detection, optical flow tracking, and the proposed border-guided tracking method. The border-guided tracking column is highlighted because it has the lowest residual motion on the pilot clip.</desc>
   <defs>
     <style>
       .title {
@@ -45,8 +45,8 @@
 
   <rect width="1600" height="900" fill="#fbfaf7"/>
 
-  <text class="title" x="76" y="88">Ablation Study on Residual Screen Motion</text>
-  <text class="subtitle" x="76" y="122">p95 residual inter-frame motion after screen normalization. Lower values indicate more stable output.</text>
+  <text class="title" x="76" y="88">Current Work: Preliminary Stability Check</text>
+  <text class="subtitle" x="76" y="122">Pilot-clip p95 residual inter-frame motion after normalization. Lower values indicate more stable output.</text>
 
   <g id="table">
     <rect x="72" y="156" width="1456" height="614" rx="22" fill="#ffffff"/>
@@ -69,11 +69,11 @@
     <text class="col-header" x="504" y="239" text-anchor="middle">Corner Detection</text>
     <text class="col-header" x="868" y="207" text-anchor="middle">Optical Flow</text>
     <text class="col-header" x="868" y="239" text-anchor="middle">Tracking</text>
-    <text class="col-header" x="1346" y="207" text-anchor="middle">Reference-plane</text>
+    <text class="col-header" x="1346" y="207" text-anchor="middle">Border-guided</text>
     <text class="col-header" x="1346" y="239" text-anchor="middle">Tracking</text>
 
     <rect x="1255" y="166" width="182" height="28" rx="14" fill="#d0e8df" stroke="#1e7a63" stroke-width="1"/>
-    <text class="best-label" x="1346" y="186" text-anchor="middle">BEST OVERALL</text>
+    <text class="best-label" x="1346" y="186" text-anchor="middle">PROPOSED</text>
 
     <!-- Row 1 -->
     <text class="metric-main" x="96" y="331">Residual translation</text>
@@ -107,6 +107,6 @@
     <rect x="1163" y="156" width="365" height="614" rx="22" fill="none" stroke="#1e7a63" stroke-width="3"/>
   </g>
 
-  <text class="footnote" x="76" y="823">Source: deliverables/proposal_20260622/evidence/proposal_ablation_summary.csv.</text>
-  <text class="footnote" x="76" y="852">Metrics estimate residual adjacent-frame motion in the normalized output video; they are not ground-truth reconstruction errors.</text>
+  <text class="footnote" x="76" y="823">Source: deliverables/proposal_20260622/evidence/proposal_ablation_summary.csv; one pilot captured-screen clip.</text>
+  <text class="footnote" x="76" y="852">These are current-work stability diagnostics, not final dataset-wide reconstruction results.</text>
 </svg>

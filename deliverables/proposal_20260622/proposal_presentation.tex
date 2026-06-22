@@ -58,7 +58,7 @@
 
 \begin{document}
 
-% Main talk target: 6 slides, about 3 minutes.
+% Main talk target: 7 slides, about 3 minutes.
 
 \begin{frame}
   \titlepage
@@ -146,6 +146,25 @@
           \draw[arr] (\x) -- (\y);
         }
       \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Current work: preliminary stability check}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.64\textwidth}
+      \imageorbox{assets/method_ablation_summary_table.pdf}{\linewidth}{4.55cm}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \begin{block}{Implemented so far}
+        Detection, border-guided tracking, homography warping, and residual-motion analysis.
+      \end{block}
+      \begin{itemize}\small
+        \item Frame-wise detection is sensitive to corner jitter.
+        \item Content optical flow can follow scrolling or in-screen video.
+        \item Border-guided tracking is currently most stable on the pilot clip.
+      \end{itemize}
+      \talknote{Pilot evidence only; full self-collected dataset evaluation is still planned.}
     \end{column}
   \end{columns}
 \end{frame}
