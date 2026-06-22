@@ -200,9 +200,10 @@ Plan of Action:
 ```text
 input video
   -> screen corners
+  -> reference-plane tracking over frames
+  -> RANSAC homography per frame
+  -> trajectory gating/interpolation/smoothing
   -> homography rectification
-  -> LK feature tracking on reference plane
-  -> RANSAC homography
   -> normalized video
 ```
 - `assets/application_pipeline.svg`：统一风格的应用链路图，说明本项目补的是去摩尔纹、OCR 或归档之前的前置几何归一化。
