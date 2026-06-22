@@ -198,6 +198,8 @@ Initial results:
   左边是原始拍屏帧，右边是归一化输出帧。
 - `assets/method_ablation_translation_p95.png`  
   同一输入视频上，三种方法的最后 2 秒残余平移 p95 对比。
+- `assets/method_ablation_summary_table.svg`
+  消融指标总表，深色高亮参考平面跟踪的最低残余运动。
 
 Slide 上只写关键结论：
 
@@ -211,6 +213,7 @@ Slide 上只写关键结论：
 | Fig. 2 | `assets/screen_corners_overlay_4s.jpg` | Slide 1 或 Slide 2 | 展示屏幕平面和四角点 | 已生成 |
 | Fig. 3 | `assets/comparison_4s.jpg` | Slide 3 / 报告 Initial Results | 展示归一化前后对比 | 已有 |
 | Fig. 4 | `assets/method_ablation_translation_p95.png` | Slide 3 / 报告 Dataset and experiment | 展示同视频方法对比 | 已生成 |
+| Fig. 5 | `assets/method_ablation_summary_table.svg` | Slide 3 / 报告 Dataset and experiment | 用高亮表格展示完整消融指标 | 已生成 |
 | Table 1 | `evidence/proposal_ablation_summary.csv` | 报告 Dataset and experiment | 记录三种方法的指标来源 | 已生成 |
 
 暂时不放的图：

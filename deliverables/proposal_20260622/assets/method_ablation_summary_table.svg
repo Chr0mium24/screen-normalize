@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="650" viewBox="0 0 1500 650" role="img" aria-labelledby="title desc">
+  <title id="title">几何轨迹方法消融结果表</title>
+  <desc id="desc">比较逐帧检测角点、普通光流跟踪和参考平面跟踪在全视频和最后 2 秒的残余平移与旋转 p95 指标。参考平面跟踪用深绿色高亮，表示残余运动最低。</desc>
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.14"/>
+    </filter>
+    <style>
+      .title { font: 700 40px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #172033; }
+      .subtitle { font: 400 22px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #5d687a; }
+      .header { font: 700 21px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #263244; }
+      .method { font: 700 23px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #172033; }
+      .value { font: 700 24px "SF Mono", "Roboto Mono", Consolas, monospace; fill: #172033; }
+      .muted { font: 400 18px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #6c7688; }
+      .best-method { font: 800 24px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #ffffff; }
+      .best-value { font: 800 25px "SF Mono", "Roboto Mono", Consolas, monospace; fill: #ffffff; }
+      .best-note { font: 700 19px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #dff8ef; }
+      .source { font: 400 17px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; fill: #6c7688; }
+    </style>
+  </defs>
+
+  <rect width="1500" height="650" fill="#f6f8fb"/>
+
+  <text class="title" x="72" y="78">几何轨迹方法消融结果</text>
+  <text class="subtitle" x="72" y="116">残余帧间运动 p95 越低，归一化后视频越稳定</text>
+
+  <g filter="url(#shadow)">
+    <rect x="58" y="155" width="1384" height="405" rx="24" fill="#ffffff"/>
+
+    <rect x="58" y="155" width="1384" height="78" rx="24" fill="#e8eef5"/>
+    <rect x="58" y="202" width="1384" height="31" fill="#e8eef5"/>
+
+    <text class="header" x="92" y="205">方法</text>
+    <text class="header" x="365" y="205">全视频平移 p95</text>
+    <text class="header" x="620" y="205">全视频旋转 p95</text>
+    <text class="header" x="880" y="205">最后 2 秒平移 p95</text>
+    <text class="header" x="1172" y="205">最后 2 秒旋转 p95</text>
+
+    <rect x="58" y="233" width="1384" height="96" fill="#f8fbff"/>
+    <line x1="58" y1="329" x2="1442" y2="329" stroke="#d9e1ec" stroke-width="2"/>
+    <rect x="58" y="329" width="1384" height="96" fill="#eef6ff"/>
+    <line x1="58" y1="425" x2="1442" y2="425" stroke="#d9e1ec" stroke-width="2"/>
+    <rect x="58" y="425" width="1384" height="135" rx="0" fill="#126b5d"/>
+
+    <line x1="332" y1="155" x2="332" y2="560" stroke="#d9e1ec" stroke-width="2"/>
+    <line x1="589" y1="155" x2="589" y2="560" stroke="#d9e1ec" stroke-width="2"/>
+    <line x1="849" y1="155" x2="849" y2="560" stroke="#d9e1ec" stroke-width="2"/>
+    <line x1="1143" y1="155" x2="1143" y2="560" stroke="#d9e1ec" stroke-width="2"/>
+
+    <text class="method" x="92" y="290">逐帧检测角点</text>
+    <text class="value" x="390" y="290">2.49 px</text>
+    <text class="value" x="645" y="290">0.0595 deg</text>
+    <text class="value" x="916" y="290">1.93 px</text>
+    <text class="value" x="1196" y="290">0.0425 deg</text>
+
+    <text class="method" x="92" y="386">普通光流跟踪</text>
+    <text class="value" x="390" y="386">2.44 px</text>
+    <text class="value" x="645" y="386">0.0467 deg</text>
+    <text class="value" x="916" y="386">1.93 px</text>
+    <text class="value" x="1196" y="386">0.0263 deg</text>
+
+    <text class="best-method" x="92" y="490">参考平面跟踪</text>
+    <text class="best-value" x="390" y="490">0.146 px</text>
+    <text class="best-value" x="645" y="490">0.0047 deg</text>
+    <text class="best-value" x="916" y="490">0.118 px</text>
+    <text class="best-value" x="1196" y="490">0.0044 deg</text>
+
+    <rect x="92" y="512" width="312" height="32" rx="16" fill="#0b4f45"/>
+    <text class="best-note" x="110" y="535">Best: 残余平移约降低 94%</text>
+    <text class="best-note" x="916" y="535">最后 2 秒最稳定</text>
+  </g>
+
+  <text class="source" x="72" y="610">Source: deliverables/proposal_20260622/evidence/proposal_ablation_summary.csv；指标为归一化输出视频的相邻帧残余运动，不代表有 ground truth 的重建误差。</text>
+</svg>
