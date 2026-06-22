@@ -1,126 +1,144 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
   <title id="title">Application pipeline for captured-screen video preprocessing</title>
-  <desc id="desc">A unified academic-style pipeline diagram showing a raw camera capture with desktop background, temporal reference-plane tracking, trajectory refinement, rectification, and downstream screen-video tasks.</desc>
+  <desc id="desc">An academic block diagram showing the preprocessing pipeline from a full camera frame with desk and monitor background, through reference-plane tracking and RANSAC homography estimation, to a normalized screen video.</desc>
   <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1e7a63"/>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#1e7a63"/>
     </marker>
     <style>
       .title{font:700 40px Georgia,"Times New Roman",serif;fill:#191919}
       .subtitle{font:400 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#5d5f66}
-      .step{font:700 23px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#202124}
+      .panel{fill:#ffffff;stroke:#d8d3c9;stroke-width:1.4}
+      .panelStrong{fill:#eef6f2;stroke:#1e7a63;stroke-width:2.4}
+      .tag{font:700 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#0f5d4f}
+      .step{font:700 22px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#202124}
       .small{font:400 16px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#666a72}
-      .tag{font:700 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#0f5d4f}
-      .tiny{font:700 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#5d5f66}
+      .tiny{font:400 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#666a72}
+      .math{font:600 18px Georgia,"Times New Roman",serif;fill:#202124}
+      .lineGreen{stroke:#1e7a63;stroke-width:2.4;fill:none}
+      .lineBrown{stroke:#b97857;stroke-width:2;fill:none}
     </style>
   </defs>
+
   <rect width="1600" height="900" fill="#fbfaf7"/>
   <text class="title" x="76" y="88">Application Pipeline</text>
-  <text class="subtitle" x="76" y="122">The project removes background, tracks the screen plane over time, then rectifies each frame for later demoiréing, OCR, or archiving.</text>
+  <text class="subtitle" x="76" y="122">Geometric preprocessing converts a handheld full-scene capture into a stable screen-coordinate video.</text>
 
-  <g transform="translate(58 215)">
-    <rect x="0" y="0" width="220" height="300" rx="22" fill="#ffffff" stroke="#d8d3c9"/>
-    <text class="tag" x="28" y="42">INPUT</text>
-    <rect x="30" y="74" width="160" height="105" rx="8" fill="#f4f1eb" stroke="#d8d3c9"/>
-    <rect x="30" y="148" width="160" height="31" rx="0" fill="#dfd5c8"/>
-    <ellipse cx="170" cy="168" rx="12" ry="6" fill="#c7b8a8"/>
-    <rect x="70" y="162" width="58" height="9" rx="4" fill="#b9ada1"/>
-    <polygon points="65,96 160,86 173,140 54,151" fill="#dfeee9" stroke="#1e7a63" stroke-width="3"/>
-    <rect x="75" y="105" width="72" height="7" rx="3" fill="#8fb6aa"/>
-    <rect x="75" y="120" width="54" height="6" rx="3" fill="#b97857" opacity=".75"/>
-    <circle cx="58" cy="154" r="4" fill="#b97857"/>
-    <text class="step" x="28" y="236">Raw camera</text>
-    <text class="small" x="28" y="261">desktop, monitor,</text>
-    <text class="small" x="28" y="282">wall and desk background</text>
+  <g transform="translate(62 205)">
+    <rect class="panel" x="0" y="0" width="220" height="310" rx="8"/>
+    <text class="tag" x="24" y="38">INPUT VIDEO</text>
+    <rect x="28" y="68" width="164" height="112" rx="4" fill="#f8f6f1" stroke="#cfc8bd" stroke-width="1.2"/>
+    <rect x="28" y="68" width="164" height="58" fill="#f1ece4"/>
+    <rect x="28" y="126" width="164" height="54" fill="#ded5ca"/>
+    <line x1="28" y1="126" x2="192" y2="126" stroke="#c8beb1" stroke-width="1.2"/>
+    <rect x="66" y="86" width="90" height="56" rx="2" fill="#2f3937" stroke="#1d2523" stroke-width="1.2"/>
+    <rect x="72" y="92" width="78" height="44" rx="1" fill="#dfeee9" stroke="#1e7a63" stroke-width="2.2"/>
+    <rect x="94" y="143" width="34" height="8" fill="#a99d91"/>
+    <path d="M80 160 H143" stroke="#9c9187" stroke-width="5" stroke-linecap="round"/>
+    <rect x="44" y="164" width="70" height="7" rx="2" fill="#c0b5a8"/>
+    <text class="tiny" x="42" y="198">wall / desk background</text>
+    <text class="step" x="24" y="238">Full camera frame</text>
+    <text class="small" x="24" y="264">screen is only one</text>
+    <text class="small" x="24" y="285">region in the scene</text>
   </g>
 
-  <g transform="translate(318 215)">
-    <rect x="0" y="0" width="220" height="300" rx="22" fill="#ffffff" stroke="#d8d3c9"/>
-    <text class="tag" x="28" y="42">STAGE 1</text>
-    <rect x="38" y="77" width="142" height="102" rx="8" fill="#f4f1eb" stroke="#d8d3c9"/>
-    <polygon points="60,98 158,88 169,158 50,170" fill="#f7fbf9" stroke="#1e7a63" stroke-width="4"/>
-    <circle cx="60" cy="98" r="6" fill="#1e7a63"/><circle cx="158" cy="88" r="6" fill="#1e7a63"/>
-    <circle cx="169" cy="158" r="6" fill="#1e7a63"/><circle cx="50" cy="170" r="6" fill="#1e7a63"/>
-    <path d="M75 118 H135 M75 137 H148" stroke="#b97857" stroke-width="2" opacity=".8"/>
-    <text class="step" x="28" y="236">Reference frame</text>
-    <text class="small" x="28" y="261">initialize screen corners</text>
-    <text class="small" x="28" y="282">and screen plane at t0</text>
+  <g transform="translate(312 205)">
+    <rect class="panel" x="0" y="0" width="220" height="310" rx="8"/>
+    <text class="tag" x="24" y="38">STAGE 1</text>
+    <rect x="40" y="74" width="140" height="104" rx="4" fill="#f8f6f1" stroke="#cfc8bd" stroke-width="1.2"/>
+    <polygon points="62,96 160,88 170,156 50,168" fill="#f7fbf9" stroke="#1e7a63" stroke-width="3"/>
+    <circle cx="62" cy="96" r="5" fill="#1e7a63"/><circle cx="160" cy="88" r="5" fill="#1e7a63"/>
+    <circle cx="170" cy="156" r="5" fill="#1e7a63"/><circle cx="50" cy="168" r="5" fill="#1e7a63"/>
+    <path d="M76 116 H138 M76 134 H148" stroke="#b97857" stroke-width="1.8"/>
+    <text class="step" x="24" y="238">Initialize plane</text>
+    <text class="small" x="24" y="264">detect or manually</text>
+    <text class="small" x="24" y="285">set four corners at t0</text>
   </g>
 
-  <g transform="translate(578 215)">
-    <rect x="0" y="0" width="220" height="300" rx="22" fill="#ffffff" stroke="#d8d3c9"/>
-    <text class="tag" x="28" y="42">TEMPORAL STAGE</text>
-    <g transform="translate(30 76)">
-      <polygon points="0,20 51,13 58,71 6,79" fill="#f7fbf9" stroke="#1e7a63" stroke-width="3"/>
-      <polygon points="55,13 108,20 105,82 48,74" fill="#f7fbf9" stroke="#1e7a63" stroke-width="3"/>
-      <polygon points="106,21 158,12 165,73 112,83" fill="#f7fbf9" stroke="#1e7a63" stroke-width="3"/>
-      <circle cx="18" cy="38" r="4" fill="#1e7a63"/><circle cx="37" cy="54" r="4" fill="#1e7a63"/><circle cx="78" cy="39" r="4" fill="#1e7a63"/><circle cx="96" cy="59" r="4" fill="#1e7a63"/><circle cx="128" cy="38" r="4" fill="#1e7a63"/><circle cx="148" cy="55" r="4" fill="#1e7a63"/>
-      <path d="M18 38 C39 26 61 29 78 39 S112 49 128 38" fill="none" stroke="#b97857" stroke-width="3"/>
-      <path d="M37 54 C58 70 78 73 96 59 S127 43 148 55" fill="none" stroke="#b97857" stroke-width="3"/>
-      <text class="tiny" x="14" y="108">t0</text><text class="tiny" x="76" y="108">t1</text><text class="tiny" x="137" y="108">t2...</text>
-    </g>
-    <text class="step" x="28" y="236">Reference tracking</text>
-    <text class="small" x="28" y="261">LK flow + RANSAC</text>
-    <text class="small" x="28" y="282">links frames to t0 plane</text>
+  <g transform="translate(562 205)">
+    <rect class="panel" x="0" y="0" width="220" height="310" rx="8"/>
+    <text class="tag" x="24" y="38">STAGE 2</text>
+    <rect x="28" y="72" width="48" height="70" rx="2" fill="#ffffff" stroke="#cfc8bd" stroke-width="1.2"/>
+    <rect x="86" y="72" width="48" height="70" rx="2" fill="#ffffff" stroke="#cfc8bd" stroke-width="1.2"/>
+    <rect x="144" y="72" width="48" height="70" rx="2" fill="#ffffff" stroke="#cfc8bd" stroke-width="1.2"/>
+    <rect x="36" y="88" width="32" height="28" fill="#f7fbf9" stroke="#1e7a63" stroke-width="2"/>
+    <rect x="94" y="88" width="32" height="28" fill="#f7fbf9" stroke="#1e7a63" stroke-width="2"/>
+    <rect x="152" y="88" width="32" height="28" fill="#f7fbf9" stroke="#1e7a63" stroke-width="2"/>
+    <circle cx="44" cy="96" r="2.8" fill="#1e7a63"/><circle cx="59" cy="108" r="2.8" fill="#1e7a63"/>
+    <circle cx="102" cy="97" r="2.8" fill="#1e7a63"/><circle cx="117" cy="109" r="2.8" fill="#1e7a63"/>
+    <circle cx="160" cy="96" r="2.8" fill="#1e7a63"/><circle cx="175" cy="108" r="2.8" fill="#1e7a63"/>
+    <path d="M59 108 C77 120 94 120 117 109 S149 95 160 96" class="lineBrown"/>
+    <text class="tiny" x="43" y="158">t0</text><text class="tiny" x="101" y="158">t1</text><text class="tiny" x="157" y="158">t2...</text>
+    <text class="math" x="42" y="188">LK tracks p<tspan baseline-shift="sub" font-size="12">0</tspan> -> p<tspan baseline-shift="sub" font-size="12">t</tspan></text>
+    <text class="step" x="24" y="238">Track features</text>
+    <text class="small" x="24" y="264">upright frame sequence</text>
+    <text class="small" x="24" y="285">tied to the t0 plane</text>
   </g>
 
-  <g transform="translate(838 215)">
-    <rect x="0" y="0" width="220" height="300" rx="22" fill="#ffffff" stroke="#d8d3c9"/>
-    <text class="tag" x="28" y="42">STAGE 3</text>
-    <path d="M42 162 C65 82 92 188 112 116 S151 146 180 88" fill="none" stroke="#b97857" stroke-width="3" opacity=".45"/>
-    <path d="M42 147 C72 124 106 129 137 119 S163 105 180 101" fill="none" stroke="#1e7a63" stroke-width="5"/>
-    <circle cx="91" cy="188" r="7" fill="#b97857"/>
-    <path d="M76 188 H106 M91 173 V203" stroke="#b97857" stroke-width="2"/>
-    <text class="step" x="28" y="236">Trajectory filter</text>
-    <text class="small" x="28" y="261">reject bad updates,</text>
-    <text class="small" x="28" y="282">interpolate and smooth</text>
+  <g transform="translate(812 205)">
+    <rect class="panel" x="0" y="0" width="220" height="310" rx="8"/>
+    <text class="tag" x="24" y="38">STAGE 3</text>
+    <rect x="42" y="72" width="136" height="92" rx="3" fill="#ffffff" stroke="#cfc8bd" stroke-width="1.2"/>
+    <rect x="66" y="92" width="88" height="48" fill="#f7fbf9" stroke="#1e7a63" stroke-width="2.4"/>
+    <circle cx="78" cy="104" r="4" fill="#1e7a63"/><circle cx="104" cy="130" r="4" fill="#1e7a63"/>
+    <circle cx="132" cy="108" r="4" fill="#1e7a63"/><circle cx="146" cy="131" r="4" fill="#1e7a63"/>
+    <circle cx="92" cy="116" r="4" fill="#b97857"/><circle cx="125" cy="125" r="4" fill="#b97857"/>
+    <path d="M78 104 H132 M104 130 H146" stroke="#1e7a63" stroke-width="1.6"/>
+    <path d="M92 116 L72 148 M125 125 L158 154" stroke="#b97857" stroke-width="1.6" stroke-dasharray="5 5"/>
+    <text class="math" x="44" y="191">RANSAC: H<tspan baseline-shift="sub" font-size="12">t</tspan></text>
+    <text class="step" x="24" y="238">RANSAC H<tspan baseline-shift="sub" font-size="13">t</tspan></text>
+    <text class="small" x="24" y="264">estimate per-frame</text>
+    <text class="small" x="24" y="285">screen-plane homography</text>
   </g>
 
-  <g transform="translate(1098 215)">
-    <rect x="0" y="0" width="220" height="300" rx="22" fill="#ffffff" stroke="#d8d3c9"/>
-    <text class="tag" x="28" y="42">STAGE 4</text>
-    <polygon points="42,92 123,78 137,151 34,167" fill="#f2e6df" stroke="#b97857" stroke-width="3"/>
-    <path d="M143 123 H174" stroke="#1e7a63" stroke-width="4" marker-end="url(#arrow)"/>
-    <rect x="70" y="183" width="116" height="66" rx="6" fill="#f7fbf9" stroke="#1e7a63" stroke-width="4" transform="translate(0 -45)"/>
-    <path d="M50 112 L72 103 M55 144 L118 134" stroke="#b97857" stroke-width="2" opacity=".7"/>
-    <rect x="83" y="151" width="76" height="6" rx="3" fill="#8fb6aa"/>
-    <rect x="83" y="166" width="58" height="6" rx="3" fill="#d8d3c9"/>
-    <text class="step" x="28" y="236">Rectify frames</text>
-    <text class="small" x="28" y="261">warp each frame to</text>
-    <text class="small" x="28" y="282">screen coordinates</text>
+  <g transform="translate(1062 205)">
+    <rect class="panel" x="0" y="0" width="220" height="310" rx="8"/>
+    <text class="tag" x="24" y="38">STAGE 4</text>
+    <line x1="44" y1="150" x2="178" y2="150" stroke="#d8d3c9" stroke-width="1.2"/>
+    <line x1="44" y1="82" x2="44" y2="168" stroke="#d8d3c9" stroke-width="1.2"/>
+    <path d="M44 142 C66 84 86 171 108 118 S150 151 178 96" stroke="#b97857" stroke-width="2.2" fill="none" opacity=".45"/>
+    <path d="M44 132 C72 120 101 121 130 113 S158 102 178 99" stroke="#1e7a63" stroke-width="3.2" fill="none"/>
+    <circle cx="84" cy="171" r="5" fill="#b97857"/>
+    <path d="M73 171 H95 M84 160 V182" stroke="#b97857" stroke-width="1.5"/>
+    <text class="step" x="24" y="238">Filter trajectory</text>
+    <text class="small" x="24" y="264">gate, interpolate,</text>
+    <text class="small" x="24" y="285">and smooth H<tspan baseline-shift="sub" font-size="11">t</tspan></text>
   </g>
 
-  <g transform="translate(1358 215)">
-    <rect x="0" y="0" width="185" height="300" rx="22" fill="#e4f1eb" stroke="#1e7a63" stroke-width="3"/>
-    <text class="tag" x="26" y="42">OUTPUT</text>
-    <rect x="34" y="83" width="116" height="67" rx="6" fill="#ffffff" stroke="#1e7a63" stroke-width="3"/>
-    <rect x="48" y="101" width="86" height="6" rx="3" fill="#d8d3c9"/>
-    <rect x="48" y="119" width="66" height="6" rx="3" fill="#d8d3c9"/>
-    <path d="M42 172 H142" stroke="#1e7a63" stroke-width="4" opacity=".55"/>
-    <path d="M68 166 L68 178 M104 166 L104 178 M139 166 L139 178" stroke="#1e7a63" stroke-width="3" opacity=".55"/>
-    <text class="step" x="26" y="236">Normalized</text>
-    <text class="step" x="26" y="263">screen video</text>
-    <text class="small" x="26" y="286">stable 16:9 output</text>
+  <g transform="translate(1312 205)">
+    <rect class="panelStrong" x="0" y="0" width="220" height="310" rx="8"/>
+    <text class="tag" x="24" y="38">OUTPUT</text>
+    <rect x="46" y="78" width="128" height="72" rx="3" fill="#ffffff" stroke="#1e7a63" stroke-width="2.6"/>
+    <rect x="62" y="99" width="88" height="6" fill="#d8d3c9"/>
+    <rect x="62" y="116" width="64" height="6" fill="#d8d3c9"/>
+    <line x1="54" y1="176" x2="166" y2="176" stroke="#1e7a63" stroke-width="2.4"/>
+    <line x1="72" y1="170" x2="72" y2="182" stroke="#1e7a63" stroke-width="2"/>
+    <line x1="110" y1="170" x2="110" y2="182" stroke="#1e7a63" stroke-width="2"/>
+    <line x1="148" y1="170" x2="148" y2="182" stroke="#1e7a63" stroke-width="2"/>
+    <text class="step" x="24" y="238">Rectified screen</text>
+    <text class="small" x="24" y="264">stable 16:9 video</text>
+    <text class="small" x="24" y="285">for later modules</text>
   </g>
 
-  <path d="M280 365 H306" stroke="#1e7a63" stroke-width="4" marker-end="url(#arrow)"/>
-  <path d="M540 365 H566" stroke="#1e7a63" stroke-width="4" marker-end="url(#arrow)"/>
-  <path d="M800 365 H826" stroke="#1e7a63" stroke-width="4" marker-end="url(#arrow)"/>
-  <path d="M1060 365 H1086" stroke="#1e7a63" stroke-width="4" marker-end="url(#arrow)"/>
-  <path d="M1320 365 H1346" stroke="#1e7a63" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M284 360 H304" stroke="#1e7a63" stroke-width="2.8" marker-end="url(#arrow)"/>
+  <path d="M534 360 H554" stroke="#1e7a63" stroke-width="2.8" marker-end="url(#arrow)"/>
+  <path d="M784 360 H804" stroke="#1e7a63" stroke-width="2.8" marker-end="url(#arrow)"/>
+  <path d="M1034 360 H1054" stroke="#1e7a63" stroke-width="2.8" marker-end="url(#arrow)"/>
+  <path d="M1284 360 H1304" stroke="#1e7a63" stroke-width="2.8" marker-end="url(#arrow)"/>
 
-  <g transform="translate(318 590)">
-    <rect x="0" y="0" width="960" height="90" rx="22" fill="#ffffff" stroke="#d8d3c9"/>
-    <text class="tag" x="32" y="35">TRACKING CLARIFICATION</text>
-    <text class="step" x="32" y="66">Reference tracking is temporal: it estimates a screen-plane homography for each frame before final rectification.</text>
+  <g transform="translate(188 585)">
+    <rect class="panel" x="0" y="0" width="1224" height="88" rx="8"/>
+    <text class="tag" x="30" y="34">TEMPORAL INTERPRETATION</text>
+    <text class="math" x="30" y="58">For each frame t, LK tracks features from the reference plane and RANSAC estimates H<tspan baseline-shift="sub" font-size="12">t</tspan>.</text>
+    <text class="small" x="30" y="78">The filtered homography trajectory is then used to warp each original frame to screen coordinates.</text>
   </g>
 
   <g transform="translate(438 725)">
-    <rect x="0" y="0" width="724" height="88" rx="22" fill="#ffffff" stroke="#d8d3c9"/>
-    <text class="tag" x="32" y="35">DOWNSTREAM TASKS</text>
-    <text class="step" x="32" y="66">Video demoiréing</text>
-    <text class="step" x="276" y="66">OCR</text>
-    <text class="step" x="390" y="66">Archive</text>
-    <text class="step" x="548" y="66">Manual review</text>
+    <rect class="panel" x="0" y="0" width="724" height="84" rx="8"/>
+    <text class="tag" x="32" y="34">DOWNSTREAM TASKS</text>
+    <text class="step" x="32" y="64">Video demoireing</text>
+    <text class="step" x="276" y="64">OCR</text>
+    <text class="step" x="390" y="64">Archive</text>
+    <text class="step" x="548" y="64">Manual review</text>
   </g>
 </svg>
