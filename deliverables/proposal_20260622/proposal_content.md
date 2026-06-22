@@ -205,6 +205,9 @@ input video
   -> RANSAC homography
   -> normalized video
 ```
+- `assets/application_pipeline.svg`：统一风格的应用链路图，说明本项目补的是去摩尔纹、OCR 或归档之前的前置几何归一化。
+- `assets/tracking_visualization.svg`：参考平面跟踪示意图，解释 inliers、outliers 和屏幕平面单应估计。
+- `assets/metric_definition.svg`：残余运动指标定义图，解释 residual translation、rotation 和 scale delta 的来源。
 
 暂时不放“raw vs smoothed trajectory”图。原因是当前最好样例里 `trajectory_debug.csv` 的 raw 和 smoothed 完全相同，放这个图不能证明平滑有效。
 
@@ -216,15 +219,19 @@ Dataset:
 - Final 计划自采 5 类拍屏短视频，每类 10 段，每段约 5 秒，用于测试静态、滚动、屏幕内视频、PPT/弱边框和 4K/摩尔纹难例。
 - 本地拍屏视频：`inputs/VID20260621024117.mp4`
 - 1920x1080，317 帧，约 5.27 秒。
+- `assets/dataset_gap_matrix.svg`：公开数据集和本项目输入形态的 gap 对比图。
+- `assets/self_collected_dataset_plan.svg`：5 类自采测试视频规划图。
 
 Initial results:
 
-- `assets/comparison_4s.jpg`  
+- `assets/comparison_4s.jpg`
   左边是原始拍屏帧，右边是归一化输出帧。
-- `assets/method_ablation_translation_p95.png`  
+- `assets/before_after_strip_diagram.svg`：演示用的 before/after 时间条示意图，说明最终希望展示的稳定输出形式。
+- `assets/method_ablation_translation_p95.png`
   同一输入视频上，三种方法的最后 2 秒残余平移 p95 对比。
 - `assets/method_ablation_summary_table.svg`
   消融指标总表，深色高亮参考平面跟踪的最低残余运动。
+- `assets/failure_case_matrix.svg`：失败案例矩阵图，用于说明动态内容、弱边框和摩尔纹/反光等边界。
 
 Slide 上只写关键结论：
 
@@ -244,6 +251,13 @@ Metrics:
 | Fig. 3 | `assets/comparison_4s.jpg` | Slide 3 / 报告 Initial Results | 展示归一化前后对比 | 已有 |
 | Fig. 4 | `assets/method_ablation_translation_p95.png` | Slide 3 / 报告 Dataset and experiment | 展示同视频方法对比 | 已生成 |
 | Fig. 5 | `assets/method_ablation_summary_table.svg` | Slide 3 / 报告 Dataset and experiment | 用高亮表格展示完整消融指标 | 已生成 |
+| Fig. 6 | `assets/application_pipeline.svg` | Slide 2 / 报告 Method | 展示完整应用端前处理链路 | 已生成 |
+| Fig. 7 | `assets/dataset_gap_matrix.svg` | Slide 1 或 Slide 3 / 报告 Related datasets | 展示公开数据集和本项目输入形态的差别 | 已生成 |
+| Fig. 8 | `assets/self_collected_dataset_plan.svg` | Slide 3 / 报告 Dataset | 展示 5 类自采测试视频规划 | 已生成 |
+| Fig. 9 | `assets/before_after_strip_diagram.svg` | Slide 3 / 报告 Initial Results | 展示演示用 before/after 时间条形式 | 已生成 |
+| Fig. 10 | `assets/failure_case_matrix.svg` | Slide 4 或报告 Limitations | 展示后续需要分析的失败边界 | 已生成 |
+| Fig. 11 | `assets/tracking_visualization.svg` | Slide 2 / 报告 Method | 解释参考平面跟踪和 RANSAC 内外点 | 已生成 |
+| Fig. 12 | `assets/metric_definition.svg` | Slide 3 / 报告 Evaluation | 解释 residual motion 指标来源 | 已生成 |
 | Table 1 | `evidence/proposal_ablation_summary.csv` | 报告 Dataset and experiment | 记录三种方法的指标来源 | 已生成 |
 
 暂时不放的图：

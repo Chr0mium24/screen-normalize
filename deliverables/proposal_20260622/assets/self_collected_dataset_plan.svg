@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Self-collected test set plan</title>
+  <desc id="desc">A five-category self-collected captured-screen video plan with ten clips per category and about five seconds per clip.</desc>
+  <defs>
+    <style>
+      .title{font:700 40px Georgia,"Times New Roman",serif;fill:#191919}.subtitle{font:400 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#5d5f66}
+      .num{font:800 44px Georgia,"Times New Roman",serif;fill:#0f5d4f}.name{font:700 23px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#202124}
+      .small{font:400 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#666a72}.tag{font:700 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;letter-spacing:1px;fill:#0f5d4f}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#fbfaf7"/>
+  <text class="title" x="76" y="88">Self-collected Evaluation Set</text>
+  <text class="subtitle" x="76" y="122">Final-stage plan: 5 scenario classes, 10 clips per class, approximately 5 seconds per clip.</text>
+  <g transform="translate(105 180)">
+    <rect x="0" y="0" width="1390" height="120" rx="24" fill="#ffffff" stroke="#d8d3c9"/>
+    <text class="num" x="110" y="76">50</text><text class="name" x="205" y="61">captured-screen clips</text><text class="small" x="205" y="88">balanced across realistic screen-content conditions</text>
+    <text class="num" x="665" y="76">5s</text><text class="name" x="760" y="61">short videos</text><text class="small" x="760" y="88">enough for residual motion statistics and visual comparison</text>
+    <text class="num" x="1165" y="76">5</text><text class="name" x="1230" y="61">classes</text><text class="small" x="1230" y="88">designed around failure modes</text>
+  </g>
+  <g transform="translate(90 360)">
+    <rect x="0" y="0" width="270" height="300" rx="22" fill="#ffffff" stroke="#d8d3c9"/>
+    <text class="tag" x="28" y="42">CLASS 1</text><rect x="34" y="72" width="160" height="90" rx="8" fill="#f7fbf9" stroke="#1e7a63" stroke-width="3"/>
+    <line x1="54" y1="96" x2="170" y2="96" stroke="#d8d3c9" stroke-width="6"/><line x1="54" y1="122" x2="150" y2="122" stroke="#d8d3c9" stroke-width="6"/>
+    <text class="name" x="28" y="210">Static page</text><text class="small" x="28" y="242">documents, browser UI,</text><text class="small" x="28" y="267">mostly fixed content</text><text class="tag" x="28" y="292">10 clips x 5s</text>
+  </g>
+  <g transform="translate(385 360)">
+    <rect x="0" y="0" width="270" height="300" rx="22" fill="#ffffff" stroke="#d8d3c9"/>
+    <text class="tag" x="28" y="42">CLASS 2</text><rect x="34" y="72" width="160" height="90" rx="8" fill="#f7fbf9" stroke="#1e7a63" stroke-width="3"/>
+    <path d="M72 95 L54 113 L72 131" fill="none" stroke="#b97857" stroke-width="4"/><path d="M158 95 L176 113 L158 131" fill="none" stroke="#b97857" stroke-width="4"/>
+    <text class="name" x="28" y="210">Scrolling page</text><text class="small" x="28" y="242">page motion, cursor,</text><text class="small" x="28" y="267">local UI changes</text><text class="tag" x="28" y="292">10 clips x 5s</text>
+  </g>
+  <g transform="translate(680 360)">
+    <rect x="0" y="0" width="270" height="300" rx="22" fill="#ffffff" stroke="#d8d3c9"/>
+    <text class="tag" x="28" y="42">CLASS 3</text><rect x="34" y="72" width="160" height="90" rx="8" fill="#f7fbf9" stroke="#1e7a63" stroke-width="3"/>
+    <polygon points="92,94 92,140 132,117" fill="#b97857"/><path d="M54 150 C86 120 128 178 176 104" fill="none" stroke="#b97857" opacity=".55" stroke-width="4"/>
+    <text class="name" x="28" y="210">In-screen video</text><text class="small" x="28" y="242">large dynamic regions</text><text class="small" x="28" y="267">inside the display</text><text class="tag" x="28" y="292">10 clips x 5s</text>
+  </g>
+  <g transform="translate(975 360)">
+    <rect x="0" y="0" width="270" height="300" rx="22" fill="#ffffff" stroke="#d8d3c9"/>
+    <text class="tag" x="28" y="42">CLASS 4</text><rect x="34" y="72" width="160" height="90" rx="8" fill="#ffffff" stroke="#d8d3c9" stroke-width="3"/>
+    <rect x="54" y="96" width="116" height="44" rx="5" fill="#f4f1eb"/><line x1="54" y1="150" x2="170" y2="150" stroke="#d8d3c9" stroke-width="3"/>
+    <text class="name" x="28" y="210">PPT / weak border</text><text class="small" x="28" y="242">low texture, pale UI,</text><text class="small" x="28" y="267">unclear screen edges</text><text class="tag" x="28" y="292">10 clips x 5s</text>
+  </g>
+  <g transform="translate(1270 360)">
+    <rect x="0" y="0" width="270" height="300" rx="22" fill="#e4f1eb" stroke="#1e7a63" stroke-width="3"/>
+    <text class="tag" x="28" y="42">CLASS 5</text><rect x="34" y="72" width="160" height="90" rx="8" fill="#ffffff" stroke="#1e7a63" stroke-width="3"/>
+    <path d="M50 92 C80 72 106 115 136 93 S176 96 184 80" fill="none" stroke="#b97857" stroke-width="3"/>
+    <path d="M50 124 C82 105 112 145 142 123 S176 126 184 112" fill="none" stroke="#b97857" stroke-width="3"/>
+    <text class="name" x="28" y="210">4K / moiré / glare</text><text class="small" x="28" y="242">hard cases for link to</text><text class="small" x="28" y="267">restoration pipeline</text><text class="tag" x="28" y="292">10 clips x 5s</text>
+  </g>
+</svg>

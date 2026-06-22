@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Related dataset gap matrix</title>
+  <desc id="desc">A matrix comparing public demoiréing datasets with the proposed full captured-screen video setting.</desc>
+  <defs>
+    <style>
+      .title{font:700 40px Georgia,"Times New Roman",serif;fill:#191919}.subtitle{font:400 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#5d5f66}
+      .head{font:700 21px Georgia,"Times New Roman",serif;fill:#191919}.label{font:700 22px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#202124}
+      .sub{font:400 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#666a72}.cell{font:700 23px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#202124}
+      .good{fill:#0f5d4f}.warn{fill:#b97857}.muted{fill:#747881}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#fbfaf7"/>
+  <text class="title" x="76" y="88">Related Dataset Gap</text>
+  <text class="subtitle" x="76" y="122">Public datasets validate the demand, but most assume cropped, paired, or aligned screen content.</text>
+  <rect x="72" y="158" width="1456" height="612" rx="22" fill="#ffffff"/>
+  <rect x="72" y="158" width="1456" height="96" rx="22" fill="#f4f1eb"/>
+  <line x1="72" y1="254" x2="1528" y2="254" stroke="#cfcac0" stroke-width="1.5"/>
+  <line x1="72" y1="358" x2="1528" y2="358" stroke="#d8d3c9"/>
+  <line x1="72" y1="462" x2="1528" y2="462" stroke="#d8d3c9"/>
+  <line x1="72" y1="566" x2="1528" y2="566" stroke="#d8d3c9"/>
+  <line x1="72" y1="670" x2="1528" y2="670" stroke="#d8d3c9"/>
+  <line x1="420" y1="158" x2="420" y2="770" stroke="#d8d3c9"/>
+  <line x1="705" y1="158" x2="705" y2="770" stroke="#d8d3c9"/>
+  <line x1="1000" y1="158" x2="1000" y2="770" stroke="#d8d3c9"/>
+  <line x1="1265" y1="158" x2="1265" y2="770" stroke="#d8d3c9"/>
+  <rect x="1265" y="158" width="263" height="612" rx="22" fill="#e4f1eb" stroke="#1e7a63" stroke-width="3"/>
+  <text class="head" x="96" y="216">Dataset / Setting</text>
+  <text class="head" x="562" y="203" text-anchor="middle">Cropped or</text><text class="head" x="562" y="232" text-anchor="middle">paired content</text>
+  <text class="head" x="852" y="203" text-anchor="middle">Spatial / temporal</text><text class="head" x="852" y="232" text-anchor="middle">alignment</text>
+  <text class="head" x="1132" y="203" text-anchor="middle">Full captured</text><text class="head" x="1132" y="232" text-anchor="middle">camera frame</text>
+  <text class="head" x="1396" y="203" text-anchor="middle">Need screen</text><text class="head" x="1396" y="232" text-anchor="middle">preprocessing</text>
+  <text class="label" x="96" y="318">LCDMoire / AIM 2019</text><text class="sub" x="96" y="343">synthetic image pairs</text>
+  <text class="label" x="96" y="422">UHDM</text><text class="sub" x="96" y="447">4K captured image pairs</text>
+  <text class="label" x="96" y="526">Video Demoiréing</text><text class="sub" x="96" y="551">hand-held video, aligned pairs</text>
+  <text class="label" x="96" y="630">RawVDemoiré</text><text class="sub" x="96" y="655">well-aligned raw video pairs</text>
+  <text class="label" x="96" y="734">Our target input</text><text class="sub" x="96" y="759">complete phone-captured screen video</text>
+  <text class="cell good" x="562" y="325" text-anchor="middle">Yes</text><text class="cell good" x="852" y="325" text-anchor="middle">Provided</text><text class="cell muted" x="1132" y="325" text-anchor="middle">No</text><text class="cell muted" x="1396" y="325" text-anchor="middle">No</text>
+  <text class="cell good" x="562" y="429" text-anchor="middle">Mostly</text><text class="cell good" x="852" y="429" text-anchor="middle">Paired</text><text class="cell muted" x="1132" y="429" text-anchor="middle">Limited</text><text class="cell warn" x="1396" y="429" text-anchor="middle">Partial</text>
+  <text class="cell good" x="562" y="533" text-anchor="middle">Yes</text><text class="cell good" x="852" y="533" text-anchor="middle">Provided</text><text class="cell muted" x="1132" y="533" text-anchor="middle">Limited</text><text class="cell warn" x="1396" y="533" text-anchor="middle">Partial</text>
+  <text class="cell good" x="562" y="637" text-anchor="middle">Yes</text><text class="cell good" x="852" y="637" text-anchor="middle">Well-aligned</text><text class="cell muted" x="1132" y="637" text-anchor="middle">No</text><text class="cell warn" x="1396" y="637" text-anchor="middle">Partial</text>
+  <text class="cell warn" x="562" y="741" text-anchor="middle">No</text><text class="cell warn" x="852" y="741" text-anchor="middle">No</text><text class="cell good" x="1132" y="741" text-anchor="middle">Yes</text><text class="cell good" x="1396" y="741" text-anchor="middle">Yes</text>
+</svg>
