@@ -4,7 +4,7 @@
 
 **Title:** Screen Capture Rectification and Temporal Stabilization for Real-world Captured-screen Videos
 
-**Description:** Screen demoiréing and restoration studies show that captured-screen content is an important image-processing problem. However, many datasets assume that the screen region is already cropped, aligned, or paired with a clean reference. Real phone-captured videos are less controlled: they include background regions, perspective distortion, hand-held shake, weak borders, glare, moiré patterns, and dynamic screen content. This project studies the missing geometric preprocessing step that converts full captured-screen videos into rectified and temporally stable screen-coordinate videos.
+**Description:** Screen demoiréing and restoration studies show that captured-screen content is an important image-processing problem. However, many datasets assume that the screen region is already cropped, aligned, or paired with a clean reference. Real phone-captured videos are less controlled: they include background regions, perspective distortion, hand-held shake, weak borders, glare, moiré patterns, and dynamic screen content. This project studies the geometric preprocessing step from a full captured-screen video to a rectified and temporally stable screen-coordinate video.
 
 **Task and goal:** Given a hand-held video of a computer screen, the task is to estimate the screen plane over time and render the content as a front-facing video. The output should suppress background, perspective distortion, and frame-to-frame jitter while preserving the screen aspect ratio.
 
