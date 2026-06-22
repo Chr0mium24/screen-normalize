@@ -1,152 +1,207 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
-  <title id="title">Border-guided screen capture rectification pipeline</title>
-  <desc id="desc">An academic block diagram showing the proposal pipeline from a full handheld captured-screen video, through screen quadrilateral initialization, physical-border homography estimation, inner Lucas-Kanade consistency checking, RANSAC conflict filtering, failure recovery, and temporal smoothing, to a stable aspect-ratio-preserving screen-coordinate video.</desc>
+  <title id="title">Border-guided captured-screen video pipeline with reject control flow</title>
+  <desc id="desc">A proposal diagram showing two evidence streams for captured-screen normalization. Physical screen borders provide the main homography candidate. Inner Lucas-Kanade tracks enter a RANSAC consistency gate only as a check. Agreement accepts the border-driven homography for smoothing and rectification, while conflict rejects inner motion as screen-content motion.</desc>
   <defs>
-    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L8,4 L0,8 Z" fill="#1e7a63"/>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#137c63"/>
     </marker>
-    <marker id="arrowBrown" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L8,4 L0,8 Z" fill="#b97857"/>
+    <marker id="arrowBrown" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#a85f3d"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#436f9f"/>
+    </marker>
+    <marker id="arrowGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#8a9299"/>
     </marker>
     <style>
-      .title{font:700 40px Georgia,"Times New Roman",serif;fill:#191919}
-      .subtitle{font:400 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#5d5f66}
-      .panel{fill:#ffffff;stroke:#d8d3c9;stroke-width:1.4}
-      .panelStrong{fill:#eef6f2;stroke:#1e7a63;stroke-width:2.4}
-      .tag{font:700 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#0f5d4f}
-      .step{font:700 22px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#202124}
-      .small{font:400 16px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#666a72}
-      .tiny{font:400 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#666a72}
-      .micro{font:700 10px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#666a72}
-      .math{font:600 18px Georgia,"Times New Roman",serif;fill:#202124}
-      .lineGreen{stroke:#1e7a63;stroke-width:2.4;fill:none}
-      .lineBrown{stroke:#b97857;stroke-width:2;fill:none}
-      .lineGray{stroke:#cfc8bd;stroke-width:1.4;fill:none}
+      .title{font:700 39px Georgia,"Times New Roman",serif;fill:#171717}
+      .subtitle{font:400 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#5a626b}
+      .label{font:700 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;letter-spacing:.6px;fill:#105f51}
+      .labelBrown{font:700 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;letter-spacing:.6px;fill:#8c4d31}
+      .labelBlue{font:700 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;letter-spacing:.6px;fill:#345d8a}
+      .step{font:700 21px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#22262a}
+      .body{font:400 16px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#5f6870}
+      .small{font:400 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#68727a}
+      .tiny{font:400 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#6d747b}
+      .math{font:700 18px Georgia,"Times New Roman",serif;fill:#202327}
+      .box{fill:#ffffff;stroke:#d1d8dc;stroke-width:1.5}
+      .boxStrong{fill:#edf7f4;stroke:#137c63;stroke-width:2.4}
+      .laneBorder{fill:#eef7f3;stroke:#b9d8ce;stroke-width:1.6}
+      .laneLK{fill:#fbf2ec;stroke:#e2c6b5;stroke-width:1.6}
+      .gate{fill:#ffffff;stroke:#2c3840;stroke-width:2}
+      .accept{stroke:#137c63;stroke-width:3;fill:none;marker-end:url(#arrowGreen)}
+      .reject{stroke:#a85f3d;stroke-width:3;fill:none;stroke-dasharray:8 7;marker-end:url(#arrowBrown)}
+      .check{stroke:#436f9f;stroke-width:2.4;fill:none;marker-end:url(#arrowBlue)}
+      .control{stroke:#8a9299;stroke-width:2;fill:none;stroke-dasharray:6 6;marker-end:url(#arrowGray)}
+      .thinGreen{stroke:#137c63;stroke-width:2;fill:none}
+      .thinBrown{stroke:#a85f3d;stroke-width:2;fill:none}
+      .thinGray{stroke:#c8d0d5;stroke-width:1.4;fill:none}
     </style>
   </defs>
 
-  <rect width="1600" height="900" fill="#fbfaf7"/>
-  <text class="title" x="76" y="88">Border-Guided Screen Normalization Pipeline</text>
-  <text class="subtitle" x="76" y="122">Estimate the physical screen plane, reject moving inner content, then rectify and stabilize the video.</text>
+  <rect width="1600" height="900" fill="#f6f8f7"/>
+  <text class="title" x="70" y="76">Captured-Screen Normalization: Evidence Flow</text>
+  <text class="subtitle" x="70" y="110">Physical borders estimate the screen plane; inner motion is checked, and conflicting content motion is rejected.</text>
 
-  <g transform="translate(62 205)">
-    <rect class="panel" x="0" y="0" width="220" height="310" rx="8"/>
-    <text class="tag" x="24" y="38">INPUT VIDEO</text>
-    <rect x="28" y="68" width="164" height="112" rx="4" fill="#f8f6f1" stroke="#cfc8bd" stroke-width="1.2"/>
-    <rect x="28" y="68" width="164" height="58" fill="#f1ece4"/>
-    <rect x="28" y="126" width="164" height="54" fill="#ded5ca"/>
-    <line x1="28" y1="126" x2="192" y2="126" stroke="#c8beb1" stroke-width="1.2"/>
-    <rect x="66" y="86" width="90" height="56" rx="2" fill="#2f3937" stroke="#1d2523" stroke-width="1.2"/>
-    <rect x="72" y="92" width="78" height="44" rx="1" fill="#dfeee9" stroke="#1e7a63" stroke-width="2.2"/>
-    <path d="M82 97 L145 132" stroke="#e3c7a0" stroke-width="1.4" opacity=".7"/>
-    <path d="M83 130 L143 96" stroke="#e3c7a0" stroke-width="1.2" opacity=".55"/>
-    <rect x="94" y="143" width="34" height="8" fill="#a99d91"/>
-    <path d="M80 160 H143" stroke="#9c9187" stroke-width="5" stroke-linecap="round"/>
-    <rect x="44" y="164" width="70" height="7" rx="2" fill="#c0b5a8"/>
-    <text class="tiny" x="39" y="198">background, glare, tilt, shake</text>
-    <text class="step" x="24" y="238">Full scene video</text>
-    <text class="small" x="24" y="264">screen is only one</text>
-    <text class="small" x="24" y="285">unstable region</text>
+  <g transform="translate(1180 62)">
+    <line class="accept" x1="0" y1="0" x2="58" y2="0"/>
+    <text class="tiny" x="72" y="5">accepted homography</text>
+    <line class="reject" x1="0" y1="28" x2="58" y2="28"/>
+    <text class="tiny" x="72" y="33">rejected content motion</text>
+    <line class="control" x1="0" y1="56" x2="58" y2="56"/>
+    <text class="tiny" x="72" y="61">recovery control</text>
   </g>
 
-  <g transform="translate(312 205)">
-    <rect class="panel" x="0" y="0" width="220" height="310" rx="8"/>
-    <text class="tag" x="24" y="38">STAGE 1</text>
-    <rect x="40" y="74" width="140" height="104" rx="4" fill="#f8f6f1" stroke="#cfc8bd" stroke-width="1.2"/>
-    <polygon points="62,96 160,88 170,156 50,168" fill="#f7fbf9" stroke="#1e7a63" stroke-width="3"/>
-    <circle cx="62" cy="96" r="5" fill="#1e7a63"/><circle cx="160" cy="88" r="5" fill="#1e7a63"/>
-    <circle cx="170" cy="156" r="5" fill="#1e7a63"/><circle cx="50" cy="168" r="5" fill="#1e7a63"/>
-    <path d="M76 116 H138 M76 134 H148" stroke="#b97857" stroke-width="1.8"/>
-    <text class="tiny" x="43" y="195">auto detection or manual corners</text>
-    <text class="step" x="24" y="238">Initialize quad</text>
-    <text class="small" x="24" y="264">screen quadrilateral</text>
-    <text class="small" x="24" y="285">at the reference frame</text>
+  <g transform="translate(70 306)">
+    <rect class="box" x="0" y="0" width="245" height="242" rx="8"/>
+    <text class="labelBlue" x="24" y="36">INPUT</text>
+    <rect x="34" y="62" width="176" height="112" rx="5" fill="#f1eee9" stroke="#c9d0d4" stroke-width="1.2"/>
+    <rect x="34" y="62" width="176" height="54" fill="#e7ebed"/>
+    <rect x="34" y="116" width="176" height="58" fill="#d8d2c8"/>
+    <line x1="34" y1="116" x2="210" y2="116" stroke="#bfc5c8" stroke-width="1.1"/>
+    <rect x="79" y="78" width="91" height="58" rx="2" fill="#26312f" stroke="#19211f" stroke-width="1.2"/>
+    <polygon points="87,86 164,82 164,128 88,130" fill="#dff1ec" stroke="#137c63" stroke-width="2.4"/>
+    <path d="M94 92 L158 124 M98 126 L158 88" stroke="#d8b070" stroke-width="1.2" opacity=".65"/>
+    <rect x="103" y="139" width="42" height="9" fill="#9b948b"/>
+    <line x1="82" y1="158" x2="166" y2="158" stroke="#9b948b" stroke-width="5" stroke-linecap="round"/>
+    <text class="step" x="24" y="207">Full handheld video</text>
+    <text class="body" x="24" y="230">background, tilt, glare, shake</text>
   </g>
 
-  <g transform="translate(562 205)">
-    <rect class="panel" x="0" y="0" width="220" height="310" rx="8"/>
-    <text class="tag" x="24" y="38">STAGE 2</text>
-    <rect x="35" y="72" width="150" height="110" rx="4" fill="#ffffff" stroke="#cfc8bd" stroke-width="1.2"/>
-    <polygon points="61,95 161,88 169,154 51,166" fill="#f7fbf9" stroke="#cfc8bd" stroke-width="1.4"/>
-    <path d="M59 94 L162 87" stroke="#1e7a63" stroke-width="4" stroke-linecap="round"/>
-    <path d="M171 154 L50 167" stroke="#1e7a63" stroke-width="4" stroke-linecap="round"/>
-    <path d="M61 95 L50 167" stroke="#1e7a63" stroke-width="4" stroke-linecap="round"/>
-    <path d="M162 88 L170 154" stroke="#1e7a63" stroke-width="4" stroke-linecap="round"/>
-    <path d="M45 88 L80 83 M135 82 L181 78 M42 176 L92 171 M128 169 L184 164" stroke="#8db7a9" stroke-width="1.5" stroke-dasharray="5 5"/>
-    <path d="M73 112 H142 M74 130 H151 M79 145 H130" stroke="#b97857" stroke-width="1.6" opacity=".6"/>
-    <text class="micro" x="44" y="199">edge filter + LSD / Hough lines</text>
-    <text class="step" x="24" y="238">Border evidence</text>
-    <text class="small" x="24" y="264">locate four physical</text>
-    <text class="small" x="24" y="285">screen borders</text>
+  <g transform="translate(370 176)">
+    <rect class="laneBorder" x="0" y="0" width="780" height="254" rx="8"/>
+    <text class="label" x="28" y="34">MAIN EVIDENCE STREAM</text>
+    <text class="step" x="28" y="64">Physical screen borders drive the screen-plane model</text>
+
+    <g transform="translate(34 94)">
+      <rect class="box" x="0" y="0" width="205" height="124" rx="8"/>
+      <text class="label" x="20" y="28">1. INITIALIZE</text>
+      <polygon points="54,51 158,43 168,97 44,108" fill="#f9fcfb" stroke="#137c63" stroke-width="2.8"/>
+      <circle cx="54" cy="51" r="5" fill="#137c63"/>
+      <circle cx="158" cy="43" r="5" fill="#137c63"/>
+      <circle cx="168" cy="97" r="5" fill="#137c63"/>
+      <circle cx="44" cy="108" r="5" fill="#137c63"/>
+      <path d="M66 70 H143 M66 86 H132" stroke="#a85f3d" stroke-width="1.5" opacity=".75"/>
+      <text class="tiny" x="20" y="116">auto detect or manual t0 corners</text>
+    </g>
+
+    <g transform="translate(300 94)">
+      <rect class="box" x="0" y="0" width="205" height="124" rx="8"/>
+      <text class="label" x="20" y="28">2. BORDER LINES</text>
+      <rect x="36" y="42" width="132" height="58" rx="3" fill="#ffffff" stroke="#c9d0d4" stroke-width="1.2"/>
+      <polygon points="53,57 149,50 156,88 46,96" fill="#f9fcfb" stroke="#c9d0d4" stroke-width="1.2"/>
+      <path d="M51 56 L150 50 M157 88 L45 97 M52 57 L45 97 M150 50 L157 88" stroke="#137c63" stroke-width="3.6" stroke-linecap="round"/>
+      <path d="M42 46 L88 42 M122 40 L174 36 M40 104 L94 100 M124 99 L174 95" stroke="#76afa0" stroke-width="1.5" stroke-dasharray="5 5"/>
+      <text class="tiny" x="20" y="116">edge filter + LSD / Hough</text>
+    </g>
+
+    <g transform="translate(566 94)">
+      <rect class="boxStrong" x="0" y="0" width="180" height="124" rx="8"/>
+      <text class="label" x="20" y="28">3. CANDIDATE</text>
+      <text class="math" x="36" y="66">H<tspan baseline-shift="sub" font-size="12">border,t</tspan></text>
+      <rect x="34" y="78" width="110" height="28" rx="3" fill="#ffffff" stroke="#137c63" stroke-width="1.8"/>
+      <line x1="46" y1="92" x2="132" y2="92" stroke="#137c63" stroke-width="2.2"/>
+      <text class="tiny" x="20" y="116">homography from four borders</text>
+    </g>
+
+    <path class="accept" d="M240 156 H288"/>
+    <path class="accept" d="M506 156 H554"/>
   </g>
 
-  <g transform="translate(812 205)">
-    <rect class="panel" x="0" y="0" width="220" height="310" rx="8"/>
-    <text class="tag" x="24" y="38">STAGE 3</text>
-    <rect x="42" y="72" width="136" height="96" rx="3" fill="#ffffff" stroke="#cfc8bd" stroke-width="1.2"/>
-    <rect x="62" y="91" width="96" height="56" rx="1" fill="#f7fbf9" stroke="#1e7a63" stroke-width="2.6"/>
-    <path d="M70 112 H111 M70 129 H138" stroke="#d8d3c9" stroke-width="2"/>
-    <circle cx="76" cy="103" r="4" fill="#1e7a63"/><circle cx="95" cy="132" r="4" fill="#1e7a63"/>
-    <circle cx="142" cy="106" r="4" fill="#1e7a63"/><circle cx="150" cy="136" r="4" fill="#1e7a63"/>
-    <path d="M76 103 l14 -3 M95 132 l15 -1 M142 106 l15 1 M150 136 l16 -1" stroke="#1e7a63" stroke-width="1.7" marker-end="url(#arrow)"/>
-    <circle cx="93" cy="116" r="4.2" fill="#b97857"/><circle cx="123" cy="124" r="4.2" fill="#b97857"/>
-    <path d="M93 116 l-23 30 M123 124 l32 30" stroke="#b97857" stroke-width="1.8" stroke-dasharray="5 5" marker-end="url(#arrowBrown)"/>
-    <text class="tiny" x="48" y="191">LK checks inner motion only</text>
-    <text class="step" x="24" y="238">LK consistency</text>
-    <text class="small" x="24" y="264">verify, not drive,</text>
-    <text class="small" x="24" y="285">the screen motion model</text>
+  <g transform="translate(370 520)">
+    <rect class="laneLK" x="0" y="0" width="650" height="190" rx="8"/>
+    <text class="labelBrown" x="28" y="34">CONSISTENCY STREAM</text>
+    <text class="step" x="28" y="64">Inner LK tracks are evidence, not the motion model</text>
+
+    <g transform="translate(36 88)">
+      <rect class="box" x="0" y="0" width="190" height="72" rx="8"/>
+      <rect x="24" y="16" width="92" height="41" rx="2" fill="#f9fcfb" stroke="#137c63" stroke-width="2.2"/>
+      <circle cx="38" cy="28" r="4" fill="#137c63"/>
+      <circle cx="68" cy="46" r="4" fill="#137c63"/>
+      <circle cx="102" cy="30" r="4" fill="#137c63"/>
+      <circle cx="50" cy="43" r="4" fill="#a85f3d"/>
+      <circle cx="88" cy="47" r="4" fill="#a85f3d"/>
+      <path d="M38 28 l16 -3 M68 46 l18 -1 M102 30 l20 2" stroke="#137c63" stroke-width="1.6" marker-end="url(#arrowGreen)"/>
+      <path d="M50 43 l-24 20 M88 47 l30 18" stroke="#a85f3d" stroke-width="1.6" stroke-dasharray="5 5" marker-end="url(#arrowBrown)"/>
+      <text class="tiny" x="130" y="30">LK</text>
+      <text class="tiny" x="130" y="48">tracks</text>
+    </g>
+
+    <g transform="translate(292 88)">
+      <rect class="box" x="0" y="0" width="320" height="72" rx="8"/>
+      <text class="labelBrown" x="22" y="28">CHECK AGAINST BORDER MOTION</text>
+      <text class="small" x="22" y="52">agree: consistency evidence</text>
+      <text class="small" x="194" y="48">conflict:</text>
+      <text class="small" x="194" y="65">content motion</text>
+    </g>
+
+    <path class="check" d="M228 124 H280"/>
   </g>
 
-  <g transform="translate(1062 205)">
-    <rect class="panel" x="0" y="0" width="220" height="310" rx="8"/>
-    <text class="tag" x="24" y="38">STAGE 4</text>
-    <rect x="41" y="76" width="138" height="94" rx="3" fill="#ffffff" stroke="#cfc8bd" stroke-width="1.2"/>
-    <polygon points="65,97 154,91 161,146 56,158" fill="#f7fbf9" stroke="#1e7a63" stroke-width="2.6"/>
-    <circle cx="70" cy="101" r="4" fill="#1e7a63"/><circle cx="151" cy="95" r="4" fill="#1e7a63"/>
-    <circle cx="158" cy="143" r="4" fill="#1e7a63"/><circle cx="60" cy="155" r="4" fill="#1e7a63"/>
-    <circle cx="94" cy="116" r="4.5" fill="#b97857"/><circle cx="126" cy="128" r="4.5" fill="#b97857"/>
-    <path d="M83 105 L105 127 M115 116 L137 139" stroke="#b97857" stroke-width="2" stroke-linecap="round"/>
-    <path d="M105 105 L83 127 M137 116 L115 139" stroke="#b97857" stroke-width="2" stroke-linecap="round"/>
-    <text class="math" x="44" y="196">RANSAC -> H<tspan baseline-shift="sub" font-size="12">t</tspan></text>
-    <text class="step" x="24" y="238">Conflict filter</text>
-    <text class="small" x="24" y="260">reject content motion</text>
-    <text class="small" x="24" y="281">estimate H<tspan baseline-shift="sub" font-size="11">t</tspan> from</text>
-    <text class="small" x="24" y="302">physical borders</text>
+  <path class="check" d="M315 427 C350 427 345 394 370 394"/>
+  <path class="check" d="M315 427 C350 427 345 644 370 644"/>
+
+  <g transform="translate(1072 373)">
+    <polygon class="gate" points="90,0 180,88 90,176 0,88"/>
+    <text class="labelBlue" x="43" y="62">RANSAC</text>
+    <text class="labelBlue" x="54" y="82">GATE</text>
+    <text class="small" x="41" y="107">border vs.</text>
+    <text class="small" x="47" y="124">inner LK</text>
   </g>
 
-  <g transform="translate(1312 205)">
-    <rect class="panelStrong" x="0" y="0" width="220" height="310" rx="8"/>
-    <text class="tag" x="24" y="38">OUTPUT</text>
-    <line x1="42" y1="166" x2="174" y2="166" stroke="#d8d3c9" stroke-width="1.2"/>
-    <line x1="42" y1="90" x2="42" y2="176" stroke="#d8d3c9" stroke-width="1.2"/>
-    <path d="M42 151 C62 111 84 172 104 128 S147 154 174 105" stroke="#b97857" stroke-width="2.1" fill="none" opacity=".35"/>
-    <path d="M42 140 C74 132 103 130 132 120 S158 111 174 108" stroke="#1e7a63" stroke-width="3.2" fill="none"/>
-    <rect x="54" y="77" width="112" height="63" rx="3" fill="#ffffff" stroke="#1e7a63" stroke-width="2.4"/>
-    <rect x="68" y="96" width="72" height="5" fill="#d8d3c9"/>
-    <rect x="68" y="111" width="54" height="5" fill="#d8d3c9"/>
-    <text class="step" x="24" y="238">Stable output</text>
-    <text class="small" x="24" y="264">native-aspect screen</text>
-    <text class="small" x="24" y="285">coordinates over time</text>
+  <path class="accept" d="M1116 332 C1144 342 1160 356 1162 372"/>
+  <path class="check" d="M1020 644 C1066 644 1090 574 1128 544"/>
+  <path class="check" d="M1150 430 C1126 404 1115 372 1116 332"/>
+
+  <g transform="translate(1288 288)">
+    <rect class="boxStrong" x="0" y="0" width="232" height="122" rx="8"/>
+    <text class="label" x="24" y="34">ACCEPTED PATH</text>
+    <text class="step" x="24" y="65">Use H<tspan baseline-shift="sub" font-size="12">border,t</tspan></text>
+    <text class="body" x="24" y="93">screen-plane motion</text>
+    <text class="body" x="24" y="114">is trusted over content flow</text>
   </g>
 
-  <path d="M284 360 H304" stroke="#1e7a63" stroke-width="2.8" marker-end="url(#arrow)"/>
-  <path d="M534 360 H554" stroke="#1e7a63" stroke-width="2.8" marker-end="url(#arrow)"/>
-  <path d="M784 360 H804" stroke="#1e7a63" stroke-width="2.8" marker-end="url(#arrow)"/>
-  <path d="M1034 360 H1054" stroke="#1e7a63" stroke-width="2.8" marker-end="url(#arrow)"/>
-  <path d="M1284 360 H1304" stroke="#1e7a63" stroke-width="2.8" marker-end="url(#arrow)"/>
+  <path class="accept" d="M1252 461 C1278 426 1294 405 1316 410"/>
 
-  <g transform="translate(188 585)">
-    <rect class="panel" x="0" y="0" width="1224" height="88" rx="8"/>
-    <text class="tag" x="30" y="34">RECOVERY AND TEMPORAL INTERPRETATION</text>
-    <text class="math" x="30" y="58">Low border confidence, low inlier ratio, or invalid quadrilateral shape triggers re-detection; failed recovery freezes H<tspan baseline-shift="sub" font-size="12">t-1</tspan>.</text>
-    <text class="small" x="30" y="78">Accepted corner and homography trajectories are smoothed before warping each original frame to screen coordinates.</text>
+  <g transform="translate(1288 492)">
+    <rect class="box" x="0" y="0" width="232" height="134" rx="8"/>
+    <text class="label" x="24" y="34">SMOOTH + RECOVER</text>
+    <text class="body" x="24" y="62">smooth accepted H<tspan baseline-shift="sub" font-size="11">t</tspan></text>
+    <text class="body" x="24" y="86">low confidence: re-detect</text>
+    <text class="body" x="24" y="110">or freeze H<tspan baseline-shift="sub" font-size="11">t-1</tspan></text>
   </g>
 
-  <g transform="translate(438 725)">
-    <rect class="panel" x="0" y="0" width="724" height="84" rx="8"/>
-    <text class="tag" x="32" y="34">WHAT IS SEPARATED</text>
-    <text class="step" x="32" y="64">Screen-plane motion</text>
-    <text class="step" x="344" y="64">Inner content motion</text>
-    <text class="tiny" x="32" y="79">borders drive rectification; LK points only confirm consistency</text>
+  <path class="accept" d="M1404 410 V482"/>
+  <path class="control" d="M1288 558 C1218 558 1210 408 1154 404"/>
+
+  <g transform="translate(1242 696)">
+    <rect class="boxStrong" x="0" y="0" width="278" height="132" rx="8"/>
+    <text class="label" x="24" y="34">OUTPUT</text>
+    <rect x="24" y="52" width="128" height="72" rx="3" fill="#ffffff" stroke="#137c63" stroke-width="2.4"/>
+    <rect x="42" y="72" width="82" height="6" fill="#cfd9dd"/>
+    <rect x="42" y="89" width="58" height="6" fill="#cfd9dd"/>
+    <text class="step" x="166" y="84">Stable</text>
+    <text class="body" x="166" y="108">native-aspect</text>
+    <text class="body" x="166" y="127">screen video</text>
+  </g>
+
+  <path class="accept" d="M1404 626 V686"/>
+
+  <g transform="translate(910 732)">
+    <rect x="0" y="0" width="286" height="96" rx="8" fill="#fff7f1" stroke="#d9b39e" stroke-width="1.6"/>
+    <text class="labelBrown" x="22" y="32">REJECT CONTROL FLOW</text>
+    <text class="step" x="22" y="60">Inner motion rejected</text>
+    <text class="body" x="22" y="84">not used to estimate H<tspan baseline-shift="sub" font-size="11">t</tspan></text>
+  </g>
+
+  <path class="reject" d="M1138 545 C1118 620 1058 690 1012 728"/>
+
+  <g transform="translate(70 744)">
+    <rect x="0" y="0" width="660" height="84" rx="8" fill="#ffffff" stroke="#d1d8dc" stroke-width="1.4"/>
+    <text class="labelBlue" x="24" y="30">KEY MESSAGE</text>
+    <text class="body" x="150" y="30">Screen-plane motion comes from the physical boundary.</text>
+    <text class="body" x="150" y="53">Scrolling pages or in-screen video become</text>
+    <text class="body" x="150" y="76">rejected inner content motion, not stabilization targets.</text>
   </g>
 </svg>
