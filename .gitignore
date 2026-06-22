@@ -21,3 +21,6 @@ runs/*
 # Third-party experiments stay local unless explicitly documented and committed.
 third_party/*
 !third_party/README.md
+
+# Local Claude Code tool configuration stays on disk, not in git.
+.claude/
