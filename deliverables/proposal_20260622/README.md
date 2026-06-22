@@ -25,4 +25,4 @@
 
 ## 定位
 
-当前先固定 Proposal 内容，不直接继续改 PPT/Word。`proposal_content.md` 已按参考示例重写为三页 Proposal 逻辑：动机、目标方法、数据与初步结果。当前叙事把项目定位为真实拍屏视频恢复的前置几何链路：先做屏幕捕获矫正、透视归一化和时域稳定，后续可接 video demoiréing、OCR 或归档。主稿已加入 LCDMoire、UHDM、Video Demoiréing 和 RawVDemoiré 等公开数据集作为背景论据，强调它们多服务于受控、裁剪、配对或已对齐的恢复任务，而本项目补的是完整拍屏视频进入恢复模型之前的几何归一化环节。数据部分只使用能追溯到具体运行目录的同视频消融，不用不清楚的数字，也不靠简单增加视频数量来撑结论。
+当前先固定 Proposal 内容，不直接继续改 PPT/Word。`proposal_content.md` 已按参考示例重写为三页 Proposal 逻辑：动机、目标方法、数据与初步结果。当前叙事把项目定位为真实拍屏视频恢复的前置几何链路：先做屏幕捕获矫正、透视归一化和时域稳定，后续可接 video demoiréing、OCR 或归档。主稿已加入 LCDMoire、UHDM、Video Demoiréing 和 RawVDemoiré 等公开数据集作为背景论据，强调它们多服务于受控、裁剪、配对或已对齐的恢复任务，而本项目补的是完整拍屏视频进入恢复模型之前的几何归一化环节。主稿也写明 Final 阶段计划整理 5 类自采拍屏短视频、每类 10 段、每段约 5 秒，并补充 residual translation、rotation、scale delta、tracker accept ratio、RANSAC inliers 和 feature coverage 等评价指标。数据部分只使用能追溯到具体运行目录的同视频消融，不用不清楚的数字，也不把尚未完成的 50 段测试集写成已完成结果。
