@@ -10,9 +10,9 @@
 
 **Method:** 本项目首先通过自动检测或手动标注获得首帧屏幕四边形，然后用 homography 将屏幕平面矫正到 16:9 输出画布。为了避免逐帧独立角点检测带来的抖动，系统在参考平面上使用 Lucas-Kanade 光流跟踪特征点，并通过 RANSAC 估计鲁棒单应变换。不可靠更新会被几何约束拒绝，缺失或不稳定的轨迹片段会在渲染归一化视频前进行插值和平滑。
 
-**Dataset and experiment:** Final 阶段计划自采测试集，包括 5 类场景、每类 10 段、每段约 5 秒。五类场景分别是静态网页/文档、滚动网页、屏幕内视频播放、PPT 或弱边框低纹理页面，以及 4K/摩尔纹/反光难例。公开 demoiréing 数据集会作为相关工作证据，因为它们大多评估对齐后的恢复问题，而本项目评估的是更前面的拍屏视频矫正与稳定化步骤。
+**Dataset and experiment:** 实验计划使用自采测试集，包括 5 类场景、每类 10 段、每段约 5 秒。五类场景分别是静态网页/文档、滚动网页、屏幕内视频播放、PPT 或弱边框低纹理页面，以及 4K/摩尔纹/反光难例。公开 demoiréing 数据集会作为相关工作证据，因为它们大多评估对齐后的恢复问题，而本项目评估的是更前面的拍屏视频矫正与稳定化步骤。
 
-**Evaluation metrics:** 主要定量指标是在归一化输出视频中测量相邻帧残余仿射运动，包括 translation p95、rotation p95 和 scale-delta p95。Tracker accept ratio、RANSAC inlier count、inlier ratio 和 feature coverage 用于解释失败案例。在一段 317 帧本地测试视频中，参考平面跟踪将最后两秒残余运动降到 0.118 px translation p95 和 0.0044 deg rotation p95；作为对比，逐帧检测为 1.927 px 和 0.0425 deg。
+**Evaluation metrics:** 主要定量指标是在归一化输出视频中测量相邻帧残余仿射运动，包括 translation p95、rotation p95 和 scale-delta p95。Tracker accept ratio、RANSAC inlier count、inlier ratio 和 feature coverage 用于解释失败案例。基于本地拍屏视频的初步测试显示，相比逐帧检测，参考平面跟踪可以得到更稳定的归一化输出。
 
 **Expected results:** 预期结果是一个基于经典图像处理与几何视觉的前处理链路，可以从真实拍屏输入中生成稳定、拉正的屏幕视频。最终报告将比较逐帧检测、普通光流跟踪和参考平面跟踪，汇总成功与失败案例，并讨论该前处理在什么条件下足以支撑后续屏幕视频恢复。
 
