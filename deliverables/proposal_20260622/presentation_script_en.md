@@ -3,7 +3,7 @@
 - **Deck:** `ECE4512_Proposal_Presentation.pptx` (7 slides, English)
 - **Slot:** 3 min talk + 2 min QA, 2026/06/24
 - **Method framing (authoritative = deck/proposal):** border-guided reference-plane tracking — the homography is anchored to the physical screen border; inner Lucas–Kanade points are only a consistency check.
-- **Spoken length:** ~407 English words (Slides 2–7 trimmed from ~496; Slide 1 kept at full length). ≈3:10–3:20 at ~120 wpm. If long, shorten Slides 5–6 first; never cut the core Slide 4.
+- **Spoken length:** ~415 English words (Slides 2–7 trimmed from ~496; Slide 1 kept at full length). ≈3:15–3:25 at ~120 wpm. If long, shorten Slides 5–6 first; never cut the core Slide 4.
 
 > Note: the spoken language is English (the deck is English). Chinese lines are a parallel translation + delivery notes, not meant to be read aloud.
 
@@ -38,7 +38,7 @@
 ## Slide 3 — Method · Geometric Pipeline (~28s)
 
 **EN (spoken):**
-> Our method is a classical, interpretable geometry pipeline. We initialize the screen plane at the first frame by finding its four corners. We track features with Lucas–Kanade, estimate the screen-plane homography with RANSAC, then gate, interpolate, and smooth that trajectory. The output is a stable 16:9 video, ready for later restoration.
+> Our method is a classical, interpretable geometry pipeline. We initialize the screen plane at the first frame by finding its four corners. We track features with Lucas–Kanade, estimate the screen-plane homography with RANSAC, then gate, interpolate, and smooth that trajectory. The output is a stable 16:9 video.
 
 **中文对照：**
 > 我们的方法是一条经典、可解释的几何流水线。先在首帧通过找到四个角点初始化屏幕平面；再用 Lucas–Kanade 跟踪特征、用 RANSAC 估计屏幕平面单应，然后对轨迹做门控、插值和平滑。输出是稳定的 16:9 视频，供后续恢复使用。
@@ -59,15 +59,15 @@
 
 ---
 
-## Slide 5 — Dataset & Experiment (~18s)
+## Slide 5 — Dataset & Experiment (~20s)
 
 **EN (spoken):**
-> To evaluate, we are collecting fifty real clips — five scenario classes, ten clips each: static pages, scrolling pages, in-screen video, weak-border slides, and hard 4K-moiré-glare cases. On key frames, we manually label the four screen corners, so we can measure accuracy without any downstream model.
+> To evaluate, we will build a 50-clip set — five scenario classes, ten clips each: static pages, scrolling pages, in-screen video, weak-border slides, and hard 4K-moiré-glare cases. A few pilot clips are already captured; full collection and key-frame corner annotation are scheduled for next week, so we can measure accuracy without any downstream model.
 
 **中文对照：**
-> 为评估，我们正在采集 50 段真实视频——5 类场景、每类 10 段：静态页、滚动页、屏内视频、弱边框幻灯片，以及困难的 4K/摩尔纹/反光样例。我们在关键帧上人工标注四个屏幕角点，这样不依赖任何下游模型也能量化精度。
+> 为评估，我们将构建一个 50 段的数据集——5 类场景、每类 10 段：静态页、滚动页、屏内视频、弱边框幻灯片，以及困难的 4K/摩尔纹/反光样例。目前已采集少量先导片段；完整采集与关键帧角点标注计划在下周完成，这样不依赖任何下游模型也能量化精度。
 
-**走位 / Delivery:** 五类卡片一句话扫过；手停在红色 Class 5（难例，衔接 future work）。
+**走位 / Delivery:** 五类卡片一句话扫过；手停在红色 Class 5（难例，衔接 future work）。**口头一定说成"计划/在建"**，避免 Slide 5 的 "50 clips" 被误读成已采完。
 
 ---
 
@@ -97,7 +97,7 @@
 
 ## Delivery Notes / 交付说明
 
-- **Pace / 语速:** ~407 words ≈ 3:10–3:20 at ~120 wpm. 若偏慢/超时，先把 Slide 5、6 各压成一句；核心 Slide 4 不要砍。
+- **Pace / 语速:** ~415 words ≈ 3:15–3:25 at ~120 wpm. 若偏慢/超时，先把 Slide 5、6 各压成一句；核心 Slide 4 不要砍。
 - **QA consistency / 口径一致:** deck 中 "border-guided" 与 "reference-plane tracking" 指同一方法（都锚定到首帧屏幕平面/边框）。
 - **Terminology / 术语:** homography=单应；rectify=矫正；residual jitter=残余抖动；p95=95 分位；inlier=内点；RANSAC=随机抽样一致。
 - **Key memory hooks / 记忆点:** "missing preprocessing step"（定位）、"separate screen motion from content motion"（方法）、"0.118 px / ~16×"（结果）。
