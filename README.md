@@ -300,7 +300,47 @@ runs/debug_tracker/tracker_debug.csv
 
 内部阈值仍可通过旧参数覆盖，例如 `--reference-min-inliers`、`--trajectory-window` 和 `--line-mask-top`，但这些属于实验调参，不建议作为日常命令的一部分。完整列表用 `--advanced-help` 查看。
 
-## 稳定性评估
+## 综合评估
+
+Proposal 里的评估分成几何准确性、时域稳定性、信号保持和频域规则性四组。统一入口是：
+
+```bash
+uv run scripts/evaluate_screen_normalization.py \
+  --normalized runs/main_static_page/静止网页_normalized.mp4 \
+  --original inputs/静止网页.mp4 \
+  --annotations annotations/static_page_corners.csv \
+  --estimated-corners runs/main_static_page/tracker_debug.csv \
+  --run-name evaluate_main_static_page
+```
+
+`--annotations` 是人工标注的源视频四角点，CSV 格式为：
+
+```text
+frame,tl_x,tl_y,tr_x,tr_y,br_x,br_y,bl_x,bl_y
+0,124,116,1488,132,1516,850,145,934
+```
+
+如果暂时没有人工标注，脚本仍会输出可计算的时域稳定性、normalized 画面梯度/边缘密度和 FFT 方向诊断；几何准确性和基于标注 warp 的信号保持指标会标记为 skipped 或 partial。
+
+输出会写到：
+
+```text
+runs/evaluate_main_static_page/evaluation_summary.json
+runs/evaluate_main_static_page/evaluation_summary.csv
+runs/evaluate_main_static_page/temporal_metrics.csv
+runs/evaluate_main_static_page/geometry_metrics.csv
+runs/evaluate_main_static_page/signal_metrics.csv
+runs/evaluate_main_static_page/spectral_metrics.csv
+```
+
+报告里可以按维度引用：
+
+- 几何准确性：角点 RMSE、四边形 IoU、长宽比误差；
+- 时域稳定性：相邻帧残余平移、旋转、尺度变化；
+- 信号保持：平均梯度幅度、边缘保持指数；
+- 频域规则性：2D FFT 主方向正交误差和坐标轴对齐误差。
+
+## 仅稳定性评估
 
 用 `scripts/analyze_stability.py` 分析输出视频中相邻帧的残余运动：
 
