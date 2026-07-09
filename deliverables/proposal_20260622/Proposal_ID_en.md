@@ -1,6 +1,6 @@
 # Proposal for ECE4512 Final Project 2026
 
-**Names & IDs:** Rongshuo Wen (124020369), Bihua Wen (124090670), Mingrui Liu (124090375)
+**Names & IDs:** Rongshuo Wen 124020369, Bihua Wen 124090670, Mingrui Liu 124090375
 
 **Title:** Screen Capture Rectification and Temporal Stabilization for Real-world Captured-screen Videos
 
@@ -16,4 +16,11 @@
 
 **Expected results:** The expected outcome is a classical image-processing and geometric-vision preprocessing pipeline that converts real captured-screen videos into stable, front-facing screen videos. The final report will compare frame-wise detection, content-based optical-flow tracking, and the proposed border-guided tracking strategy.
 
-**Tentative timeline/to-do list:** Jun. 22--24: finalize proposal and presentation. Jun. 25--26: collect 50 videos. Jun. 27--30: organize data and annotate key frames. Jul. 1--7: run ablations and metrics. Jul. 8--10: prepare visual comparisons and analysis. Jul. 11--15: finalize report, code, sample data, and presentation.
+**Tentative Timeline/To-do lists:**
+
+- Jun. 22 - Jun. 24: Finalize proposal and presentation
+- Jun. 25 - Jun. 26: Collect the 50 self-captured video clips.
+- Jun. 27 - Jun. 30: Organize the dataset and annotate selected key frames.
+- Jul. 1 - Jul. 7: Run method ablations and metric evaluation.
+- Jul. 8 - Jul. 10: Prepare visual comparisons and report analysis.
+- Jul. 11 - Jul. 15: Finalize the report, code, sample data, and presentation.
