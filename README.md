@@ -4,7 +4,7 @@
 
 当前工作以最终论文结果为目标：采集五类视频并标注关键帧四角，运行三种方法，计算几何、时域、细节和频域四类指标，为每个视频生成 HTML 审核报告，最后从选定 run 汇总论文图表。
 
-完整实施规格见 [`doc/paper/plan/experiment_pipeline.md`](doc/paper/plan/experiment_pipeline.md)，论文目标见 [`doc/paper/outline_zh.md`](doc/paper/outline_zh.md)。
+实验产物规格见 [`doc/paper/plan/experiment_pipeline.md`](doc/paper/plan/experiment_pipeline.md)，代码开发顺序见 [`doc/paper/plan/code_implementation.md`](doc/paper/plan/code_implementation.md)，论文目标见 [`doc/paper/outline_zh.md`](doc/paper/outline_zh.md)。
 
 ## 当前入口
 
@@ -55,5 +55,6 @@ inputs/
 - `doc/paper/outline_zh.md`：结果导向的最终论文大纲。
 - `doc/paper/implementation_roadmap.md`：从结果反推的实现路线。
 - `doc/paper/plan/experiment_pipeline.md`：当前唯一实验流水线计划。
+- `doc/paper/plan/code_implementation.md`：从现有代码到完整实验工具链的实施计划。
 - `doc/paper/references/samples/`：教师论文和课程 final report 示例。
 - `doc/archive/`：过期计划、旧稿和开发记录。

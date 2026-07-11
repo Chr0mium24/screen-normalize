@@ -11,6 +11,7 @@
 | `figure_plan.md` | 7–9 个主图、表格、数据来源和结果槽位 |
 | `implementation_roadmap.md` | 从最终结果反推数据、开发、实验和写作任务 |
 | `plan/experiment_pipeline.md` | 五类数据、角点标注、四类指标、HTML、批处理和绘图的完整实施规格 |
+| `plan/code_implementation.md` | 从当前代码到标注、三方法、四指标、报告、批处理和汇总的实施顺序 |
 | `draft_materials/` | 已有写作素材，可吸收进 Introduction、Related Work 和图表说明 |
 | `references/samples/` | 教师提供的写作与排版样例 |
 | `references/papers/` | 项目正式参考的学术论文 |
