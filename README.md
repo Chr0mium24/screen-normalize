@@ -8,19 +8,59 @@
 
 ## 当前入口
 
-项目使用 `uv` 管理 Python 依赖，脚本通过 PEP 723 声明运行环境。
+项目使用 `uv` 管理 Python 环境，依赖固定在 `pyproject.toml` 和 `uv.lock`。
 
 ```bash
 uv run scripts/normalize_screen.py --help
 uv run scripts/select_corners.py inputs/static/static_01.mp4
+uv run scripts/annotate_corners.py inputs/static/static_01.mp4 --stride 30
 ```
 
 - `scripts/normalize_screen.py`：当前屏幕归一化算法入口。
-- `scripts/select_corners.py`：当前单帧四角点选取工具。
+- `scripts/select_corners.py`：单帧四角点选取和算法调试工具。
+- `scripts/annotate_corners.py`：正式多关键帧角点 CSV 标注工具。
 - `screen_normalize/`：检测、跟踪、轨迹平滑、变换、编码和评估计算模块；历史演示支持代码集中在其 `archive/` 子目录。
 - `scripts/archive/`：新流水线前的诊断和实验入口，仅供追溯。
 
-plan 中的四个独立指标脚本、`analyze_video.py`、`run_batch.py` 和 `make_paper_results.py` 尚待实现。
+## 实验运行
+
+单视频闭环：
+
+```bash
+uv run scripts/analyze_video.py inputs/static/static_01.mp4 \
+  --methods frame_wise optical_flow proposed \
+  --metrics geometry temporal detail frequency
+```
+
+批量运行五类数据：
+
+```bash
+uv run scripts/run_batch.py --input inputs \
+  --methods frame_wise optical_flow proposed \
+  --metrics geometry temporal detail frequency
+```
+
+也可以用 `--videos`、`--categories` 和 `--limit` 固定子集。对已有 run 使用
+`--run-dir ... --reuse-outputs` 可只重算指标，`--skip-existing` 会保留已有指标。
+
+生成论文表格和图：
+
+```bash
+uv run scripts/make_paper_results.py runs/20260712-153000_analysis
+```
+
+四个 `scripts/evaluate_*.py` 是单 clip/method 执行器，不遍历数据，也不创建 run。
+`analyze_video.py` 单独运行时创建一个 run；`run_batch.py` 为整批创建唯一 run。
+
+## Run 产物
+
+每个方法目录包含 `normalized.mp4`、`estimated_corners.csv`、`debug.csv`、
+`method.json`、所选指标的 JSON/帧级 CSV 以及审核图片。每个 clip 有 `report.html`
+和 `notes.md`，run 根目录有批处理 `index.html`。`make_paper_results.py` 只读取 run，
+在 `summary/` 生成表格、图和汇总报告。
+
+代码测试与本机 pilot smoke run 已验证完整调用链。正式实验完成仍需要在五类目录放入
+各 10 个视频、完成角点标注并运行 5-clip smoke batch 和正式 batch；pilot archive 不作为论文结果。
 
 ## 数据与结果
 
