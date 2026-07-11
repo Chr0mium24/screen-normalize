@@ -222,7 +222,7 @@ uv run scripts/analyze_stability.py runs/<run-name>/<video> \
 
 ## 参考文献如何对应方法
 
-参考文献集中在 `doc/traditional-geometry-stabilization-references/`。
+参考文献集中在 `doc/paper/references/traditional_geometry/`。
 
 | 项目模块 | 对应参考文献 |
 | --- | --- |
@@ -235,7 +235,7 @@ uv run scripts/analyze_stability.py runs/<run-name>/<video> \
 | 稳定性评价 | `video_stabilization_evaluation_framework_euvip2018.pdf` |
 | 频域残余配准 | `fft_registration_reddy_chatterji_1996.pdf` |
 
-应用端叙事和与 video demoiréing 论文的关系见 `doc/application-pipeline-story.md`。其中去摩尔纹论文用于说明后续恢复模块和数据对齐背景，`Cinematic-L1 Video Stabilization with a Log-Homography Model` 用于支撑 homography 轨迹稳定化的理论表述。
+应用端叙事和与 video demoiréing 论文的关系见 `doc/project/application-pipeline-story.md`。其中去摩尔纹论文用于说明后续恢复模块和数据对齐背景，`Cinematic-L1 Video Stabilization with a Log-Homography Model` 用于支撑 homography 轨迹稳定化的理论表述。
 
 ## 下一步执行顺序
 

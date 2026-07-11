@@ -18,7 +18,7 @@
   -> 后续可接视频去摩尔纹 / 颜色校正 / 细节恢复
 ```
 
-也就是说，本项目不直接做去摩尔纹或画质恢复，而是先把真实拍摄场景中的屏幕内容定位、拉正并稳定。完整叙事见 `doc/application-pipeline-story.md`，项目取舍见 `doc/project-upgrade-decision.md`。SuperPoint + LightGlue 等学习式特征匹配只作为可选探针或对照实验，不再作为主线必做项。
+也就是说，本项目不直接做去摩尔纹或画质恢复，而是先把真实拍摄场景中的屏幕内容定位、拉正并稳定。完整叙事见 `doc/project/application-pipeline-story.md`，项目取舍见 `doc/project/project-upgrade-decision.md`。SuperPoint + LightGlue 等学习式特征匹配只作为可选探针或对照实验，不再作为主线必做项。
 
 ## 项目目标
 
@@ -119,11 +119,11 @@ uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
 
 Final 阶段的实验规划、报告和提交材料已整理到：
 
-- `doc/final-experiment-plan.md`：实验问题、输入视频、消融矩阵和报告结构；
-- `deliverables/final_20260622/final_report.md`：英文 final report 初稿；
-- `deliverables/final_20260622/experiment_summary.csv`：可追溯的实验指标表；
-- `deliverables/final_20260622/run_manifest.md`：每个 run 对应的执行命令；
-- `deliverables/final_20260622/final_presentation_outline.md`：final presentation 结构。
+- `doc/project/final-experiment-plan.md`：实验问题、输入视频、消融矩阵和报告结构；
+- `doc/paper/manuscript/legacy_final_report.md`：已有英文 final report 初稿；
+- `doc/paper/evidence/experiment_summary.csv`：可追溯的实验指标表；
+- `doc/paper/evidence/run_manifest.md`：每个 run 对应的执行命令；
+- `doc/paper/presentation_outline.md`：final presentation 结构。
 
 本机还生成了 `runs/final_visuals/`，包含报告/PPT 可用的 input/output 关键帧截图。`runs/` 和视频文件默认不进 git，但 run 名已写入 manifest，便于复现。
 
@@ -372,13 +372,11 @@ runs/analyze_geometry_test/stability_summary.json
 ```text
 .
 ├── README.md
-├── doc/          # 论文、路线分析和方法笔记
+├── doc/          # 论文输入、参考文献、证据和项目笔记
 ├── inputs/       # 本地输入视频，默认不提交到 git
-├── reference/    # 课程 proposal/final 模板和示例
 ├── runs/         # 每次运行生成的结果，默认不提交到 git
 ├── screen_normalize/ # 主处理逻辑和工具模块
-├── scripts/      # 薄入口脚本，保留 uv run 命令兼容
-└── test/         # 预留测试目录
+└── scripts/      # 薄入口脚本，保留 uv run 命令兼容
 ```
 
 其中 `scripts/normalize_screen.py`、`scripts/make_manual_demo_strip.py` 和 `scripts/visualize_line_roll.py` 只保留为命令入口；核心实现已经拆到 `screen_normalize/`。`scripts/select_corners.py` 是手动角点 GUI。
@@ -387,15 +385,14 @@ runs/analyze_geometry_test/stability_summary.json
 
 ## 参考材料
 
-- `reference/`：课程 proposal、cover letter、final report 和 presentation 示例。
-- `doc/`：当前阅读和保存的相关论文，包括视频稳定、单应性估计、线段检测、消失点和相机路径平滑等方向。
-- `doc/project-goal.md`：当前项目题目、边界、成功标准和实验计划。
-- `doc/application-pipeline-story.md`：把本项目定位为拍屏视频恢复前置链路的说明，包含与 video demoiréing 论文和 log-homography 视频稳定论文的关系。
-- `doc/final-experiment-plan.md`：Final 阶段实验规划，说明当前输入视频、测试矩阵、失败案例和报告结构。
-- `doc/project-upgrade-decision.md`：关于主线取舍、实验补强和可选模型探针的决策文档。
-- `doc/learned-homography-probe.md`：SuperPoint + LightGlue 作为可选 homography 匹配对照的初步探针结果。
-- `doc/traditional-geometry-stabilization-references/`：本项目当前传统视觉方向的论文 PDF 和中文索引。
-- `doc/stabilization-roadmap.md`：从稳定化目标、失败原因、实验结果到后续路线的详细分析。
+- `doc/paper/`：当前 proposal、论文大纲、参考论文、真实实验证据和稿件。
+- `doc/project/project-goal.md`：当前项目题目、边界、成功标准和实验计划。
+- `doc/project/application-pipeline-story.md`：拍屏视频恢复前置链路的完整定位。
+- `doc/project/final-experiment-plan.md`：Final 阶段实验规划。
+- `doc/project/project-upgrade-decision.md`：主线取舍、实验补强和可选模型探针的决策文档。
+- `doc/project/learned-homography-probe.md`：SuperPoint + LightGlue 的可选对照探针。
+- `doc/paper/references/`：教师样例和传统视觉参考论文。
+- `doc/project/stabilization-roadmap.md`：稳定化目标、失败原因、实验结果和后续路线。
 
 ## 后续工作
 

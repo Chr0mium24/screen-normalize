@@ -18,6 +18,14 @@ runs/*
 *.png
 *.trf
 
+# LaTeX build products; keep source documents and final PDFs only.
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+
 # Third-party experiments stay local unless explicitly documented and committed.
 third_party/*
 !third_party/README.md
