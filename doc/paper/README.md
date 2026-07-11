@@ -7,7 +7,9 @@
 | 路径 | 用途 |
 | --- | --- |
 | `source/proposal.pdf` | 已提交的正式 proposal，用于约束论文范围 |
-| `outline_zh.md` | 当前中文论文大纲和图表规划 |
+| `outline_zh.md` | 最终论文的章节、论点和验收规格 |
+| `figure_plan.md` | 7–9 个主图、表格、数据来源和结果槽位 |
+| `implementation_roadmap.md` | 从最终结果反推数据、开发、实验和写作任务 |
 | `draft_materials/` | 已有写作素材，可吸收进 Introduction、Related Work 和图表说明 |
 | `references/samples/` | 教师提供的写作与排版样例 |
 | `references/papers/` | 项目正式参考的学术论文 |
