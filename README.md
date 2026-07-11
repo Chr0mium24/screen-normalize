@@ -17,7 +17,7 @@ uv run scripts/select_corners.py inputs/static/static_01.mp4
 
 - `scripts/normalize_screen.py`：当前屏幕归一化算法入口。
 - `scripts/select_corners.py`：当前单帧四角点选取工具。
-- `screen_normalize/`：检测、跟踪、轨迹平滑、变换、编码和评估计算模块。
+- `screen_normalize/`：检测、跟踪、轨迹平滑、变换、编码和评估计算模块；历史演示支持代码集中在其 `archive/` 子目录。
 - `scripts/archive/`：新流水线前的诊断和实验入口，仅供追溯。
 
 plan 中的四个独立指标脚本、`analyze_video.py`、`run_batch.py` 和 `make_paper_results.py` 尚待实现。

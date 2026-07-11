@@ -7,7 +7,7 @@ from tkinter import Tk
 
 import cv2
 
-from .common import create_run_directory, project_root
+from ..common import create_run_directory, project_root
 from .manual_demo_core import (
     build_demo_strip,
     choose_frames,

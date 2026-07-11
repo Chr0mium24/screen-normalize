@@ -11,7 +11,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from .common import byte_int, create_run_directory, percentile_float, positive_int, project_root
+from ..common import byte_int, create_run_directory, percentile_float, positive_int, project_root
 from .line_roll_diagnostics import detect_lines, draw_overlay, line_roll_mask
 
 

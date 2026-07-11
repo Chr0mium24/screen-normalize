@@ -10,3 +10,5 @@
 - `visualize_line_roll.py`：line-roll 开发诊断入口。
 
 它们不属于 `doc/paper/plan/experiment_pipeline.md` 定义的正式执行入口，也不应被新的批处理脚本调用。Git 历史中的 `make_mock_final_figures.py` 使用模拟结果，已删除，不能作为论文图表来源。
+
+旧演示和 line-roll 可视化的配套模块位于 `screen_normalize/archive/`。
