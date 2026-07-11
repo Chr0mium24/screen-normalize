@@ -120,7 +120,7 @@ screen_normalize/reporting.py
 scripts/analyze_video.py
 ```
 
-`run_io.py` 只负责时间目录、category/clip/method 路径和 JSON/CSV 读写。每个 clip 保存一个 `metadata.json`，字段仅包括代码自动得到的 clip ID、类别、分辨率、帧率、帧数和时长。
+`run_io.py` 只负责时间目录、category/clip/method 路径和 JSON/CSV 读写。clip ID 和类别已体现在目录路径中，不再额外生成数据集 `metadata.json`。视频解码时仍可在内存中读取尺寸、FPS 和帧数，但它们只是处理视频所需的运行信息，不是需要整理的实验数据。
 
 `analyze_video.py` 按以下顺序工作：
 
@@ -143,7 +143,7 @@ scripts/make_paper_results.py
 
 `run_batch.py` 是唯一遍历入口：选择视频、创建一个 run、逐个调用单视频 Python API、记录失败并生成 `index.html`。它不复制指标实现。
 
-`make_paper_results.py` 只读取一个已完成 run 的结构化数据，生成 CSV、图和 summary HTML。基础视频统计来自 run 中的 `metadata.json`，不要求设备、光照、角度或场景难度字段。
+`make_paper_results.py` 只读取一个已完成 run 的结构化指标，生成 CSV、图和 summary HTML。类别和 clip ID 从 run 的目录结构获得，不生成或汇总视频属性元数据。
 
 ## 4. Proposed 方法开发
 

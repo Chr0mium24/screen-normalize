@@ -285,7 +285,7 @@ screen_normalize/run_io.py
 
 每个 clip 的 `report.html` 至少包含：
 
-1. clip ID、类别、分辨率、帧率和时长；
+1. clip ID 和类别；
 2. 原视频；
 3. 三种方法的 normalized 视频；
 4. 人工角点与预测角点的关键帧叠加图；
@@ -303,7 +303,7 @@ Run 根目录的 `index.html` 列出所有 clip，显示类别、成功/失败�
 
 | 结果 | 运行范围 |
 | --- | --- |
-| 数据集统计 | 全部 50 个视频 |
+| 数据集构成 | 五类各 10 个视频，并展示每类代表帧 |
 | 主方法成功率 | 全部 50 个视频 |
 | 三方法主对比 | 原则上全部视频 |
 | Geometry | 所有具有人工角点的关键帧 |
@@ -336,7 +336,6 @@ uv run scripts/make_paper_results.py \
 ```text
 runs/20260712-153000_analysis/summary/
 ├── all_metrics.csv
-├── dataset_statistics.csv
 ├── geometry_table.csv
 ├── temporal_table.csv
 ├── detail_table.csv
