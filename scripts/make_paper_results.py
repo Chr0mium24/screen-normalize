@@ -70,21 +70,29 @@ def make_figures(rows: list[dict[str, Any]], output: Path) -> None:
         "detail": "Edge preservation index",
         "frequency": "Orthogonality error (deg)",
     }
-    figure, axes = plt.subplots(2, 2, figsize=(7.2, 5.2), constrained_layout=True)
-    any_panel = False
-    for panel_index, (metric, field) in enumerate(PRIMARY.items()):
-        axis = axes.flat[panel_index]
+    datasets = []
+    for metric, field in PRIMARY.items():
         values = {method: [] for method in METHOD_IDS}
         for row in rows:
             value = row.get(field)
             if row["metric"] == metric and row.get("status") == "ok" and isinstance(value, (int, float)):
                 values.setdefault(row["method"], []).append(float(value))
         available = [(method, samples) for method, samples in values.items() if samples]
-        if not available:
-            axis.text(0.5, 0.5, "No applicable data", ha="center", va="center", color="#666666")
-            axis.set_axis_off()
-            continue
-        any_panel = True
+        if available:
+            datasets.append((metric, available))
+    if not datasets:
+        return
+    columns = 2 if len(datasets) > 1 else 1
+    rows_count = (len(datasets) + columns - 1) // columns
+    figure, axes = plt.subplots(
+        rows_count,
+        columns,
+        figsize=(7.2, 2.9 * rows_count),
+        constrained_layout=True,
+        squeeze=False,
+    )
+    for panel_index, (metric, available) in enumerate(datasets):
+        axis = axes.flat[panel_index]
         positions = np.arange(1, len(available) + 1)
         plot = axis.boxplot(
             [samples for _, samples in available],
@@ -109,8 +117,9 @@ def make_figures(rows: list[dict[str, Any]], output: Path) -> None:
         axis.grid(axis="y", color="#D9D9D9", linewidth=0.6, alpha=0.75)
         axis.spines[["top", "right"]].set_visible(False)
         axis.tick_params(axis="x", rotation=12)
-    if any_panel:
-        figure.savefig(output / "main_method_comparison.svg", bbox_inches="tight")
+    for axis in axes.flat[len(datasets) :]:
+        axis.set_axis_off()
+    figure.savefig(output / "main_method_comparison.svg", bbox_inches="tight")
     plt.close(figure)
 
 
