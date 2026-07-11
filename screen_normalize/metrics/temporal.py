@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 
 from ..evaluation import read_corner_csv, summarize_numeric
@@ -49,5 +50,21 @@ def _trajectory_motion(estimates: dict[int, np.ndarray]):
 
 
 def evaluate_temporal(estimated_csv: Path, output_dir: Path) -> dict[str, Any]:
-    return run_guarded(output_dir, "temporal", lambda: _trajectory_motion(read_corner_csv(estimated_csv)))
-
+    summary = run_guarded(output_dir, "temporal", lambda: _trajectory_motion(read_corner_csv(estimated_csv)))
+    if summary.get("status") == "ok":
+        rows, _ = _trajectory_motion(read_corner_csv(estimated_csv))
+        figure, axes = plt.subplots(3, 1, figsize=(8, 6), sharex=True)
+        frames = [row["frame"] for row in rows]
+        for axis, field, label in zip(
+            axes,
+            ("translation_px", "rotation_deg", "scale_delta"),
+            ("Translation (px)", "Rotation (deg)", "Scale delta"),
+        ):
+            axis.plot(frames, [row[field] for row in rows], linewidth=1)
+            axis.set_ylabel(label)
+            axis.grid(alpha=0.25)
+        axes[-1].set_xlabel("Frame")
+        figure.tight_layout()
+        figure.savefig(output_dir / "temporal_curve.png", dpi=150)
+        plt.close(figure)
+    return summary

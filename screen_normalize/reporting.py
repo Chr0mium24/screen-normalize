@@ -67,12 +67,17 @@ def render_clip_report(
             records = list(csv.DictReader(handle))
         rejected = sum(1 for row in records if row.get("accepted", "").lower() in ("false", "0"))
         tracker_rows.append(f"<li>{html.escape(method)}: {len(records)} rows, {rejected} rejected</li>")
+    artifacts = []
+    for method in methods:
+        for path in sorted((clip_dir / method).glob("*.png")) + sorted((clip_dir / method).glob("*.jpg")):
+            artifacts.append(f'<figure><img src="{html.escape(_relative(path, output))}" style="max-width:100%"><figcaption>{html.escape(method + ": " + path.stem)}</figcaption></figure>')
     output.write_text(
         "<!doctype html><meta charset=utf-8><title>" + html.escape(clip_id) + "</title><style>" + STYLE + "</style><main>"
         f"<h1>{html.escape(clip_id)}</h1><p>Category: {html.escape(category)}</p>"
         '<section class="panel"><h2>Videos</h2><div class="videos">' + "".join(videos) + "</div></section>"
         '<section class="panel"><h2>Metrics</h2><table><tr><th>Method</th>' + "".join(f"<th>{name}</th>" for name in METRIC_IDS) + "</tr>" + "".join(rows) + "</table></section>"
         '<section class="panel"><h2>Tracker diagnostics</h2><ul>' + "".join(tracker_rows) + "</ul></section>"
+        '<section class="panel"><h2>Visual diagnostics</h2>' + ("".join(artifacts) or "<p>No visual artifacts were requested.</p>") + "</section>"
         '<section class="panel"><h2>Review notes</h2><p>Record manual conclusions in <code>notes.md</code>.</p></section></main>',
         encoding="utf-8",
     )
@@ -96,4 +101,3 @@ def render_run_index(run_dir: Path, records: list[dict[str, str]]) -> Path:
         encoding="utf-8",
     )
     return output
-
