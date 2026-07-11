@@ -8,10 +8,13 @@
 | --- | --- |
 | `source/proposal.pdf` | 已提交的正式 proposal，用于约束论文范围 |
 | `outline_zh.md` | 当前中文论文大纲和图表规划 |
-| `references/` | 教师样例和项目引用的学术论文 |
+| `planning/` | 当前论文定位、数据集和图表规划 |
+| `references/samples/` | 教师提供的写作与排版样例 |
+| `references/papers/` | 项目正式参考的学术论文 |
 | `evidence/` | 真实实验指标和可复现运行清单 |
 | `manuscript/` | 论文稿件；现有 legacy report 仅作为写作起点 |
-| `presentation_outline.md` | 已有答辩结构参考 |
+
+`doc/archive/` 中的文档仅供追溯，不代表当前论文计划或当前实验事实。
 
 ## 证据边界
 

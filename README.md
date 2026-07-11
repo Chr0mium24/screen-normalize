@@ -18,7 +18,7 @@
   -> 后续可接视频去摩尔纹 / 颜色校正 / 细节恢复
 ```
 
-也就是说，本项目不直接做去摩尔纹或画质恢复，而是先把真实拍摄场景中的屏幕内容定位、拉正并稳定。完整叙事见 `doc/project/application-pipeline-story.md`，项目取舍见 `doc/project/project-upgrade-decision.md`。SuperPoint + LightGlue 等学习式特征匹配只作为可选探针或对照实验，不再作为主线必做项。
+也就是说，本项目不直接做去摩尔纹或画质恢复，而是先把真实拍摄场景中的屏幕内容定位、拉正并稳定。完整叙事见 `doc/paper/planning/positioning.md`。SuperPoint + LightGlue 等学习式特征匹配只作为可选探针或对照实验，不再作为主线必做项。
 
 ## 项目目标
 
@@ -119,11 +119,11 @@ uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
 
 Final 阶段的实验规划、报告和提交材料已整理到：
 
-- `doc/project/final-experiment-plan.md`：实验问题、输入视频、消融矩阵和报告结构；
+- `doc/archive/previous_plans/final_experiment_plan.md`：旧实验计划，仅供追溯；
 - `doc/paper/manuscript/legacy_final_report.md`：已有英文 final report 初稿；
 - `doc/paper/evidence/experiment_summary.csv`：可追溯的实验指标表；
 - `doc/paper/evidence/run_manifest.md`：每个 run 对应的执行命令；
-- `doc/paper/presentation_outline.md`：final presentation 结构。
+- `doc/archive/previous_plans/presentation_outline.md`：旧 final presentation 结构。
 
 本机还生成了 `runs/final_visuals/`，包含报告/PPT 可用的 input/output 关键帧截图。`runs/` 和视频文件默认不进 git，但 run 名已写入 manifest，便于复现。
 
@@ -385,14 +385,11 @@ runs/analyze_geometry_test/stability_summary.json
 
 ## 参考材料
 
-- `doc/paper/`：当前 proposal、论文大纲、参考论文、真实实验证据和稿件。
-- `doc/project/project-goal.md`：当前项目题目、边界、成功标准和实验计划。
-- `doc/project/application-pipeline-story.md`：拍屏视频恢复前置链路的完整定位。
-- `doc/project/final-experiment-plan.md`：Final 阶段实验规划。
-- `doc/project/project-upgrade-decision.md`：主线取舍、实验补强和可选模型探针的决策文档。
-- `doc/project/learned-homography-probe.md`：SuperPoint + LightGlue 的可选对照探针。
-- `doc/paper/references/`：教师样例和传统视觉参考论文。
-- `doc/project/stabilization-roadmap.md`：稳定化目标、失败原因、实验结果和后续路线。
+- `doc/paper/`：当前有效的 proposal、论文大纲、写作规划、参考论文、真实实验证据和稿件。
+- `doc/paper/planning/`：当前论文定位、数据集和图表规划。
+- `doc/paper/references/samples/`：教师提供的写作样例。
+- `doc/paper/references/papers/`：项目正式参考的学术论文。
+- `doc/archive/`：过期实验计划、方向决策、开发复盘和可选探针，仅供追溯。
 
 ## 后续工作
 

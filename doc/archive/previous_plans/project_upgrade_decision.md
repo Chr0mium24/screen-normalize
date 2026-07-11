@@ -17,7 +17,7 @@
 - 去摩尔纹、颜色校正和细节恢复之前，需要把屏幕内容稳定到接近正面屏幕坐标系；
 - 当前代码已经覆盖这条前置链路的核心几何模块，继续补实验和叙事比强行接入模型更稳。
 
-完整应用链路叙事见 `doc/project/application-pipeline-story.md`。
+完整应用链路叙事见 `doc/paper/planning/positioning.md`。
 
 ## 主线方向
 
