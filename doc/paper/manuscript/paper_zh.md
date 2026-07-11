@@ -7,20 +7,8 @@ author:
 date: "ECE4512 课程项目，2026"
 lang: zh-CN
 geometry: margin=22mm
-fontsize: 10.5pt
+fontsize: 10pt
 papersize: a4
-header-includes:
-  - |
-    ```{=latex}
-    \usepackage{booktabs}
-    \usepackage{xeCJK}
-    \setCJKmainfont{Songti SC}
-    \setCJKsansfont{Heiti SC}
-    \usepackage{newtxtext,newtxmath}
-    \usepackage{titlesec}
-    \titleformat{\section}{\large\bfseries}{\thesection}{0.6em}{}
-    \titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.6em}{}
-    ```
 ---
 
 # 摘要
@@ -48,23 +36,27 @@ header-includes:
 
 # 2. 相关工作
 
-## 2.1 平面文档与屏幕矫正
+## 2.1 拍屏内容恢复
+
+近期视频去摩尔纹工作将相机拍摄显示器视为内容恢复问题。Dai 等人构建了空间和时间对齐的拍屏/干净视频，并学习关系式时间一致性 [16]；Xu 等人结合方向感知频域处理、对齐、颜色校正和细节恢复 [17]；Yue 等人研究 raw 域屏幕重拍，并建立对齐的 raw 图像和视频数据 [18]。这些方法关注受控采集和对齐后的摩尔纹去除及内容恢复。本文处理与它们互补的前端任务：从完整手持场景出发，产生可供恢复模型使用的正面屏幕坐标视频。这一区分也说明本文 FFT 指标只能作为诊断，而不是去摩尔纹分数。
+
+## 2.2 平面文档与屏幕矫正
 
 透视相机观测到的平面，可以通过单应矩阵映射到正面坐标系。因此，相机文档分析常利用页面边界、版面、文字结构和消失点恢复正面文档图像 [1--4]。Jagannathan 和 Jawahar 按可用几何线索讨论透视校正，Yin 等人结合直线与消失点处理手机文档图像 [1,2]。Williem 等人强调智能手机上的高效边界提取和鲁棒矫正 [3]。屏幕--相机标定同样把显示器作为投影平面，但受控投影图案提供了普通手持视频中不存在的证据 [4]。
 
 这些工作支持本文的几何模型，但大多处理单张图像或受控标定序列。将独立图像矫正逐帧应用于视频，并不能保证四边形估计在时间上连续。因此，本文在平面矫正基础上增加跟踪、拒绝和轨迹处理。
 
-## 2.2 直线与消失点证据
+## 2.3 直线与消失点证据
 
 物理显示器边框和界面直线具有实际价值，因为正面矩形屏幕包含两组近似正交方向。LSD 提供了参数可控的线段检测方法 [5]，消失点方法则将线段分组以推断场景方向 [6]。这些证据构成 proposal 中边框引导设计的动机。当前系统使用轮廓初始化和基于直线的残余横滚校正；完整的边框主导运动估计仍属于后续实现。因此，本文不会将当前结果归因于尚未完成的 LSD/Hough 边框跟踪器。
 
-## 2.3 特征跟踪与鲁棒单应估计
+## 2.4 特征跟踪与鲁棒单应估计
 
 Lucas 和 Kanade 将图像配准写成迭代对齐问题 [7]；金字塔实现通过由粗到细求解扩大可处理位移 [8]；Shi 和 Tomasi 则指出局部梯度条件良好的点更适合稳定跟踪 [9]。本文使用的 OpenCV 金字塔 LK 和 good-features-to-track 检测器以这些工作为基础。
 
 从跟踪点估计单应矩阵容易受到错误对应影响。RANSAC 类方法寻找具有内点支持的模型，MLESAC 等工作进一步讨论了鲁棒模型评分 [10]。本文使用 RANSAC，并增加最小内点数、内点比例、中位重投影误差、屏幕平面覆盖率和四边形几何检查。该组合旨在避免一小片运动内容特征控制整个屏幕变换，但仍需在动态内容正式数据上验证。
 
-## 2.4 视频稳定
+## 2.5 视频稳定
 
 经典视频稳像通常先估计相机运动路径，再平滑路径并渲染补偿帧。Grundmann 等人利用鲁棒 L1 优化鼓励简单相机运动 [11]；Sánchez 比较了参数运动模型下不同平滑策略，说明运动模型和时域滤波都会影响稳定性与形变 [12]；Bradley 等人在 log-homography 空间约束具有投影自由度的相机路径 [13]。相应的评估框架也强调应将运动稳定性、裁剪和几何畸变分开 [14]。
 
@@ -283,3 +275,6 @@ $$
 13. A. Bradley, J. Klivington, J. Triscari, and R. van der Merwe, “Cinematic-L1 Video Stabilization with a Log-Homography Model,” *WACV*, 2021.
 14. W. Guilluy, A. Beghdadi, and L. Oudre, “A Performance Evaluation Framework for Video Stabilization Methods,” *EUVIP*, 2018.
 15. B. S. Reddy and B. N. Chatterji, “An FFT-Based Technique for Translation, Rotation, and Scale-Invariant Image Registration,” *IEEE Transactions on Image Processing*, vol. 5, no. 8, 1996.
+16. P. Dai, X. Yu, L. Ma, B. Zhang, J. Li, W. Li, J. Shen, and X. Qi, “Video Demoireing with Relation-Based Temporal Consistency,” *CVPR*, 2022.
+17. S. Xu, B. Song, X. Chen, and J. Zhou, “Direction-Aware Video Demoireing with Temporal-Guided Bilateral Learning,” *AAAI*, 2024.
+18. H. Yue, Y. Cheng, X. Liu, and J. Yang, “Recaptured Raw Screen Image and Video Demoiréing via Channel and Spatial Modulations,” *NeurIPS*, 2023.

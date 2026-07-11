@@ -7,17 +7,13 @@ author:
 date: "ECE4512 Final Project, 2026"
 lang: en-US
 geometry: margin=22mm
-fontsize: 10.5pt
+fontsize: 10pt
 papersize: a4
 header-includes:
   - |
     ```{=latex}
     \usepackage{booktabs}
     \usepackage{microtype}
-    \usepackage{newtxtext,newtxmath}
-    \usepackage{titlesec}
-    \titleformat{\section}{\large\bfseries}{\thesection}{0.6em}{}
-    \titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.6em}{}
     ```
 ---
 
@@ -46,23 +42,27 @@ The current implementation should not be interpreted as a demoiréing system. It
 
 # 2. Related Work
 
-## 2.1 Planar document and screen rectification
+## 2.1 Captured-screen restoration
+
+Recent video demoiréing work treats camera-captured displays as a restoration problem. Dai *et al.* construct spatially and temporally aligned captured/clean videos and learn relation-based temporal consistency [16]. Xu *et al.* combine direction-aware frequency processing, alignment, color correction, and detail refinement [17]. Yue *et al.* study raw-domain screen recapture and build aligned raw image and video data [18]. These methods address moiré removal and content restoration after controlled acquisition and alignment. Our task is complementary: it starts from a full handheld scene and produces the frontal screen-coordinate video that a restoration model could consume. The distinction also explains why the present FFT measurements are diagnostics rather than demoiréing scores.
+
+## 2.2 Planar document and screen rectification
 
 A planar surface observed by a perspective camera is related to a frontal coordinate system by a homography. Camera-based document analysis has consequently used page boundaries, layout cues, text structure, and vanishing points to recover frontal document views [1--4]. Jagannathan and Jawahar organize perspective correction around the available geometric evidence, while Yin *et al.* combine line information and vanishing-point detection for mobile document images [1,2]. Williem *et al.* emphasize computationally efficient boundary extraction and robust rectification on smartphones [3]. Screen--camera calibration likewise treats the screen as a planar projective surface, although controlled projected patterns provide evidence unavailable in ordinary handheld recordings [4].
 
 These methods support the geometric model used here, but most address a single image or a controlled calibration sequence. Applying independent image rectification to video does not guarantee that the estimated quadrilateral varies smoothly. The present task therefore adds tracking, rejection, and temporal trajectory processing to planar rectification.
 
-## 2.2 Line and vanishing-point evidence
+## 2.3 Line and vanishing-point evidence
 
 Physical display borders and interface lines are useful because a frontal rectangular screen contains two approximately orthogonal direction families. The Line Segment Detector (LSD) provides a parameter-controlled method for extracting line segments [5], while vanishing-point methods group line evidence to infer scene directions [6]. Such evidence motivates the border-guided design in the project proposal. The current system uses contour-based initialization and line-based residual roll correction; full border-dominant motion estimation remains future implementation work. We therefore do not attribute current results to an LSD/Hough border tracker.
 
-## 2.3 Feature tracking and robust homography estimation
+## 2.4 Feature tracking and robust homography estimation
 
 Lucas and Kanade formulate image registration as an iterative alignment problem [7]. The pyramidal implementation extends the usable displacement range by solving from coarse to fine resolution [8]. Shi and Tomasi show that points with well-conditioned local gradients are more reliable for tracking [9]. These ideas underlie OpenCV's pyramidal LK tracker and good-features-to-track detector used in this project.
 
 A homography estimated from tracked points is sensitive to incorrect correspondences. RANSAC-type estimators seek a model supported by an inlier subset; robust alternatives such as MLESAC further formalize model scoring [10]. Our implementation uses RANSAC and supplements it with minimum inlier count, inlier ratio, median reprojection error, screen-plane coverage, and quadrilateral geometry checks. This combination is intended to prevent a compact group of moving content features from controlling the entire screen transform, although formal evaluation on dynamic content is still required.
 
-## 2.4 Video stabilization
+## 2.5 Video stabilization
 
 Classical video stabilization estimates a camera-motion path, smooths that path, and renders compensated frames. Grundmann *et al.* use robust L1 optimization to encourage simple camera motions [11]. Sánchez compares parametric motion-smoothing strategies and demonstrates that the choice of motion model and temporal filter affects both stability and distortion [12]. Bradley *et al.* formulate stabilization in log-homography space to retain projective motion while imposing cinematic path priors [13]. Evaluation frameworks consequently separate motion stability from cropping and geometric distortion [14].
 
@@ -281,4 +281,6 @@ Project conception, implementation, data collection, annotation, experiment exec
 13. A. Bradley, J. Klivington, J. Triscari, and R. van der Merwe, “Cinematic-L1 Video Stabilization with a Log-Homography Model,” *WACV*, 2021.
 14. W. Guilluy, A. Beghdadi, and L. Oudre, “A Performance Evaluation Framework for Video Stabilization Methods,” *EUVIP*, 2018.
 15. B. S. Reddy and B. N. Chatterji, “An FFT-Based Technique for Translation, Rotation, and Scale-Invariant Image Registration,” *IEEE Transactions on Image Processing*, vol. 5, no. 8, 1996.
-
+16. P. Dai, X. Yu, L. Ma, B. Zhang, J. Li, W. Li, J. Shen, and X. Qi, “Video Demoireing with Relation-Based Temporal Consistency,” *CVPR*, 2022.
+17. S. Xu, B. Song, X. Chen, and J. Zhou, “Direction-Aware Video Demoireing with Temporal-Guided Bilateral Learning,” *AAAI*, 2024.
+18. H. Yue, Y. Cheng, X. Liu, and J. Yang, “Recaptured Raw Screen Image and Video Demoiréing via Channel and Spatial Modulations,” *NeurIPS*, 2023.
