@@ -2,6 +2,8 @@
 
 Generated on 2026-06-22. All commands were executed with `uv run` from the repository root on branch `final-experiments`.
 
+以下命令按执行时的原始路径保留，不能当作当前流水线命令。2026-07-12 整理后，输入视频位于 `inputs/archive/pilot/`，结果位于 `runs/archive/pre_pipeline/`，旧稳定性脚本位于 `scripts/archive/analyze_stability.py`。
+
 ## Main Runs
 
 ```bash

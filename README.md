@@ -1,402 +1,59 @@
 # screen-normalize
 
-把手持拍摄的电脑屏幕视频转换成接近正常录屏的视频，并作为后续拍屏去摩尔纹、颜色校正和细节恢复的前置几何链路。
+面向真实手持拍屏视频的屏幕透视归一化与时域稳定化课程项目。
 
-这是一个数字图像处理课程大作业项目。当前方向确定为：
+当前工作以最终论文结果为目标：采集五类视频并标注关键帧四角，运行三种方法，计算几何、时域、细节和频域四类指标，为每个视频生成 HTML 审核报告，最后从选定 run 汇总论文图表。
 
-**面向真实场景拍屏视频恢复的屏幕捕获矫正与时域稳定化。**
+完整实施规格见 [`doc/paper/plan/experiment_pipeline.md`](doc/paper/plan/experiment_pipeline.md)，论文目标见 [`doc/paper/outline_zh.md`](doc/paper/outline_zh.md)。
 
-当前可运行实现以传统几何方法为主，重点补足现有拍屏恢复论文在真实应用端常常默认或简化的前处理部分：
+## 当前入口
 
-```text
-真实手持拍屏视频
-  -> 屏幕区域检测
-  -> 透视矫正
-  -> 屏幕平面跟踪
-  -> 时域稳定
-  -> 接近录屏视角的屏幕视频
-  -> 后续可接视频去摩尔纹 / 颜色校正 / 细节恢复
-```
-
-也就是说，本项目不直接做去摩尔纹或画质恢复，而是先把真实拍摄场景中的屏幕内容定位、拉正并稳定。完整叙事见 `doc/paper/draft_materials/positioning.md`。SuperPoint + LightGlue 等学习式特征匹配只作为可选探针或对照实验，不再作为主线必做项。
-
-## 项目目标
-
-输入是一段手机或相机拍摄的电脑屏幕视频，画面中通常包含墙面、桌面、屏幕边框、透视变形和轻微手抖。
-
-目标输出是只保留屏幕内容、几何上稳定的屏幕视频：
-
-- 去掉屏幕外的墙面、桌面和边框；
-- 把倾斜拍摄的屏幕透视校正成正面视角；
-- 保持输出长宽比固定，默认输出 `1920x1080`；
-- 减少由于手持拍摄和逐帧角点误差造成的画面晃动；
-- 保留屏幕内部真实内容变化，例如播放视频、滚动页面、鼠标移动和字幕。
-
-从应用链路看，这个输出可以作为后续 video demoiréing、OCR、归档或人工查看的更稳定输入。
-
-## 方法路线
-
-### 1. 屏幕区域检测
-
-使用传统视觉方法从输入视频中定位屏幕平面：
-
-1. 在首帧上自动检测候选屏幕区域。
-2. 根据四边形形状、面积、长宽比和边界位置筛选屏幕轮廓。
-3. 将四个角点排序为 `TL,TR,BR,BL`。
-4. 如果自动检测失败，可以手动指定四个角点作为兜底。
-
-### 2. 透视归一化
-
-屏幕可以近似看作一个平面，因此用单应变换把拍摄画面中的屏幕映射到固定矩形画布：
-
-```text
-原始视频帧
-  -> 屏幕四角点
-  -> Homography
-  -> 固定尺寸正面屏幕画面
-```
-
-输出分辨率默认是 `1920x1080`，也可以通过 `--width` 和 `--height` 指定。
-
-### 3. 参考平面跟踪
-
-逐帧重新检测角点容易抖动，所以推荐使用 `reference` 跟踪模式：
-
-1. 用首帧屏幕作为参考平面。
-2. 用 Lucas-Kanade 光流跟踪屏幕内部特征点。
-3. 用 RANSAC 估计参考平面到当前帧的单应性矩阵。
-4. 用几何门控过滤异常更新，例如点数不足、内点比例过低、覆盖范围不足、重投影误差过大、面积或边长突变。
-5. 对面积或边长突变的角点观测做离线二次门控。
-6. 对被门控拒绝的坏帧用前后可靠帧插值，再对整段角点轨迹做时域平滑，减少逐帧检测噪声。
-
-这个流程的原则是：**屏幕平面运动应该稳定，屏幕内部内容变化不应该拉动屏幕姿态估计。**
-
-### 4. 残余稳定化
-
-透视归一化后仍可能有小幅残余晃动。当前脚本支持可选的参考帧残余对齐：
-
-```bash
-uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
-  --tracker reference \
-  --reference-align \
-  --reference-motion affine
-```
-
-残余对齐只在整段视频的预检结果可靠时启用，避免把播放内容、字幕或动态页面误当成相机运动。
-
-### 5. 频域轨迹分析
-
-本项目的频域部分用于稳定化分析，而不是图像恢复：
-
-- 把角点、平移量、旋转角或尺度变化看作时间序列；
-- 分析轨迹中的高频成分，判断哪些是逐帧估计噪声；
-- 用低通思想解释为什么稳定化应该保留低频手持运动趋势、抑制高频抖动；
-- 在报告中比较稳定前后残余运动的统计指标。
-
-## 当前结论
-
-当前传统主流程已经可以作为课程项目的核心方法：
-
-- 有完整可运行脚本 `scripts/normalize_screen.py`；
-- 支持自动角点检测，也支持手动角点覆盖；
-- 支持 `detect`、`flow`、`reference` 三种角点轨迹来源；
-- 推荐的 `reference` 模式用光流、RANSAC 和门控把屏幕平面锁定到参考帧；
-- 支持输出 tracker debug CSV，便于解释每帧为什么接受或拒绝更新；
-- 支持稳定性分析脚本 `scripts/analyze_stability.py`；
-- 每次运行自动写入 `runs/<时间>_<脚本名>/`，便于复现实验和写报告。
-
-为了让 Final 不只是工程 demo，后续重点应该补齐应用链路和实验可信度：
-
-- 多个真实输入视频的场景覆盖，而不是简单堆数量；
-- 同一输入上的消融实验：逐帧检测、普通光流、参考平面跟踪、残余对齐、轨迹平滑；
-- 屏幕四角点、透视矫正前后、稳定前后的关键帧可视化；
-- 可选的合成或人工标注样例，用来提供角点和 homography 的近似真值评价；
-- 失败案例分析，例如强反光、屏幕边缘遮挡、画面内容大幅运动。
-
-`scripts/probe_learned_homography.py` 中的 SuperPoint + LightGlue 探针可以保留为可选对照或 future work，用来说明现代特征匹配在拍屏 homography 估计上的可行性和局限；主方法仍然是当前的 LK + RANSAC 参考平面跟踪。
-
-## Final 实验材料
-
-Final 阶段的实验规划、报告和提交材料已整理到：
-
-- `doc/archive/previous_plans/final_experiment_plan.md`：旧实验计划，仅供追溯；
-- `doc/archive/previous_drafts/legacy_final_report.md`：旧英文 final report，仅供参考；
-- `doc/paper/evidence/experiment_summary.csv`：可追溯的实验指标表；
-- `doc/paper/evidence/run_manifest.md`：每个 run 对应的执行命令；
-- `doc/archive/previous_plans/presentation_outline.md`：旧 final presentation 结构。
-
-本机还生成了 `runs/final_visuals/`，包含报告/PPT 可用的 input/output 关键帧截图。`runs/` 和视频文件默认不进 git，但 run 名已写入 manifest，便于复现。
-
-## 环境
-
-本项目使用 `uv` 管理 Python 运行环境。脚本顶部已经写了依赖声明，直接用 `uv run` 执行即可。
+项目使用 `uv` 管理 Python 依赖，脚本通过 PEP 723 声明运行环境。
 
 ```bash
 uv run scripts/normalize_screen.py --help
+uv run scripts/select_corners.py inputs/static/static_01.mp4
 ```
 
-默认 `--help` 只显示常用参数。内部跟踪、门控、残余对齐和 line-roll 调参仍然兼容旧命令，但默认隐藏；需要查看完整参数时使用：
+- `scripts/normalize_screen.py`：当前屏幕归一化算法入口。
+- `scripts/select_corners.py`：当前单帧四角点选取工具。
+- `screen_normalize/`：检测、跟踪、轨迹平滑、变换、编码和评估计算模块。
+- `scripts/archive/`：新流水线前的诊断和实验入口，仅供追溯。
 
-```bash
-uv run scripts/normalize_screen.py --advanced-help
-```
+plan 中的四个独立指标脚本、`analyze_video.py`、`run_batch.py` 和 `make_paper_results.py` 尚待实现。
 
-还需要本机安装 `ffmpeg`，用于把处理后的帧重新编码成视频。
+## 数据与结果
 
-## 快速开始
-
-把输入视频放到 `inputs/` 目录，例如：
+正式数据固定为五类，每类目标 10 个视频；视频文件不提交 Git，同名角点 CSV 可以提交：
 
 ```text
-inputs/my_screen_video.mp4
+inputs/
+├── static/
+├── scrolling/
+├── screen_video/
+├── weak_border/
+└── hard/
 ```
 
-推荐先用静态屏幕配置运行：
+一次顶层运行只在 `runs/` 创建一个时间命名目录。后续论文汇总只读取选定 run，不重新读取或修改 `inputs/`。
 
-```bash
-uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
-  --tracker reference \
-  --reference-profile low-latency
-```
+旧的 6 个试拍视频保留在本机 `inputs/archive/pilot/`，旧实验结果保留在 `runs/archive/pre_pipeline/`。它们只作为开发历史，不属于正式数据集。
 
-输出文件会写到：
-
-```text
-runs/<时间>_normalize_screen/my_screen_video_normalized.mp4
-```
-
-如果希望固定输出目录名，使用 `--run-name`：
-
-```bash
-uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
-  --tracker reference \
-  --reference-profile low-latency \
-  --run-name geometry_test
-```
-
-## 常用运行方式
-
-自动检测屏幕并透视矫正：
-
-```bash
-uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
-  --tracker reference \
-  --reference-profile low-latency
-```
-
-如果自动角点不准，手动指定第一帧四个角点，顺序是左上、右上、右下、左下：
-
-```bash
-uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
-  --tracker reference \
-  --reference-profile low-latency \
-  --corners "124,116:1488,132:1516,850:145,934"
-```
-
-如果不想手打坐标，可以打开第一帧 GUI 点选四个角点。按顺序点击 `TL,TR,BR,BL`，点完后可以拖动微调，按 Enter 接受。脚本会在终端输出可直接粘贴到 `--corners` 的字符串，并复制到剪贴板：
-
-```bash
-uv run scripts/select_corners.py inputs/my_screen_video.mp4
-```
-
-滚动网页或屏幕内播放视频时，不要用正在滚动/播放的内容块做四角点。四个点应该选稳定的物理屏幕边界、浏览器窗口边界或播放器窗口边界；不想保留的地址栏、系统栏和边框再用 `--crop-*` 裁掉。否则 LK reference tracker 会把滚动内容当成屏幕平面运动，后几帧容易出现拉伸或重影。
-
-也可以点完后自动跑一版预览：
-
-```bash
-uv run scripts/select_corners.py inputs/my_screen_video.mp4 \
-  --run-preview \
-  --preview-run-name manual_preview \
-  --extra-normalize-args "--tracker reference --reference-profile dynamic --write-tracker-debug --write-trajectory-debug"
-```
-
-如果输出中还留有边框或播放器边缘，可以在透视矫正后裁切：
-
-```bash
-uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
-  --tracker reference \
-  --reference-profile low-latency \
-  --crop-right 0.02 \
-  --crop-bottom 0.04
-```
-
-如果想快速检查“原视频第几帧开始晃/变形、矫正后是否改善”，可以把原视频和矫正后视频抽成上下两条横向拼图。先用 `select_corners.py` 拿到手动点，也可以直接填已有坐标：
-
-```bash
-uv run scripts/make_comparison_strip.py \
-  inputs/my_screen_video.mp4 \
-  runs/geometry_test/my_screen_video_normalized.mp4 \
-  --count 8 \
-  --points "124,116:1488,132:1516,850:145,934" \
-  --run-name geometry_test_strip
-```
-
-也可以精确指定要看的原视频帧号：
-
-```bash
-uv run scripts/make_comparison_strip.py \
-  inputs/my_screen_video.mp4 \
-  runs/geometry_test/my_screen_video_normalized.mp4 \
-  --frames 0,30,60,90,120 \
-  --run-name geometry_test_strip_frames
-```
-
-输出是一张 PNG：第一行是原视频，第二行是矫正后视频；`--points` 只用于在原视频行画出手动点，方便确认取样位置。
-
-如果是做 presentation 演示，不想依赖当前自动跟踪结果，而是想表达“最后应该达到的理想矫正效果”，可以手动标 8 个关键帧，然后直接用这 8 组人工四点渲染目标效果图：
-
-```bash
-uv run scripts/make_manual_demo_strip.py inputs/my_screen_video.mp4 \
-  --count 8 \
-  --run-name manual_target_demo
-```
-
-脚本会依次打开 8 帧，逐帧按 `TL,TR,BR,BL` 点四个角，按 Enter 进入下一帧。输出包含：
-
-```text
-runs/manual_target_demo/my_screen_video_manual_demo_strip.png
-runs/manual_target_demo/manual_demo_annotations.json
-```
-
-这张 PNG 的第一行是带人工四点的原视频帧，第二行是仅由这些人工标注渲染出的理想矫正帧，适合放在报告或 PPT 里说明目标效果。之后如果只想重渲染同一组标注，可以复用 JSON：
-
-```bash
-uv run scripts/make_manual_demo_strip.py inputs/my_screen_video.mp4 \
-  --annotations runs/manual_target_demo/manual_demo_annotations.json \
-  --run-name manual_target_demo_rerender
-```
-
-如果需要分析跟踪过程：
-
-```bash
-uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
-  --tracker reference \
-  --reference-profile low-latency \
-  --write-tracker-debug \
-  --run-name debug_tracker
-```
-
-这会生成：
-
-```text
-runs/debug_tracker/tracker_debug.csv
-```
-
-## 常用参数
-
-| 参数 | 作用 |
-| --- | --- |
-| `--tracker reference` | 推荐模式。把屏幕平面锁定到首帧参考平面，再用光流和 RANSAC 跟踪。 |
-| `--reference-profile low-latency` | 适合静态或近静态屏幕内容，减少平滑滞后。 |
-| `--reference-profile dynamic` | 适合内部内容变化更大的实验输入。 |
-| `--reference-align` | 在透视归一化后做可选残余对齐。 |
-| `--reference-motion affine` | 残余对齐使用仿射模型，通常比再次估计单应更稳。 |
-| `--corners "x,y:x,y:x,y:x,y"` | 手动指定四个屏幕角点，覆盖自动检测。 |
-| `--crop-left/top/right/bottom` | 透视矫正后按比例裁切输出画面。 |
-| `--width`, `--height` | 设置输出分辨率，默认 `1920x1080`。 |
-| `--run-name` | 固定本次运行的输出目录名。 |
-| `--write-tracker-debug` | 输出每帧跟踪诊断信息。 |
-| `--write-trajectory-debug` | 输出原始、插值后、平滑后的角点轨迹，便于分析坏帧和插值效果。 |
-
-内部阈值仍可通过旧参数覆盖，例如 `--reference-min-inliers`、`--trajectory-window` 和 `--line-mask-top`，但这些属于实验调参，不建议作为日常命令的一部分。完整列表用 `--advanced-help` 查看。
-
-## 综合评估
-
-Proposal 里的评估分成几何准确性、时域稳定性、信号保持和频域规则性四组。统一入口是：
-
-```bash
-uv run scripts/evaluate_screen_normalization.py \
-  --normalized runs/main_static_page/静止网页_normalized.mp4 \
-  --original inputs/静止网页.mp4 \
-  --annotations annotations/static_page_corners.csv \
-  --estimated-corners runs/main_static_page/tracker_debug.csv \
-  --run-name evaluate_main_static_page
-```
-
-`--annotations` 是人工标注的源视频四角点，CSV 格式为：
-
-```text
-frame,tl_x,tl_y,tr_x,tr_y,br_x,br_y,bl_x,bl_y
-0,124,116,1488,132,1516,850,145,934
-```
-
-如果暂时没有人工标注，脚本仍会输出可计算的时域稳定性、normalized 画面梯度/边缘密度和 FFT 方向诊断；几何准确性和基于标注 warp 的信号保持指标会标记为 skipped 或 partial。
-
-输出会写到：
-
-```text
-runs/evaluate_main_static_page/evaluation_summary.json
-runs/evaluate_main_static_page/evaluation_summary.csv
-runs/evaluate_main_static_page/temporal_metrics.csv
-runs/evaluate_main_static_page/geometry_metrics.csv
-runs/evaluate_main_static_page/signal_metrics.csv
-runs/evaluate_main_static_page/spectral_metrics.csv
-```
-
-报告里可以按维度引用：
-
-- 几何准确性：角点 RMSE、四边形 IoU、长宽比误差；
-- 时域稳定性：相邻帧残余平移、旋转、尺度变化；
-- 信号保持：平均梯度幅度、边缘保持指数；
-- 频域规则性：2D FFT 主方向正交误差和坐标轴对齐误差。
-
-## 仅稳定性评估
-
-用 `scripts/analyze_stability.py` 分析输出视频中相邻帧的残余运动：
-
-```bash
-uv run scripts/analyze_stability.py \
-  runs/geometry_test/my_screen_video_normalized.mp4 \
-  --run-name analyze_geometry_test
-```
-
-它会生成：
-
-```text
-runs/analyze_geometry_test/stability_metrics.csv
-runs/analyze_geometry_test/stability_summary.json
-```
-
-报告里可以重点使用这些指标：
-
-- 残余平移量；
-- 残余旋转角；
-- 残余尺度变化；
-- RANSAC 内点数量和内点比例；
-- 最后几秒的稳定性统计。
-
-这些指标不能完全代替主观视觉效果，但可以支持方法对比和消融实验。
-
-## 目录结构
+## 目录
 
 ```text
 .
 ├── README.md
-├── doc/          # 论文输入、参考文献、证据和项目笔记
-├── inputs/       # 本地输入视频，默认不提交到 git
-├── runs/         # 每次运行生成的结果，默认不提交到 git
-├── screen_normalize/ # 主处理逻辑和工具模块
-└── scripts/      # 薄入口脚本，保留 uv run 命令兼容
+├── doc/                 # 当前论文工作区与历史文档
+├── inputs/              # 正式视频分类、角点 CSV 和本机 pilot archive
+├── runs/                # 新实验 run 和本机旧结果 archive
+├── screen_normalize/    # 可复用 Python 实现
+└── scripts/             # 当前入口及 archived 旧入口
 ```
 
-其中 `scripts/normalize_screen.py`、`scripts/make_manual_demo_strip.py` 和 `scripts/visualize_line_roll.py` 只保留为命令入口；核心实现已经拆到 `screen_normalize/`。`scripts/select_corners.py` 是手动角点 GUI。
-
-根目录只保留文件夹、`.gitignore` 和 `README.md`。输入视频和实验结果不要散落在根目录。
-
-## 参考材料
-
-- `doc/paper/`：当前有效的 proposal、论文大纲、写作规划、参考论文、真实实验证据和稿件。
-- `doc/paper/draft_materials/`：可直接吸收进正文的定位、Related Work 和图表素材。
-- `doc/paper/references/samples/`：教师提供的写作样例。
-- `doc/paper/references/papers/`：项目正式参考的学术论文。
-- `doc/archive/`：过期实验计划、方向决策、开发复盘和可选探针，仅供追溯。
-
-## 后续工作
-
-下一步建议按课程交付顺序做：
-
-1. 固定实验集，选择 3-5 个拍屏幕视频作为样例。
-2. 对每个样例保存原视频、归一化输出、debug CSV 和稳定性指标。
-3. 截图展示自动角点、手动角点、透视矫正前后对比。
-4. 做消融实验：逐帧检测、光流跟踪、参考平面跟踪、残余对齐、不同平滑窗口。
-5. 在 final report 中把项目完整表述为真实拍屏视频恢复的前置屏幕捕获矫正与时域稳定链路。
+- `doc/paper/source/proposal.pdf`：正式 proposal。
+- `doc/paper/outline_zh.md`：结果导向的最终论文大纲。
+- `doc/paper/implementation_roadmap.md`：从结果反推的实现路线。
+- `doc/paper/plan/experiment_pipeline.md`：当前唯一实验流水线计划。
+- `doc/paper/references/samples/`：教师论文和课程 final report 示例。
+- `doc/archive/`：过期计划、旧稿和开发记录。
