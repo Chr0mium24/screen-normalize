@@ -18,7 +18,7 @@
   -> 后续可接视频去摩尔纹 / 颜色校正 / 细节恢复
 ```
 
-也就是说，本项目不直接做去摩尔纹或画质恢复，而是先把真实拍摄场景中的屏幕内容定位、拉正并稳定。完整叙事见 `doc/paper/planning/positioning.md`。SuperPoint + LightGlue 等学习式特征匹配只作为可选探针或对照实验，不再作为主线必做项。
+也就是说，本项目不直接做去摩尔纹或画质恢复，而是先把真实拍摄场景中的屏幕内容定位、拉正并稳定。完整叙事见 `doc/paper/draft_materials/positioning.md`。SuperPoint + LightGlue 等学习式特征匹配只作为可选探针或对照实验，不再作为主线必做项。
 
 ## 项目目标
 
@@ -120,7 +120,7 @@ uv run scripts/normalize_screen.py inputs/my_screen_video.mp4 \
 Final 阶段的实验规划、报告和提交材料已整理到：
 
 - `doc/archive/previous_plans/final_experiment_plan.md`：旧实验计划，仅供追溯；
-- `doc/paper/manuscript/legacy_final_report.md`：已有英文 final report 初稿；
+- `doc/archive/previous_drafts/legacy_final_report.md`：旧英文 final report，仅供参考；
 - `doc/paper/evidence/experiment_summary.csv`：可追溯的实验指标表；
 - `doc/paper/evidence/run_manifest.md`：每个 run 对应的执行命令；
 - `doc/archive/previous_plans/presentation_outline.md`：旧 final presentation 结构。
@@ -386,7 +386,7 @@ runs/analyze_geometry_test/stability_summary.json
 ## 参考材料
 
 - `doc/paper/`：当前有效的 proposal、论文大纲、写作规划、参考论文、真实实验证据和稿件。
-- `doc/paper/planning/`：当前论文定位、数据集和图表规划。
+- `doc/paper/draft_materials/`：可直接吸收进正文的定位、Related Work 和图表素材。
 - `doc/paper/references/samples/`：教师提供的写作样例。
 - `doc/paper/references/papers/`：项目正式参考的学术论文。
 - `doc/archive/`：过期实验计划、方向决策、开发复盘和可选探针，仅供追溯。

@@ -8,11 +8,10 @@
 | --- | --- |
 | `source/proposal.pdf` | 已提交的正式 proposal，用于约束论文范围 |
 | `outline_zh.md` | 当前中文论文大纲和图表规划 |
-| `planning/` | 当前论文定位、数据集和图表规划 |
+| `draft_materials/` | 已有写作素材，可吸收进 Introduction、Related Work 和图表说明 |
 | `references/samples/` | 教师提供的写作与排版样例 |
 | `references/papers/` | 项目正式参考的学术论文 |
 | `evidence/` | 真实实验指标和可复现运行清单 |
-| `manuscript/` | 论文稿件；现有 legacy report 仅作为写作起点 |
 
 `doc/archive/` 中的文档仅供追溯，不代表当前论文计划或当前实验事实。
 
