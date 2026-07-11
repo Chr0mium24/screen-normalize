@@ -51,7 +51,8 @@ def analyze_clip(
                 raise ValueError(f"unsupported metric: {metric}")
             if summary["status"] == "failed":
                 failures.append(f"{method}/{metric}: {summary.get('reason')}")
-    report = render_clip_report(clip_dir, video, category, clip_id, list(methods))
+    report_methods = [method for method in METHOD_IDS if (clip_dir / method / "method.json").exists()]
+    report = render_clip_report(clip_dir, video, category, clip_id, report_methods)
     return {
         "category": category,
         "clip_id": clip_id,
@@ -59,4 +60,3 @@ def analyze_clip(
         "reason": "; ".join(failures),
         "report": str(report),
     }
-

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 from pathlib import Path
 
 from screen_normalize.pipeline import analyze_clip
@@ -48,11 +49,16 @@ def main() -> None:
             record = {"category": video.parent.name, "clip_id": video.stem, "status": "failed", "reason": f"{type(exc).__name__}: {exc}"}
         records.append(record)
         print(f"[{record['status']}] {record['category']}/{record['clip_id']}")
-    write_csv(run_dir / "batch.csv", records)
+    batch_path = run_dir / "batch.csv"
+    if batch_path.exists():
+        with batch_path.open(newline="", encoding="utf-8") as handle:
+            existing = list(csv.DictReader(handle))
+        current_keys = {(record["category"], record["clip_id"]) for record in records}
+        records = [record for record in existing if (record["category"], record["clip_id"]) not in current_keys] + records
+    write_csv(batch_path, records)
     index = render_run_index(run_dir, records)
     print(f"run directory: {run_dir}\nindex: {index}")
 
 
 if __name__ == "__main__":
     main()
-
