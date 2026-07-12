@@ -21,8 +21,12 @@ def evaluate_geometry(
             return [], {"status": "skipped", "reason": "corner annotation CSV is missing"}
         metadata = video_metadata(original_video)
         annotations = load_annotations(annotation_csv, metadata.width, metadata.height)
+        # Frame 0 may be supplied to the algorithm as manual initialization.
+        # It is therefore not an independent ground-truth evaluation frame.
+        initialization_excluded = annotations.pop(0, None) is not None
         estimates = read_corner_csv(estimated_csv)
         payload = evaluate_geometry_accuracy(annotations, estimates, metadata.width, metadata.height)
+        payload[1]["initialization_frame_excluded"] = initialization_excluded
         matched = sorted(set(annotations) & set(estimates))
         if matched:
             frame = read_frames(original_video, [matched[0]]).get(matched[0])

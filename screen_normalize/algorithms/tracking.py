@@ -206,6 +206,7 @@ def estimate_reference_corner_trajectory(
     capture: cv2.VideoCapture,
     fallback_corners: np.ndarray,
     auto_detect: bool,
+    initial_corners: np.ndarray | None,
     feature_refresh: int,
     reference_min_inliers: int,
     reference_min_inlier_ratio: float,
@@ -222,7 +223,9 @@ def estimate_reference_corner_trajectory(
     if not ok:
         return []
 
-    reference_corners = detect_screen_corners(first_frame) if auto_detect else fallback_corners
+    reference_corners = initial_corners
+    if reference_corners is None:
+        reference_corners = detect_screen_corners(first_frame) if auto_detect else fallback_corners
     if reference_corners is None:
         reference_corners = fallback_corners
     reference_corners = order_corners(reference_corners).astype(np.float32)
@@ -501,6 +504,7 @@ def estimate_corner_trajectory(
     capture: cv2.VideoCapture,
     fallback_corners: np.ndarray,
     auto_detect: bool,
+    initial_corners: np.ndarray | None,
     tracker: str,
     smooth: float,
     detect_correction: float,
@@ -520,6 +524,7 @@ def estimate_corner_trajectory(
             capture=capture,
             fallback_corners=fallback_corners,
             auto_detect=auto_detect,
+            initial_corners=initial_corners,
             feature_refresh=feature_refresh,
             reference_min_inliers=reference_min_inliers,
             reference_min_inlier_ratio=reference_min_inlier_ratio,
@@ -559,7 +564,9 @@ def estimate_corner_trajectory(
             )
 
         if previous_corners is None:
-            corners = detected_corners if detected_corners is not None else fallback_corners
+            corners = initial_corners if initial_corners is not None else (
+                detected_corners if detected_corners is not None else fallback_corners
+            )
         elif predicted_corners is not None:
             if detected_corners is not None:
                 corners = (predicted_corners * (1.0 - detect_correction)) + (

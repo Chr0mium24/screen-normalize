@@ -18,6 +18,7 @@ from ..algorithms.trajectory import (
 )
 from ..common import DEFAULT_FALLBACK_CORNERS, open_capture, parse_corners, require_ffmpeg
 from ..normalize_args import apply_reference_profile, parse_args
+from .annotations import load_annotations
 from .run_io import METHOD_IDS, write_csv, write_json
 
 
@@ -82,6 +83,14 @@ def _corner_rows(trajectory: np.ndarray) -> list[dict[str, float | int]]:
     return rows
 
 
+def load_manual_initial_corners(source: Path, width: int, height: int) -> np.ndarray | None:
+    """Return the manual frame-0 annotation when a sidecar CSV provides one."""
+    annotation = source.with_suffix(".csv")
+    if not annotation.exists():
+        return None
+    return load_annotations(annotation, width, height).get(0)
+
+
 def run_method(source: Path, output_dir: Path, method: str) -> RunResult:
     source = source.resolve()
     if not source.exists():
@@ -96,16 +105,22 @@ def run_method(source: Path, output_dir: Path, method: str) -> RunResult:
     capture = open_capture(source)
     fps = args.fps or float(capture.get(cv2.CAP_PROP_FPS) or 60.0)
     fps = fps if fps > 0 else 60.0
+    frame_width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    manual_initial = load_manual_initial_corners(source, frame_width, frame_height)
     fallback = args.corners
     auto_detect = fallback is None
     if fallback is None:
         fallback = parse_corners(DEFAULT_FALLBACK_CORNERS)
+    if manual_initial is not None:
+        fallback = manual_initial
 
     tracker_rows: list[dict[str, object]] = []
     trajectory = estimate_corner_trajectory(
         capture=capture,
         fallback_corners=fallback,
         auto_detect=auto_detect,
+        initial_corners=manual_initial,
         tracker=args.tracker,
         smooth=args.smooth,
         detect_correction=args.detect_correction,
@@ -209,6 +224,8 @@ def run_method(source: Path, output_dir: Path, method: str) -> RunResult:
             "status": "ok",
             "method": method,
             "config": asdict(config),
+            "initialization": "manual_frame_0" if manual_initial is not None else "automatic_detection",
+            "initial_corners": manual_initial.tolist() if manual_initial is not None else None,
             "processed_frames": processed,
             "elapsed_seconds": elapsed,
         },

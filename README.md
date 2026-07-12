@@ -14,11 +14,13 @@
 uv run scripts/normalize_screen.py --help
 uv run scripts/select_corners.py inputs/static/static_01.mp4
 uv run scripts/annotate_corners.py inputs/static/static_01.mp4 --stride 30
+uv run scripts/annotate_web.py
 ```
 
 - `scripts/normalize_screen.py`：当前屏幕归一化算法入口。
 - `scripts/select_corners.py`：单帧四角点选取和算法调试工具。
 - `scripts/annotate_corners.py`：正式多关键帧角点 CSV 标注工具。
+- `scripts/annotate_web.py`：推荐的浏览器批量标注界面；启动本地服务后自动打开页面，输出格式与原 CSV 工具完全兼容。
 - `screen_normalize/algorithms/`：检测、跟踪、轨迹平滑、对齐、变换和编码。
 - `screen_normalize/experiments/`：标注、方法 runner、run 读写、单视频 pipeline、报告和论文绘图样式。
 - `screen_normalize/metrics/`：Geometry、Temporal、Detail 和 Frequency 四类论文指标。

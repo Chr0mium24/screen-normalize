@@ -26,12 +26,22 @@ def evaluate_frequency(
             "this is not a moire-suppression measurement"
         )
         metadata = video_metadata(normalized_video)
-        first = read_frames(normalized_video, [0]).get(0)
-        if first is not None:
-            gray = cv2.cvtColor(first, cv2.COLOR_BGR2GRAY).astype(np.float32)
-            spectrum = np.log1p(np.abs(np.fft.fftshift(np.fft.fft2(gray - gray.mean()))))
-            image = cv2.normalize(spectrum, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+        # Do not visualize frame 0: it can be the manually initialized frame.
+        # Average several later spectra so the review image is not a cherry-picked frame.
+        spectrum_frames = [row["frame"] for row in rows if int(row["frame"]) > 0][:5]
+        frames = read_frames(normalized_video, spectrum_frames)
+        spectra = []
+        for frame_index in spectrum_frames:
+            frame = frames.get(frame_index)
+            if frame is None:
+                continue
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY).astype(np.float32)
+            spectra.append(np.log1p(np.abs(np.fft.fftshift(np.fft.fft2(gray - gray.mean())))))
+        if spectra:
+            image = cv2.normalize(np.mean(spectra, axis=0), None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
             cv2.imwrite(str(output_dir / "frequency_spectrum.png"), image)
+        summary["spectrum_frames"] = spectrum_frames
+        summary["initialization_frame_excluded"] = True
         summary["video_frame_count"] = metadata.frame_count
         return rows, summary
 

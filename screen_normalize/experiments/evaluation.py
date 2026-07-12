@@ -736,6 +736,7 @@ def evaluate_spectral_regularity(
         config.sample_stride,
         config.max_frames,
     )
+    sample_frames = [frame for frame in sample_frames if frame > 0]
     frames = read_frames(normalized_video, sample_frames)
     rows: list[dict[str, Any]] = []
     for frame_index in sample_frames:
