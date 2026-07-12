@@ -9,11 +9,13 @@ trap 'rm -rf "$temporary"' EXIT
 
 pandoc "$manuscript/paper_en.md" \
   --from markdown+tex_math_dollars \
+  --resource-path="$manuscript" \
   --pdf-engine=xelatex \
   --output "$manuscript/paper_en.pdf"
 
 pandoc "$manuscript/paper_zh.md" \
   --from markdown+tex_math_dollars \
+  --resource-path="$manuscript" \
   --to html5 \
   --standalone \
   --mathml \

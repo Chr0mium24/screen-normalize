@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="523.058312pt" height="240.961401pt" viewBox="0 0 523.058312 240.961401" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-12T12:34:47.696465</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 240.961401 
+L 523.058312 240.961401 
+L 523.058312 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 26.982569 109.19952 
+L 116.903339 109.19952 
+L 116.903339 19.27875 
+L 26.982569 19.27875 
+z
+" clip-path="url(#pacc9a73e44)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 37.773062 95.711404 
+L 106.112847 95.711404 
+L 106.112847 34.565281 
+L 37.773062 34.565281 
+z
+" clip-path="url(#pacc9a73e44)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(57.362954 61.516479)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(62.844829 71.118041)">TBD</text>
+   </g>
+   <g id="text_2">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'" transform="translate(13.27875 85.74726) rotate(-90)">Examples</text>
+   </g>
+   <g id="text_3">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="71.942954" y="13.27875" transform="rotate(-0 71.942954 13.27875)">Static</text>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_4">
+    <path d="M 126.721313 109.19952 
+L 216.642083 109.19952 
+L 216.642083 19.27875 
+L 126.721313 19.27875 
+z
+" clip-path="url(#pfe9fddea89)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 137.511805 95.711404 
+L 205.85159 95.711404 
+L 205.85159 34.565281 
+L 137.511805 34.565281 
+z
+" clip-path="url(#pfe9fddea89)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_4">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(157.101698 61.516479)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(162.583573 71.118041)">TBD</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="171.681698" y="13.27875" transform="rotate(-0 171.681698 13.27875)">Scrolling</text>
+   </g>
+  </g>
+  <g id="axes_3">
+   <g id="patch_6">
+    <path d="M 226.460056 109.19952 
+L 316.380826 109.19952 
+L 316.380826 19.27875 
+L 226.460056 19.27875 
+z
+" clip-path="url(#p22a0862d66)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 237.250548 95.711404 
+L 305.590333 95.711404 
+L 305.590333 34.565281 
+L 237.250548 34.565281 
+z
+" clip-path="url(#p22a0862d66)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_6">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(256.840441 61.516479)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(262.322316 71.118041)">TBD</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="271.420441" y="13.27875" transform="rotate(-0 271.420441 13.27875)">Screen video</text>
+   </g>
+  </g>
+  <g id="axes_4">
+   <g id="patch_8">
+    <path d="M 326.198799 109.19952 
+L 416.119569 109.19952 
+L 416.119569 19.27875 
+L 326.198799 19.27875 
+z
+" clip-path="url(#p4d77b1973f)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 336.989291 95.711404 
+L 405.329077 95.711404 
+L 405.329077 34.565281 
+L 336.989291 34.565281 
+z
+" clip-path="url(#p4d77b1973f)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_8">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(356.579184 61.516479)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(362.061059 71.118041)">TBD</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="371.159184" y="13.27875" transform="rotate(-0 371.159184 13.27875)">Weak border</text>
+   </g>
+  </g>
+  <g id="axes_5">
+   <g id="patch_10">
+    <path d="M 425.937542 109.19952 
+L 515.858312 109.19952 
+L 515.858312 19.27875 
+L 425.937542 19.27875 
+z
+" clip-path="url(#pc90b4e628b)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 436.728035 95.711404 
+L 505.06782 95.711404 
+L 505.06782 34.565281 
+L 436.728035 34.565281 
+z
+" clip-path="url(#pc90b4e628b)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_10">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(456.317927 61.516479)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(461.799802 71.118041)">TBD</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="470.897927" y="13.27875" transform="rotate(-0 470.897927 13.27875)">Hard</text>
+   </g>
+  </g>
+  <g id="axes_6">
+   <g id="patch_12">
+    <path d="M 26.982569 217.19952 
+L 116.903339 217.19952 
+L 116.903339 127.27875 
+L 26.982569 127.27875 
+z
+" clip-path="url(#pefc94adc70)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 37.773062 203.711404 
+L 106.112847 203.711404 
+L 106.112847 142.565281 
+L 37.773062 142.565281 
+z
+" clip-path="url(#pefc94adc70)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_14">
+    <path d="M 40.470685 199.215366 
+L 104.314432 201.912989 
+L 101.616809 146.162112 
+L 38.67227 143.464489 
+L 40.470685 199.215366 
+z
+" clip-path="url(#pefc94adc70)" style="fill: none; stroke: #d1495b; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="m951ed8550c" d="M 0 1.581139 
+C 0.419323 1.581139 0.821528 1.41454 1.118034 1.118034 
+C 1.41454 0.821528 1.581139 0.419323 1.581139 0 
+C 1.581139 -0.419323 1.41454 -0.821528 1.118034 -1.118034 
+C 0.821528 -1.41454 0.419323 -1.581139 0 -1.581139 
+C -0.419323 -1.581139 -0.821528 -1.41454 -1.118034 -1.118034 
+C -1.41454 -0.821528 -1.581139 -0.419323 -1.581139 0 
+C -1.581139 0.419323 -1.41454 0.821528 -1.118034 1.118034 
+C -0.821528 1.41454 -0.419323 1.581139 0 1.581139 
+z
+" style="stroke: #d1495b"/>
+    </defs>
+    <g clip-path="url(#pefc94adc70)">
+     <use xlink:href="#m951ed8550c" x="40.470685" y="199.215366" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="104.314432" y="201.912989" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="101.616809" y="146.162112" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="38.67227" y="143.464489" style="fill: #d1495b; stroke: #d1495b"/>
+    </g>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(57.362954 169.516479)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(62.844829 179.118041)">TBD</text>
+   </g>
+   <g id="text_13">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'" transform="translate(13.27875 199.64851) rotate(-90)">Annotations</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="71.942954" y="121.27875" transform="rotate(-0 71.942954 121.27875)">Static + corners</text>
+   </g>
+  </g>
+  <g id="axes_7">
+   <g id="patch_15">
+    <path d="M 126.721313 217.19952 
+L 216.642083 217.19952 
+L 216.642083 127.27875 
+L 126.721313 127.27875 
+z
+" clip-path="url(#p8e8b2979e0)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_16">
+    <path d="M 137.511805 203.711404 
+L 205.85159 203.711404 
+L 205.85159 142.565281 
+L 137.511805 142.565281 
+z
+" clip-path="url(#p8e8b2979e0)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_17">
+    <path d="M 140.209428 199.215366 
+L 204.053175 201.912989 
+L 201.355552 146.162112 
+L 138.411013 143.464489 
+L 140.209428 199.215366 
+z
+" clip-path="url(#p8e8b2979e0)" style="fill: none; stroke: #d1495b; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="PathCollection_2">
+    <g clip-path="url(#p8e8b2979e0)">
+     <use xlink:href="#m951ed8550c" x="140.209428" y="199.215366" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="204.053175" y="201.912989" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="201.355552" y="146.162112" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="138.411013" y="143.464489" style="fill: #d1495b; stroke: #d1495b"/>
+    </g>
+   </g>
+   <g id="text_15">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(157.101698 169.516479)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(162.583573 179.118041)">TBD</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="171.681698" y="121.27875" transform="rotate(-0 171.681698 121.27875)">Scrolling + corners</text>
+   </g>
+  </g>
+  <g id="axes_8">
+   <g id="patch_18">
+    <path d="M 226.460056 217.19952 
+L 316.380826 217.19952 
+L 316.380826 127.27875 
+L 226.460056 127.27875 
+z
+" clip-path="url(#p165ba19fa2)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_19">
+    <path d="M 237.250548 203.711404 
+L 305.590333 203.711404 
+L 305.590333 142.565281 
+L 237.250548 142.565281 
+z
+" clip-path="url(#p165ba19fa2)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_20">
+    <path d="M 239.948171 199.215366 
+L 303.791918 201.912989 
+L 301.094295 146.162112 
+L 238.149756 143.464489 
+L 239.948171 199.215366 
+z
+" clip-path="url(#p165ba19fa2)" style="fill: none; stroke: #d1495b; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="PathCollection_3">
+    <g clip-path="url(#p165ba19fa2)">
+     <use xlink:href="#m951ed8550c" x="239.948171" y="199.215366" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="303.791918" y="201.912989" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="301.094295" y="146.162112" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="238.149756" y="143.464489" style="fill: #d1495b; stroke: #d1495b"/>
+    </g>
+   </g>
+   <g id="text_17">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(256.840441 169.516479)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(262.322316 179.118041)">TBD</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="271.420441" y="121.27875" transform="rotate(-0 271.420441 121.27875)">Screen video + corners</text>
+   </g>
+  </g>
+  <g id="axes_9">
+   <g id="patch_21">
+    <path d="M 326.198799 217.19952 
+L 416.119569 217.19952 
+L 416.119569 127.27875 
+L 326.198799 127.27875 
+z
+" clip-path="url(#p803d286adb)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_22">
+    <path d="M 336.989291 203.711404 
+L 405.329077 203.711404 
+L 405.329077 142.565281 
+L 336.989291 142.565281 
+z
+" clip-path="url(#p803d286adb)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_23">
+    <path d="M 339.686914 199.215366 
+L 403.530661 201.912989 
+L 400.833038 146.162112 
+L 337.888499 143.464489 
+L 339.686914 199.215366 
+z
+" clip-path="url(#p803d286adb)" style="fill: none; stroke: #d1495b; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="PathCollection_4">
+    <g clip-path="url(#p803d286adb)">
+     <use xlink:href="#m951ed8550c" x="339.686914" y="199.215366" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="403.530661" y="201.912989" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="400.833038" y="146.162112" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="337.888499" y="143.464489" style="fill: #d1495b; stroke: #d1495b"/>
+    </g>
+   </g>
+   <g id="text_19">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(356.579184 169.516479)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(362.061059 179.118041)">TBD</text>
+   </g>
+   <g id="text_20">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="371.159184" y="121.27875" transform="rotate(-0 371.159184 121.27875)">Weak border + corners</text>
+   </g>
+  </g>
+  <g id="axes_10">
+   <g id="patch_24">
+    <path d="M 425.937542 217.19952 
+L 515.858312 217.19952 
+L 515.858312 127.27875 
+L 425.937542 127.27875 
+z
+" clip-path="url(#pad44483305)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_25">
+    <path d="M 436.728035 203.711404 
+L 505.06782 203.711404 
+L 505.06782 142.565281 
+L 436.728035 142.565281 
+z
+" clip-path="url(#pad44483305)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_26">
+    <path d="M 439.425658 199.215366 
+L 503.269404 201.912989 
+L 500.571781 146.162112 
+L 437.627242 143.464489 
+L 439.425658 199.215366 
+z
+" clip-path="url(#pad44483305)" style="fill: none; stroke: #d1495b; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="PathCollection_5">
+    <g clip-path="url(#pad44483305)">
+     <use xlink:href="#m951ed8550c" x="439.425658" y="199.215366" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="503.269404" y="201.912989" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="500.571781" y="146.162112" style="fill: #d1495b; stroke: #d1495b"/>
+     <use xlink:href="#m951ed8550c" x="437.627242" y="143.464489" style="fill: #d1495b; stroke: #d1495b"/>
+    </g>
+   </g>
+   <g id="text_21">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(456.317927 169.516479)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(461.799802 179.118041)">TBD</text>
+   </g>
+   <g id="text_22">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="470.897927" y="121.27875" transform="rotate(-0 470.897927 121.27875)">Hard + corners</text>
+   </g>
+  </g>
+  <g id="text_23">
+   <text style="font-weight: 700; font-size: 7px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #a61b1b" x="261.567299" y="232.07976" transform="rotate(-0 261.567299 232.07976)">PLACEHOLDER - ALL VALUES ARE 1.0 - REPLACE FROM THE REVIEWED FORMAL RUN</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pacc9a73e44">
+   <rect x="26.982569" y="19.27875" width="89.92077" height="89.92077"/>
+  </clipPath>
+  <clipPath id="pfe9fddea89">
+   <rect x="126.721313" y="19.27875" width="89.92077" height="89.92077"/>
+  </clipPath>
+  <clipPath id="p22a0862d66">
+   <rect x="226.460056" y="19.27875" width="89.92077" height="89.92077"/>
+  </clipPath>
+  <clipPath id="p4d77b1973f">
+   <rect x="326.198799" y="19.27875" width="89.92077" height="89.92077"/>
+  </clipPath>
+  <clipPath id="pc90b4e628b">
+   <rect x="425.937542" y="19.27875" width="89.92077" height="89.92077"/>
+  </clipPath>
+  <clipPath id="pefc94adc70">
+   <rect x="26.982569" y="127.27875" width="89.92077" height="89.92077"/>
+  </clipPath>
+  <clipPath id="p8e8b2979e0">
+   <rect x="126.721313" y="127.27875" width="89.92077" height="89.92077"/>
+  </clipPath>
+  <clipPath id="p165ba19fa2">
+   <rect x="226.460056" y="127.27875" width="89.92077" height="89.92077"/>
+  </clipPath>
+  <clipPath id="p803d286adb">
+   <rect x="326.198799" y="127.27875" width="89.92077" height="89.92077"/>
+  </clipPath>
+  <clipPath id="pad44483305">
+   <rect x="425.937542" y="127.27875" width="89.92077" height="89.92077"/>
+  </clipPath>
+ </defs>
+</svg>
