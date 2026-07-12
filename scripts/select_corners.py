@@ -148,16 +148,31 @@ class CornerPicker:
         self.points: list[tuple[float, float]] = []
         self.drag_index: int | None = None
         self.accepted = False
+        self.quit_all = False
 
         frame_height, frame_width = self.frame_bgr.shape[:2]
-        display_size = (round(frame_width * self.scale), round(frame_height * self.scale))
-        self.display_bgr = cv2.resize(self.frame_bgr, display_size, interpolation=cv2.INTER_AREA)
+        self.frame_width = frame_width
+        self.frame_height = frame_height
+        self.display_w = max(1, round(frame_width * self.scale))
+        self.display_h = max(1, round(frame_height * self.scale))
+        display_size = (self.display_w, self.display_h)
+
+        self.view_x = 0.0
+        self.view_y = 0.0
+        self.view_w = float(frame_width)
+        self.view_h = float(frame_height)
+        self.min_view = 32.0
 
         self.root.title("Select screen/content corners: TL, TR, BR, BL")
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.root.bind("<Return>", lambda _event: self.accept())
         self.root.bind("<Escape>", lambda _event: self.cancel())
         self.root.bind("u", lambda _event: self.undo())
         self.root.bind("r", lambda _event: self.reset())
+        self.root.bind("f", lambda _event: self.fit_view())
+        self.root.bind("<MouseWheel>", self.on_wheel)
+        self.root.bind("<Button-4>", self.on_wheel)
+        self.root.bind("<Button-5>", self.on_wheel)
 
         outer = Frame(self.root)
         outer.pack(fill=BOTH, expand=True)
@@ -171,6 +186,7 @@ class CornerPicker:
             left,
             text=(
                 "Click points in order: TL, TR, BR, BL. Drag a point to adjust. "
+                "Scroll to zoom at the cursor, f to fit. "
                 "For scrolling/video, select a stable screen/window boundary, then crop later."
             ),
             anchor="w",
@@ -182,6 +198,9 @@ class CornerPicker:
         self.canvas.bind("<Button-1>", self.on_click)
         self.canvas.bind("<B1-Motion>", self.on_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
+        self.canvas.bind("<MouseWheel>", self.on_wheel)
+        self.canvas.bind("<Button-4>", self.on_wheel)
+        self.canvas.bind("<Button-5>", self.on_wheel)
 
         self.preview_label = Label(right, text="Warp preview appears after 4 points")
         self.preview_label.pack(fill=BOTH)
@@ -194,16 +213,64 @@ class CornerPicker:
         Button(buttons, text="Reset", command=self.reset).pack(side=LEFT)
         Button(buttons, text="Accept", command=self.accept).pack(side=LEFT)
 
-        self.base_photo = bgr_to_photo(self.display_bgr)
+        self.base_photo = self.render_view()
         self.canvas_image = None
         self.preview_photo: PhotoImage | None = None
         self.draw()
 
+    def render_view(self) -> PhotoImage:
+        x0 = int(round(self.view_x))
+        y0 = int(round(self.view_y))
+        x1 = int(round(self.view_x + self.view_w))
+        y1 = int(round(self.view_y + self.view_h))
+        x0 = min(max(x0, 0), self.frame_width - 1)
+        y0 = min(max(y0, 0), self.frame_height - 1)
+        x1 = min(max(x1, x0 + 1), self.frame_width)
+        y1 = min(max(y1, y0 + 1), self.frame_height)
+        crop = self.frame_bgr[y0:y1, x0:x1]
+        view = cv2.resize(
+            crop,
+            (self.display_w, self.display_h),
+            interpolation=cv2.INTER_AREA if (x1 - x0) >= self.display_w else cv2.INTER_LINEAR,
+        )
+        return bgr_to_photo(view)
+
     def to_frame_point(self, x: float, y: float) -> tuple[float, float]:
-        return x / self.scale, y / self.scale
+        fx = self.view_x + x / self.display_w * self.view_w
+        fy = self.view_y + y / self.display_h * self.view_h
+        return fx, fy
 
     def to_canvas_point(self, point: tuple[float, float]) -> tuple[float, float]:
-        return point[0] * self.scale, point[1] * self.scale
+        cx = (point[0] - self.view_x) / self.view_w * self.display_w
+        cy = (point[1] - self.view_y) / self.view_h * self.display_h
+        return cx, cy
+
+    def on_wheel(self, event: object) -> None:
+        delta = getattr(event, "delta", 0)
+        num = getattr(event, "num", 0)
+        if delta > 0 or num == 4:
+            factor = 1 / 1.2
+        elif delta < 0 or num == 5:
+            factor = 1.2
+        else:
+            return
+        cursor_x = float(getattr(event, "x", self.display_w / 2))
+        cursor_y = float(getattr(event, "y", self.display_h / 2))
+        focus_x, focus_y = self.to_frame_point(cursor_x, cursor_y)
+
+        new_w = self.view_w * factor
+        new_h = self.view_h * factor
+        new_w = min(max(new_w, self.min_view), float(self.frame_width))
+        new_h = min(max(new_h, self.min_view), float(self.frame_height))
+
+        self.view_x = focus_x - cursor_x / self.display_w * new_w
+        self.view_y = focus_y - cursor_y / self.display_h * new_h
+        self.view_w = new_w
+        self.view_h = new_h
+        self.view_x = min(max(self.view_x, 0.0), self.frame_width - self.view_w)
+        self.view_y = min(max(self.view_y, 0.0), self.frame_height - self.view_h)
+        self.base_photo = self.render_view()
+        self.draw()
 
     def nearest_point(self, x: float, y: float) -> int | None:
         if not self.points:
@@ -240,6 +307,14 @@ class CornerPicker:
 
     def on_release(self, _event: object) -> None:
         self.drag_index = None
+
+    def fit_view(self) -> None:
+        self.view_x = 0.0
+        self.view_y = 0.0
+        self.view_w = float(self.frame_width)
+        self.view_h = float(self.frame_height)
+        self.base_photo = self.render_view()
+        self.draw()
 
     def undo(self) -> None:
         if self.points:
@@ -341,6 +416,10 @@ class CornerPicker:
             )
 
     def cancel(self) -> None:
+        self.root.destroy()
+
+    def on_close(self) -> None:
+        self.quit_all = True
         self.root.destroy()
 
 
