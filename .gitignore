@@ -5,11 +5,12 @@ __pycache__/
 *.swp
 ~$*
 
-# Source videos stay local. Keep the five category directories and corner CSVs.
+# Source videos and local corner annotations stay local.
 inputs/archive/
 inputs/**/*.mp4
 inputs/**/*.mov
 inputs/**/*.mkv
+inputs/**/*.csv
 !inputs/**/.gitkeep
 runs/*
 !runs/.gitkeep
