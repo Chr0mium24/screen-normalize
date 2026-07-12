@@ -38,6 +38,7 @@ METHOD_CONFIGS = {
     "frame_wise": MethodConfig("frame_wise", "detect", 0.0, 1, 1, False, False, False),
     "optical_flow": MethodConfig("optical_flow", "flow", 0.0, 1, 1, False, False, False),
     "proposed": MethodConfig("proposed", "reference", 0.85, 5, 9, True, True, True),
+    "point_edge": MethodConfig("point_edge", "boundary", 0.0, 3, 5, True, True, False),
 }
 
 

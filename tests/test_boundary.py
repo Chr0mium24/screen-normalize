@@ -3,7 +3,11 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
-from screen_normalize.algorithms.boundary import corners_from_lines, observe_quad_edges
+from screen_normalize.algorithms.boundary import (
+    corners_from_lines,
+    estimate_boundary_corner_trajectory,
+    observe_quad_edges,
+)
 
 
 def test_dense_edge_observation_recovers_synthetic_quad() -> None:
@@ -21,3 +25,23 @@ def test_dense_edge_observation_recovers_synthetic_quad() -> None:
 def test_parallel_lines_do_not_produce_quad() -> None:
     horizontal = np.asarray([0.0, 1.0, -20.0])
     assert corners_from_lines([horizontal, horizontal, horizontal, horizontal]) is None
+
+
+def test_boundary_trajectory_tracks_translating_quad(tmp_path) -> None:
+    path = tmp_path / "translation.avi"
+    writer = cv2.VideoWriter(str(path), cv2.VideoWriter_fourcc(*"MJPG"), 10.0, (640, 480))
+    initial = np.asarray([[100, 80], [540, 80], [540, 400], [100, 400]], dtype=np.float32)
+    for offset in range(5):
+        frame = np.zeros((480, 640, 3), dtype=np.uint8)
+        moved = initial + np.asarray([offset * 2, offset], dtype=np.float32)
+        cv2.fillConvexPoly(frame, moved.astype(np.int32), (230, 230, 230))
+        writer.write(frame)
+    writer.release()
+    capture = cv2.VideoCapture(str(path))
+    rows = []
+    trajectory = estimate_boundary_corner_trajectory(capture, initial, rows)
+    capture.release()
+    assert len(trajectory) == 5
+    expected = initial + np.asarray([8, 4], dtype=np.float32)
+    assert float(np.mean(np.linalg.norm(trajectory[-1] - expected, axis=1))) < 3.0
+    assert all(row["accepted"] for row in rows)

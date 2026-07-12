@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import cv2
 import numpy as np
 
-from .geometry import order_corners
+from .geometry import detected_corners_are_valid, geometry_update_is_reasonable, order_corners
 
 
 @dataclass(frozen=True)
@@ -140,3 +140,64 @@ def observe_quad_edges(
             measured_polarities[edge] = float(np.sign(np.median(signs[inliers])))
         observations.append(EdgeObservation(points, strengths, line, inliers, confidence))
     return observations, measured_polarities
+
+
+def estimate_boundary_corner_trajectory(
+    capture: cv2.VideoCapture,
+    initial_corners: np.ndarray,
+    debug_rows: list[dict[str, object]] | None = None,
+    sample_count: int = 50,
+    search_radii: tuple[int, ...] = (20, 60, 120),
+) -> list[np.ndarray]:
+    """Track a full quadrilateral from dense observations along its four edges."""
+    trajectory: list[np.ndarray] = []
+    predicted = order_corners(initial_corners).astype(np.float32)
+    polarities: np.ndarray | None = None
+    frame_index = 0
+    while True:
+        ok, frame = capture.read()
+        if not ok:
+            break
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        accepted = frame_index == 0
+        chosen: list[EdgeObservation] = []
+        measured = np.zeros(4, dtype=np.float32)
+        used_radius = 0
+        candidate = predicted.copy() if accepted else None
+        for radius in search_radii:
+            observations, current_polarities = observe_quad_edges(
+                gray, predicted, sample_count, radius, polarities
+            )
+            proposed = corners_from_lines([item.line for item in observations])
+            confidences = np.asarray([item.confidence for item in observations])
+            chosen, measured, used_radius = observations, current_polarities, radius
+            if (
+                proposed is not None
+                and float(confidences.min()) >= 0.35
+                and detected_corners_are_valid(proposed, frame.shape)
+                and geometry_update_is_reasonable(proposed, predicted, 0.08, 0.15)
+            ):
+                candidate = proposed
+                accepted = True
+                break
+        if accepted and candidate is not None:
+            predicted = candidate.astype(np.float32)
+            nonzero = measured != 0
+            if polarities is None:
+                polarities = measured.copy()
+            else:
+                polarities[nonzero] = measured[nonzero]
+        trajectory.append(predicted.copy())
+        if debug_rows is not None:
+            row: dict[str, object] = {
+                "frame": frame_index,
+                "accepted": accepted,
+                "reason": "edge_accepted" if accepted else "edge_held",
+                "search_radius": used_radius,
+            }
+            for edge, observation in enumerate(chosen):
+                row[f"edge_{edge}_confidence"] = observation.confidence
+                row[f"edge_{edge}_inliers"] = int(observation.inliers.sum())
+            debug_rows.append(row)
+        frame_index += 1
+    return trajectory

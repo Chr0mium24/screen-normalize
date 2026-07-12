@@ -5,6 +5,7 @@ import sys
 import cv2
 import numpy as np
 
+from .boundary import estimate_boundary_corner_trajectory
 from .detection import detect_screen_corners, select_tracking_points
 from .geometry import (
     corner_edge_lengths,
@@ -519,6 +520,13 @@ def estimate_corner_trajectory(
     reference_min_coverage_y: float,
     tracker_debug_rows: list[dict[str, object]] | None,
 ) -> list[np.ndarray]:
+    if tracker == "boundary":
+        corners = initial_corners if initial_corners is not None else fallback_corners
+        return estimate_boundary_corner_trajectory(
+            capture,
+            corners,
+            debug_rows=tracker_debug_rows,
+        )
     if tracker == "reference":
         return estimate_reference_corner_trajectory(
             capture=capture,

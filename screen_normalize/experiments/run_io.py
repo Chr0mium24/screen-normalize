@@ -10,7 +10,7 @@ from ..common import clean_path_component, create_run_directory, project_root
 from .evaluation import as_jsonable
 
 
-METHOD_IDS = ("frame_wise", "optical_flow", "proposed")
+METHOD_IDS = ("frame_wise", "optical_flow", "proposed", "point_edge")
 METRIC_IDS = ("geometry", "temporal", "detail", "frequency")
 
 

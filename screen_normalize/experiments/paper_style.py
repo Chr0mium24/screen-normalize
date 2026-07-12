@@ -9,14 +9,16 @@ METHOD_LABELS = {
     "frame_wise": "Frame-wise",
     "optical_flow": "Optical flow",
     "proposed": "Proposed",
+    "point_edge": "Point-edge",
 }
 METHOD_COLORS = {
     "frame_wise": "#526D82",
     "optical_flow": "#C58B3A",
     "proposed": "#2F7F73",
+    "point_edge": "#806491",
 }
-METHOD_MARKERS = {"frame_wise": "o", "optical_flow": "s", "proposed": "D"}
-METHOD_LINES = {"frame_wise": "-", "optical_flow": "--", "proposed": "-"}
+METHOD_MARKERS = {"frame_wise": "o", "optical_flow": "s", "proposed": "D", "point_edge": "^"}
+METHOD_LINES = {"frame_wise": "-", "optical_flow": "--", "proposed": "-", "point_edge": "-."}
 GRID_COLOR = "#D9DDDF"
 TEXT_COLOR = "#242729"
 
