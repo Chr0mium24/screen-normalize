@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from .metrics import evaluate_detail, evaluate_frequency, evaluate_geometry, evaluate_temporal
+from ..metrics import evaluate_detail, evaluate_frequency, evaluate_geometry, evaluate_temporal
 from .reporting import render_clip_report
 from .run_io import METHOD_IDS, METRIC_IDS, clip_directory, method_directory, write_json
 from .runner import run_method

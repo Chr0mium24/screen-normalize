@@ -12,17 +12,21 @@ from .common import (
     require_ffmpeg,
     resolve_run_output,
 )
-from .debug_io import write_align_debug_csv, write_tracker_debug_csv, write_trajectory_debug_csv
-from .encoding import encode_warped_video, mux_audio
-from .normalize_args import apply_reference_profile, parse_args
-from .tracking import estimate_corner_trajectory
-from .trajectory import (
+from .algorithms.encoding import encode_warped_video, mux_audio
+from .algorithms.tracking import estimate_corner_trajectory
+from .algorithms.trajectory import (
     apply_offline_geometry_gate,
     build_trajectory_debug_rows,
     interpolate_corner_trajectory,
     reliable_mask_from_tracker_rows,
     smooth_corner_trajectory,
 )
+from .experiments.debug_io import (
+    write_align_debug_csv,
+    write_tracker_debug_csv,
+    write_trajectory_debug_csv,
+)
+from .normalize_args import apply_reference_profile, parse_args
 
 
 def main() -> None:

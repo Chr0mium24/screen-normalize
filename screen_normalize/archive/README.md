@@ -5,4 +5,4 @@
 - `manual_demo_*`：旧版人工理想矫正演示。
 - `line_roll_diagnostics.py`、`line_roll_visualize_cli.py`：旧版 line-roll 可视化诊断。
 
-实际编码使用的 line-roll 算法仍位于 `screen_normalize/line_roll.py`。
+实际编码使用的 line-roll 算法位于 `screen_normalize/algorithms/line_roll.py`。

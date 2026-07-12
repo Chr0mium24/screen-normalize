@@ -5,8 +5,8 @@ from typing import Any
 
 import cv2
 
-from ..annotations import load_annotations
-from ..evaluation import evaluate_geometry_accuracy, read_corner_csv, read_frames, video_metadata
+from ..experiments.annotations import load_annotations
+from ..experiments.evaluation import evaluate_geometry_accuracy, read_corner_csv, read_frames, video_metadata
 from .common import run_guarded
 
 

@@ -2,7 +2,7 @@ from pathlib import Path
 
 from scripts.make_paper_results import aggregate_table, collect
 from scripts.run_batch import select_videos
-from screen_normalize.run_io import write_json
+from screen_normalize.experiments.run_io import write_json
 
 
 def test_video_selection_and_limit(tmp_path: Path) -> None:

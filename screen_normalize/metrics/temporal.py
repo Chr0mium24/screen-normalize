@@ -7,7 +7,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..evaluation import read_corner_csv, summarize_numeric
+from ..experiments.evaluation import read_corner_csv, summarize_numeric
 from .common import run_guarded
 
 

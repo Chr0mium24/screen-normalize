@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from screen_normalize.annotations import AnnotationError, load_annotations, save_annotations
+from screen_normalize.experiments.annotations import AnnotationError, load_annotations, save_annotations
 
 
 VALID = np.asarray([[10, 10], [90, 12], [88, 80], [12, 82]], dtype=np.float32)
@@ -24,4 +24,3 @@ def test_annotation_rejects_invalid_quad(tmp_path: Path) -> None:
     invalid = VALID[[0, 2, 1, 3]]
     with pytest.raises(AnnotationError):
         save_annotations(tmp_path / "clip.csv", {0: invalid}, 100, 100)
-

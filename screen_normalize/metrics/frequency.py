@@ -6,7 +6,7 @@ from typing import Any
 import cv2
 import numpy as np
 
-from ..evaluation import FrequencyConfig, evaluate_spectral_regularity, read_frames, video_metadata
+from ..experiments.evaluation import FrequencyConfig, evaluate_spectral_regularity, read_frames, video_metadata
 from .common import run_guarded
 
 

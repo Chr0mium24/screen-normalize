@@ -5,8 +5,8 @@ from typing import Any
 
 import cv2
 
-from ..annotations import load_annotations
-from ..evaluation import SignalConfig, evaluate_signal_preservation, read_frames, video_metadata, warp_to_screen
+from ..experiments.annotations import load_annotations
+from ..experiments.evaluation import SignalConfig, evaluate_signal_preservation, read_frames, video_metadata, warp_to_screen
 from .common import run_guarded
 
 

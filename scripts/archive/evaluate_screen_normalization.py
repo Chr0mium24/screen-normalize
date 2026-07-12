@@ -14,12 +14,12 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from screen_normalize.common import clean_path_component, create_run_directory, project_root
-from screen_normalize.evaluation import (
+from screen_normalize.experiments.evaluation import (
     FrequencyConfig,
     MotionConfig,
     SignalConfig,

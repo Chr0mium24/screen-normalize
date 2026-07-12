@@ -22,7 +22,7 @@ scripts/normalize_screen.py
 - `detect`、`flow`、`reference` 三种 tracker 模式；
 - 屏幕检测、LK 跟踪、RANSAC、轨迹修复和平滑；
 - 透视变换、可选 residual alignment、视频编码和 debug CSV；
-- `screen_normalize/evaluation.py` 中已有几何、时域、细节和 FFT 的试验性计算。
+- `screen_normalize/experiments/evaluation.py` 中已有几何、时域、细节和 FFT 的试验性计算。
 
 当前缺口：
 
@@ -39,7 +39,7 @@ scripts/normalize_screen.py
 保留现有 `screen_normalize/` 主链，先避免大规模重构。新增一个轻量程序化入口，例如：
 
 ```text
-screen_normalize/runner.py
+screen_normalize/experiments/runner.py
 ```
 
 它接收输入视频、方法配置和已有输出目录，调用现有检测、跟踪、轨迹和编码模块。`scripts/normalize_screen.py` 继续作为人工调试 CLI，但 `analyze_video.py` 不通过拼接 shell 命令驱动算法。
@@ -69,7 +69,7 @@ method.json
 
 ```text
 scripts/annotate_corners.py
-screen_normalize/annotations.py
+screen_normalize/experiments/annotations.py
 ```
 
 职责：
@@ -84,7 +84,7 @@ screen_normalize/annotations.py
 
 ### 3.3 指标层
 
-先将 `screen_normalize/evaluation.py` 中可复用代码拆到：
+先将 `screen_normalize/experiments/evaluation.py` 中可复用代码拆到：
 
 ```text
 screen_normalize/metrics/
@@ -115,8 +115,8 @@ screen_normalize/metrics/
 新增：
 
 ```text
-screen_normalize/run_io.py
-screen_normalize/reporting.py
+screen_normalize/experiments/run_io.py
+screen_normalize/experiments/reporting.py
 scripts/analyze_video.py
 ```
 

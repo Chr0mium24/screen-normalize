@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import FancyArrowPatch, Polygon, Rectangle
 
-from screen_normalize.paper_style import (
+from screen_normalize.experiments.paper_style import (
     GRID_COLOR,
     METHOD_COLORS,
     METHOD_LINES,

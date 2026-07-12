@@ -1,6 +1,6 @@
 import pytest
 
-from screen_normalize.runner import method_config
+from screen_normalize.experiments.runner import method_config
 
 
 def test_method_configs_are_distinct() -> None:

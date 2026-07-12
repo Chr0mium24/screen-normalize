@@ -7,7 +7,7 @@ from tkinter import Tk
 
 import cv2
 
-from screen_normalize.annotations import load_annotations, save_annotations
+from screen_normalize.experiments.annotations import load_annotations, save_annotations
 from scripts.select_corners import CornerPicker, read_frame, scale_for_display
 
 

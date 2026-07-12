@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
 
-from .common import clean_path_component, create_run_directory, project_root
+from ..common import clean_path_component, create_run_directory, project_root
 from .evaluation import as_jsonable
 
 
@@ -54,4 +54,3 @@ def write_csv(path: Path, rows: Iterable[dict[str, Any]]) -> None:
         if fields:
             writer.writeheader()
             writer.writerows(materialized)
-

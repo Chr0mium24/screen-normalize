@@ -11,7 +11,7 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 
-from screen_normalize.paper_style import (
+from screen_normalize.experiments.paper_style import (
     METHOD_COLORS,
     METHOD_LABELS,
     METHOD_LINES,
@@ -19,7 +19,7 @@ from screen_normalize.paper_style import (
     apply_paper_style,
     finish_axis,
 )
-from screen_normalize.run_io import METHOD_IDS, METRIC_IDS, read_json, write_csv
+from screen_normalize.experiments.run_io import METHOD_IDS, METRIC_IDS, read_json, write_csv
 
 
 METRIC_SPECS = {

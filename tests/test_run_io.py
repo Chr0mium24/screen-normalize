@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from screen_normalize.run_io import clip_directory, create_analysis_run, method_directory, read_json, write_json
+from screen_normalize.experiments.run_io import clip_directory, create_analysis_run, method_directory, read_json, write_json
 
 
 def test_run_paths_and_json(tmp_path: Path) -> None:

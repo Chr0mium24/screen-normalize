@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from screen_normalize.reporting import render_clip_report, render_run_index
-from screen_normalize.run_io import write_json
+from screen_normalize.experiments.reporting import render_clip_report, render_run_index
+from screen_normalize.experiments.run_io import write_json
 
 
 def test_reports_reference_existing_local_files(tmp_path: Path) -> None:

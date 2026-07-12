@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Callable
 
-from ..run_io import write_csv, write_json
+from ..experiments.run_io import write_csv, write_json
 
 
 MetricPayload = tuple[list[dict[str, Any]], dict[str, Any]]

@@ -9,7 +9,7 @@ from typing import Any
 import cv2
 import numpy as np
 
-from .geometry import corner_edge_lengths, order_corners
+from ..algorithms.geometry import corner_edge_lengths, order_corners
 
 
 CORNER_LABELS = ("tl", "tr", "br", "bl")

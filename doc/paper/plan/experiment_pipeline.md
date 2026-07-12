@@ -270,7 +270,7 @@ uv run scripts/run_batch.py \
 下列运行目录能力不在脚本中重复实现：
 
 ```text
-screen_normalize/run_io.py
+screen_normalize/experiments/run_io.py
 ```
 
 ### `run_io.py`

@@ -3,7 +3,7 @@
 这些脚本属于新实验流水线建立前的开发、诊断和试验入口，仅用于复查历史结果或提取实现逻辑：
 
 - `analyze_stability.py`：旧版独立时域稳定性分析。
-- `evaluate_screen_normalization.py`：旧版四类指标综合入口；其可复用计算仍在 `screen_normalize/evaluation.py`。
+- `evaluate_screen_normalization.py`：旧版四类指标综合入口；其可复用计算位于 `screen_normalize/experiments/evaluation.py`。
 - `make_comparison_strip.py`：旧版关键帧对比图生成器。
 - `make_manual_demo_strip.py`：旧版人工理想矫正演示生成器。
 - `probe_learned_homography.py`：SuperPoint + LightGlue 可行性探针。

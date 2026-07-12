@@ -19,7 +19,10 @@ uv run scripts/annotate_corners.py inputs/static/static_01.mp4 --stride 30
 - `scripts/normalize_screen.py`：当前屏幕归一化算法入口。
 - `scripts/select_corners.py`：单帧四角点选取和算法调试工具。
 - `scripts/annotate_corners.py`：正式多关键帧角点 CSV 标注工具。
-- `screen_normalize/`：检测、跟踪、轨迹平滑、变换、编码和评估计算模块；历史演示支持代码集中在其 `archive/` 子目录。
+- `screen_normalize/algorithms/`：检测、跟踪、轨迹平滑、对齐、变换和编码。
+- `screen_normalize/experiments/`：标注、方法 runner、run 读写、单视频 pipeline、报告和论文绘图样式。
+- `screen_normalize/metrics/`：Geometry、Temporal、Detail 和 Frequency 四类论文指标。
+- `screen_normalize/` 根层只保留公共参数、CLI 和通用工具；历史演示支持代码集中在 `archive/`。
 - `scripts/archive/`：新流水线前的诊断和实验入口，仅供追溯。
 
 ## 实验运行
@@ -87,7 +90,7 @@ inputs/
 ├── doc/                 # 当前论文工作区与历史文档
 ├── inputs/              # 正式视频分类、角点 CSV 和本机 pilot archive
 ├── runs/                # 新实验 run 和本机旧结果 archive
-├── screen_normalize/    # 可复用 Python 实现
+├── screen_normalize/    # algorithms、experiments、metrics 与公共入口
 └── scripts/             # 当前入口及 archived 旧入口
 ```
 

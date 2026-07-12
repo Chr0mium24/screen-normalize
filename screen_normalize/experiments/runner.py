@@ -8,17 +8,17 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from .common import DEFAULT_FALLBACK_CORNERS, open_capture, parse_corners, require_ffmpeg
-from .encoding import encode_warped_video, mux_audio
-from .normalize_args import apply_reference_profile, parse_args
-from .run_io import METHOD_IDS, write_csv, write_json
-from .tracking import estimate_corner_trajectory
-from .trajectory import (
+from ..algorithms.encoding import encode_warped_video, mux_audio
+from ..algorithms.tracking import estimate_corner_trajectory
+from ..algorithms.trajectory import (
     apply_offline_geometry_gate,
     interpolate_corner_trajectory,
     reliable_mask_from_tracker_rows,
     smooth_corner_trajectory,
 )
+from ..common import DEFAULT_FALLBACK_CORNERS, open_capture, parse_corners, require_ffmpeg
+from ..normalize_args import apply_reference_profile, parse_args
+from .run_io import METHOD_IDS, write_csv, write_json
 
 
 @dataclass(frozen=True)
@@ -214,4 +214,3 @@ def run_method(source: Path, output_dir: Path, method: str) -> RunResult:
         },
     )
     return RunResult(method, output, processed, elapsed)
-

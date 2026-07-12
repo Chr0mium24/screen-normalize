@@ -5,9 +5,9 @@ import argparse
 import csv
 from pathlib import Path
 
-from screen_normalize.pipeline import analyze_clip
-from screen_normalize.reporting import render_run_index
-from screen_normalize.run_io import METHOD_IDS, METRIC_IDS, create_analysis_run, write_csv
+from screen_normalize.experiments.pipeline import analyze_clip
+from screen_normalize.experiments.reporting import render_run_index
+from screen_normalize.experiments.run_io import METHOD_IDS, METRIC_IDS, create_analysis_run, write_csv
 
 
 VIDEO_SUFFIXES = {".mp4", ".mov", ".mkv"}
