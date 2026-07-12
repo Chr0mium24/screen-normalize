@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-07-12T12:34:48.142245</dc:date>
+    <dc:date>2026-07-12T13:14:34.328453</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -35,7 +35,7 @@ L 117.279713 107.34252
 L 117.279713 19.27875 
 L 29.215943 19.27875 
 z
-" clip-path="url(#pae82ae8963)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#p052c4e3d7f)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_3">
     <path d="M 39.783595 94.132954 
@@ -43,14 +43,14 @@ L 106.71206 94.132954
 L 106.71206 34.249591 
 L 39.783595 34.249591 
 z
-" clip-path="url(#pae82ae8963)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#p052c4e3d7f)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_1">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(58.667828 60.587979)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(64.149703 70.189541)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(57.756578 60.417813)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(63.58107 70.619473)">TBD</text>
    </g>
    <g id="text_2">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'" transform="translate(13.27875 76.456885) rotate(-90)">Static</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'" transform="translate(13.658672 77.278526) rotate(-90)">Static</text>
    </g>
    <g id="text_3">
     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="73.247828" y="13.27875" transform="rotate(-0 73.247828 13.27875)">Input</text>
@@ -63,7 +63,7 @@ L 245.681367 107.34252
 L 245.681367 19.27875 
 L 157.617597 19.27875 
 z
-" clip-path="url(#p107beb7bbc)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#p5731a4dbbf)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_5">
     <path d="M 168.18525 94.132954 
@@ -71,11 +71,11 @@ L 235.113715 94.132954
 L 235.113715 34.249591 
 L 168.18525 34.249591 
 z
-" clip-path="url(#p107beb7bbc)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#p5731a4dbbf)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_4">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(187.069482 60.587979)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(192.551357 70.189541)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(186.158232 60.417813)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(191.982725 70.619473)">TBD</text>
    </g>
    <g id="text_5">
     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="201.649482" y="13.27875" transform="rotate(-0 201.649482 13.27875)">Frame-wise</text>
@@ -88,7 +88,7 @@ L 374.083022 107.34252
 L 374.083022 19.27875 
 L 286.019252 19.27875 
 z
-" clip-path="url(#pda129ae980)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#p51bf0da76e)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_7">
     <path d="M 296.586905 94.132954 
@@ -96,11 +96,11 @@ L 363.51537 94.132954
 L 363.51537 34.249591 
 L 296.586905 34.249591 
 z
-" clip-path="url(#pda129ae980)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#p51bf0da76e)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_6">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(315.471137 60.587979)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(320.953012 70.189541)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(314.559887 60.417813)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(320.384379 70.619473)">TBD</text>
    </g>
    <g id="text_7">
     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="330.051137" y="13.27875" transform="rotate(-0 330.051137 13.27875)">Optical flow</text>
@@ -113,7 +113,7 @@ L 502.484677 107.34252
 L 502.484677 19.27875 
 L 414.420907 19.27875 
 z
-" clip-path="url(#p1ef49f1320)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#p0fa59417d5)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_9">
     <path d="M 424.98856 94.132954 
@@ -121,11 +121,11 @@ L 491.917025 94.132954
 L 491.917025 34.249591 
 L 424.98856 34.249591 
 z
-" clip-path="url(#p1ef49f1320)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#p0fa59417d5)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_8">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(443.872792 60.587979)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(449.354667 70.189541)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(442.961542 60.417813)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(448.786034 70.619473)">TBD</text>
    </g>
    <g id="text_9">
     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: middle" x="458.452792" y="13.27875" transform="rotate(-0 458.452792 13.27875)">Proposed</text>
@@ -138,7 +138,7 @@ L 117.279713 201.40677
 L 117.279713 113.343 
 L 29.215943 113.343 
 z
-" clip-path="url(#pf648996d44)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#pb7da139711)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_11">
     <path d="M 39.783595 188.197205 
@@ -146,14 +146,14 @@ L 106.71206 188.197205
 L 106.71206 128.313841 
 L 39.783595 128.313841 
 z
-" clip-path="url(#pf648996d44)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#pb7da139711)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_10">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(58.667828 154.652229)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(64.149703 164.253791)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(57.756578 154.482063)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(63.58107 164.683723)">TBD</text>
    </g>
    <g id="text_11">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'" transform="translate(13.27875 177.17176) rotate(-90)">Scrolling</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'" transform="translate(13.658672 178.409065) rotate(-90)">Scrolling</text>
    </g>
   </g>
   <g id="axes_6">
@@ -163,7 +163,7 @@ L 245.681367 201.40677
 L 245.681367 113.343 
 L 157.617597 113.343 
 z
-" clip-path="url(#p0aeb01e030)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#p0e53fc1596)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_13">
     <path d="M 168.18525 188.197205 
@@ -171,11 +171,11 @@ L 235.113715 188.197205
 L 235.113715 128.313841 
 L 168.18525 128.313841 
 z
-" clip-path="url(#p0aeb01e030)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#p0e53fc1596)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_12">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(187.069482 154.652229)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(192.551357 164.253791)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(186.158232 154.482063)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(191.982725 164.683723)">TBD</text>
    </g>
   </g>
   <g id="axes_7">
@@ -185,7 +185,7 @@ L 374.083022 201.40677
 L 374.083022 113.343 
 L 286.019252 113.343 
 z
-" clip-path="url(#p2431c19d0c)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#p231b1036d1)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_15">
     <path d="M 296.586905 188.197205 
@@ -193,11 +193,11 @@ L 363.51537 188.197205
 L 363.51537 128.313841 
 L 296.586905 128.313841 
 z
-" clip-path="url(#p2431c19d0c)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#p231b1036d1)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_13">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(315.471137 154.652229)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(320.953012 164.253791)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(314.559887 154.482063)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(320.384379 164.683723)">TBD</text>
    </g>
   </g>
   <g id="axes_8">
@@ -207,7 +207,7 @@ L 502.484677 201.40677
 L 502.484677 113.343 
 L 414.420907 113.343 
 z
-" clip-path="url(#pcdf127b40d)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#p875f1af5c0)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_17">
     <path d="M 424.98856 188.197205 
@@ -215,11 +215,11 @@ L 491.917025 188.197205
 L 491.917025 128.313841 
 L 424.98856 128.313841 
 z
-" clip-path="url(#pcdf127b40d)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#p875f1af5c0)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_14">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(443.872792 154.652229)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(449.354667 164.253791)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(442.961542 154.482063)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(448.786034 164.683723)">TBD</text>
    </g>
   </g>
   <g id="axes_9">
@@ -229,7 +229,7 @@ L 117.279713 295.47102
 L 117.279713 207.40725 
 L 29.215943 207.40725 
 z
-" clip-path="url(#pb858411f2c)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#p0a61c20cad)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_19">
     <path d="M 39.783595 282.261455 
@@ -237,14 +237,14 @@ L 106.71206 282.261455
 L 106.71206 222.378091 
 L 39.783595 222.378091 
 z
-" clip-path="url(#pb858411f2c)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#p0a61c20cad)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_15">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(58.667828 248.716479)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(64.149703 258.318041)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(57.756578 248.546313)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(63.58107 258.747973)">TBD</text>
    </g>
    <g id="text_16">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'" transform="translate(13.27875 280.632885) rotate(-90)">Screen video</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'" transform="translate(13.658672 282.457494) rotate(-90)">Screen video</text>
    </g>
   </g>
   <g id="axes_10">
@@ -254,7 +254,7 @@ L 245.681367 295.47102
 L 245.681367 207.40725 
 L 157.617597 207.40725 
 z
-" clip-path="url(#pc46c8399c6)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#pe1f7df6d90)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_21">
     <path d="M 168.18525 282.261455 
@@ -262,11 +262,11 @@ L 235.113715 282.261455
 L 235.113715 222.378091 
 L 168.18525 222.378091 
 z
-" clip-path="url(#pc46c8399c6)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#pe1f7df6d90)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_17">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(187.069482 248.716479)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(192.551357 258.318041)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(186.158232 248.546313)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(191.982725 258.747973)">TBD</text>
    </g>
   </g>
   <g id="axes_11">
@@ -276,7 +276,7 @@ L 374.083022 295.47102
 L 374.083022 207.40725 
 L 286.019252 207.40725 
 z
-" clip-path="url(#p7d079952eb)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#pc731306ef3)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_23">
     <path d="M 296.586905 282.261455 
@@ -284,11 +284,11 @@ L 363.51537 282.261455
 L 363.51537 222.378091 
 L 296.586905 222.378091 
 z
-" clip-path="url(#p7d079952eb)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#pc731306ef3)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_18">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(315.471137 248.716479)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(320.953012 258.318041)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(314.559887 248.546313)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(320.384379 258.747973)">TBD</text>
    </g>
   </g>
   <g id="axes_12">
@@ -298,7 +298,7 @@ L 502.484677 295.47102
 L 502.484677 207.40725 
 L 414.420907 207.40725 
 z
-" clip-path="url(#pdb6b34b4a1)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#pdad31d8c1b)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_25">
     <path d="M 424.98856 282.261455 
@@ -306,11 +306,11 @@ L 491.917025 282.261455
 L 491.917025 222.378091 
 L 424.98856 222.378091 
 z
-" clip-path="url(#pdb6b34b4a1)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#pdad31d8c1b)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_19">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(443.872792 248.716479)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(449.354667 258.318041)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(442.961542 248.546313)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(448.786034 258.747973)">TBD</text>
    </g>
   </g>
   <g id="axes_13">
@@ -320,7 +320,7 @@ L 117.279713 389.53527
 L 117.279713 301.4715 
 L 29.215943 301.4715 
 z
-" clip-path="url(#pacf1c1404c)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#p16ed2bb6a4)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_27">
     <path d="M 39.783595 376.325705 
@@ -328,14 +328,14 @@ L 106.71206 376.325705
 L 106.71206 316.442341 
 L 39.783595 316.442341 
 z
-" clip-path="url(#pacf1c1404c)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#p16ed2bb6a4)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_20">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(58.667828 342.780729)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(64.149703 352.382291)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(57.756578 342.610563)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(63.58107 352.812223)">TBD</text>
    </g>
    <g id="text_21">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'" transform="translate(13.27875 374.37026) rotate(-90)">Weak border</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'" transform="translate(13.658672 376.17444) rotate(-90)">Weak border</text>
    </g>
   </g>
   <g id="axes_14">
@@ -345,7 +345,7 @@ L 245.681367 389.53527
 L 245.681367 301.4715 
 L 157.617597 301.4715 
 z
-" clip-path="url(#pe0721a29a6)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#pe29dafa64f)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_29">
     <path d="M 168.18525 376.325705 
@@ -353,11 +353,11 @@ L 235.113715 376.325705
 L 235.113715 316.442341 
 L 168.18525 316.442341 
 z
-" clip-path="url(#pe0721a29a6)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#pe29dafa64f)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_22">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(187.069482 342.780729)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(192.551357 352.382291)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(186.158232 342.610563)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(191.982725 352.812223)">TBD</text>
    </g>
   </g>
   <g id="axes_15">
@@ -367,7 +367,7 @@ L 374.083022 389.53527
 L 374.083022 301.4715 
 L 286.019252 301.4715 
 z
-" clip-path="url(#pa36c46085a)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#p27dc201225)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_31">
     <path d="M 296.586905 376.325705 
@@ -375,11 +375,11 @@ L 363.51537 376.325705
 L 363.51537 316.442341 
 L 296.586905 316.442341 
 z
-" clip-path="url(#pa36c46085a)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#p27dc201225)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_23">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(315.471137 342.780729)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(320.953012 352.382291)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(314.559887 342.610563)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(320.384379 352.812223)">TBD</text>
    </g>
   </g>
   <g id="axes_16">
@@ -389,7 +389,7 @@ L 502.484677 389.53527
 L 502.484677 301.4715 
 L 414.420907 301.4715 
 z
-" clip-path="url(#p7ffd9a01df)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#pfbb318b805)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_33">
     <path d="M 424.98856 376.325705 
@@ -397,11 +397,11 @@ L 491.917025 376.325705
 L 491.917025 316.442341 
 L 424.98856 316.442341 
 z
-" clip-path="url(#p7ffd9a01df)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#pfbb318b805)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_24">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(443.872792 342.780729)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(449.354667 352.382291)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(442.961542 342.610563)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(448.786034 352.812223)">TBD</text>
    </g>
   </g>
   <g id="axes_17">
@@ -411,7 +411,7 @@ L 117.279713 483.59952
 L 117.279713 395.53575 
 L 29.215943 395.53575 
 z
-" clip-path="url(#pd77cef73cd)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#p6135b8a9c2)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_35">
     <path d="M 39.783595 470.389955 
@@ -419,14 +419,14 @@ L 106.71206 470.389955
 L 106.71206 410.506591 
 L 39.783595 410.506591 
 z
-" clip-path="url(#pd77cef73cd)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#p6135b8a9c2)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_25">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(58.667828 436.844979)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(64.149703 446.446541)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(57.756578 436.674813)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(63.58107 446.876473)">TBD</text>
    </g>
    <g id="text_26">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'" transform="translate(13.27875 450.450135) rotate(-90)">Hard</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'" transform="translate(13.658672 451.130291) rotate(-90)">Hard</text>
    </g>
   </g>
   <g id="axes_18">
@@ -436,7 +436,7 @@ L 245.681367 483.59952
 L 245.681367 395.53575 
 L 157.617597 395.53575 
 z
-" clip-path="url(#p825898baf8)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#pb7c9b6952e)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_37">
     <path d="M 168.18525 470.389955 
@@ -444,11 +444,11 @@ L 235.113715 470.389955
 L 235.113715 410.506591 
 L 168.18525 410.506591 
 z
-" clip-path="url(#p825898baf8)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#pb7c9b6952e)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_27">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(187.069482 436.844979)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(192.551357 446.446541)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(186.158232 436.674813)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(191.982725 446.876473)">TBD</text>
    </g>
   </g>
   <g id="axes_19">
@@ -458,7 +458,7 @@ L 374.083022 483.59952
 L 374.083022 395.53575 
 L 286.019252 395.53575 
 z
-" clip-path="url(#p892faa4e85)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#pa33de68e41)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_39">
     <path d="M 296.586905 470.389955 
@@ -466,11 +466,11 @@ L 363.51537 470.389955
 L 363.51537 410.506591 
 L 296.586905 410.506591 
 z
-" clip-path="url(#p892faa4e85)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#pa33de68e41)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_28">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(315.471137 436.844979)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(320.953012 446.446541)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(314.559887 436.674813)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(320.384379 446.876473)">TBD</text>
    </g>
   </g>
   <g id="axes_20">
@@ -480,7 +480,7 @@ L 502.484677 483.59952
 L 502.484677 395.53575 
 L 414.420907 395.53575 
 z
-" clip-path="url(#p8ed0dc9270)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
+" clip-path="url(#p1e30d042ee)" style="fill: #eceff1; stroke: #89939b; stroke-linejoin: miter"/>
    </g>
    <g id="patch_41">
     <path d="M 424.98856 470.389955 
@@ -488,11 +488,11 @@ L 491.917025 470.389955
 L 491.917025 410.506591 
 L 424.98856 410.506591 
 z
-" clip-path="url(#p8ed0dc9270)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
+" clip-path="url(#p1e30d042ee)" style="fill: #d8dee2; stroke: #5d6870; stroke-linejoin: miter"/>
    </g>
    <g id="text_29">
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(443.872792 436.844979)">IMAGE</text>
-    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(449.354667 446.446541)">TBD</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(442.961542 436.674813)">IMAGE</text>
+    <text style="font-weight: 700; font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #5d6870" transform="translate(448.786034 446.876473)">TBD</text>
    </g>
   </g>
   <g id="text_30">
@@ -500,64 +500,64 @@ z
   </g>
  </g>
  <defs>
-  <clipPath id="pae82ae8963">
+  <clipPath id="p052c4e3d7f">
    <rect x="29.215943" y="19.27875" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="p107beb7bbc">
+  <clipPath id="p5731a4dbbf">
    <rect x="157.617597" y="19.27875" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="pda129ae980">
+  <clipPath id="p51bf0da76e">
    <rect x="286.019252" y="19.27875" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="p1ef49f1320">
+  <clipPath id="p0fa59417d5">
    <rect x="414.420907" y="19.27875" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="pf648996d44">
+  <clipPath id="pb7da139711">
    <rect x="29.215943" y="113.343" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="p0aeb01e030">
+  <clipPath id="p0e53fc1596">
    <rect x="157.617597" y="113.343" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="p2431c19d0c">
+  <clipPath id="p231b1036d1">
    <rect x="286.019252" y="113.343" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="pcdf127b40d">
+  <clipPath id="p875f1af5c0">
    <rect x="414.420907" y="113.343" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="pb858411f2c">
+  <clipPath id="p0a61c20cad">
    <rect x="29.215943" y="207.40725" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="pc46c8399c6">
+  <clipPath id="pe1f7df6d90">
    <rect x="157.617597" y="207.40725" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="p7d079952eb">
+  <clipPath id="pc731306ef3">
    <rect x="286.019252" y="207.40725" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="pdb6b34b4a1">
+  <clipPath id="pdad31d8c1b">
    <rect x="414.420907" y="207.40725" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="pacf1c1404c">
+  <clipPath id="p16ed2bb6a4">
    <rect x="29.215943" y="301.4715" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="pe0721a29a6">
+  <clipPath id="pe29dafa64f">
    <rect x="157.617597" y="301.4715" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="pa36c46085a">
+  <clipPath id="p27dc201225">
    <rect x="286.019252" y="301.4715" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="p7ffd9a01df">
+  <clipPath id="pfbb318b805">
    <rect x="414.420907" y="301.4715" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="pd77cef73cd">
+  <clipPath id="p6135b8a9c2">
    <rect x="29.215943" y="395.53575" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="p825898baf8">
+  <clipPath id="pb7c9b6952e">
    <rect x="157.617597" y="395.53575" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="p892faa4e85">
+  <clipPath id="pa33de68e41">
    <rect x="286.019252" y="395.53575" width="88.06377" height="88.06377"/>
   </clipPath>
-  <clipPath id="p8ed0dc9270">
+  <clipPath id="p1e30d042ee">
    <rect x="414.420907" y="395.53575" width="88.06377" height="88.06377"/>
   </clipPath>
  </defs>

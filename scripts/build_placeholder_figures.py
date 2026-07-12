@@ -7,25 +7,26 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import FancyArrowPatch, Polygon, Rectangle
 
+from screen_normalize.paper_style import (
+    GRID_COLOR,
+    METHOD_COLORS,
+    METHOD_LINES,
+    METHOD_MARKERS,
+    apply_paper_style,
+)
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "doc" / "paper" / "manuscript" / "figures" / "placeholders"
 METHODS = ("Frame-wise", "Optical flow", "Proposed")
-COLORS = ("#4C78A8", "#F58518", "#2A9D6F")
+METHOD_IDS = ("frame_wise", "optical_flow", "proposed")
+COLORS = tuple(METHOD_COLORS[method] for method in METHOD_IDS)
 CATEGORIES = ("Static", "Scrolling", "Screen video", "Weak border", "Hard")
 
 
 def setup() -> None:
     OUTPUT.mkdir(parents=True, exist_ok=True)
-    plt.rcParams.update(
-        {
-            "font.family": "DejaVu Sans",
-            "font.size": 8,
-            "axes.titlesize": 9,
-            "axes.labelsize": 8,
-            "svg.fonttype": "none",
-        }
-    )
+    apply_paper_style()
 
 
 def finish(figure: plt.Figure, name: str) -> None:
@@ -89,7 +90,7 @@ def style_numeric(axis: plt.Axes, ylabel: str) -> None:
     axis.set_xticks(x, CATEGORIES, rotation=20, ha="right")
     axis.set_ylabel(ylabel)
     axis.set_ylim(0, 1.35)
-    axis.grid(axis="y", color="#D9D9D9", linewidth=0.6)
+    axis.grid(axis="y", color=GRID_COLOR, linewidth=0.6)
     axis.spines[["top", "right"]].set_visible(False)
 
 
@@ -107,13 +108,23 @@ def figure_4() -> None:
     figure, axes = plt.subplots(1, 3, figsize=(7.2, 2.3), constrained_layout=True)
     frames = np.arange(150)
     for label, axis, title, unit in zip("abc", axes, ("Translation", "Rotation", "Scale"), ("Translation (px)", "Rotation (deg)", "Scale change (%)")):
-        for method, color in zip(METHODS, COLORS):
-            axis.plot(frames, np.ones_like(frames), label=method, color=color, linewidth=1.1)
+        for method, method_id, color in zip(METHODS, METHOD_IDS, COLORS):
+            axis.plot(
+                frames,
+                np.ones_like(frames),
+                label=method,
+                color=color,
+                linestyle=METHOD_LINES[method_id],
+                marker=METHOD_MARKERS[method_id],
+                markevery=35,
+                markersize=2.8,
+                linewidth=1.25 if method_id == "proposed" else 0.95,
+            )
         panel_label(axis, label, title)
         axis.set_xlabel("Frame")
         axis.set_ylabel(unit)
         axis.set_ylim(0.5, 1.5)
-        axis.grid(color="#D9D9D9", linewidth=0.6)
+        axis.grid(color=GRID_COLOR, linewidth=0.6)
         axis.spines[["top", "right"]].set_visible(False)
     handles, names = axes[0].get_legend_handles_labels()
     figure.legend(handles, names, loc="upper center", bbox_to_anchor=(0.5, 1.08), ncol=3, frameon=False)
@@ -145,8 +156,8 @@ def figure_6() -> None:
     fft_axes = [figure.add_subplot(grid[1, index]) for index in (2, 3)]
     for axis, title in zip(fft_axes, ("Original FFT", "Rectified FFT")):
         placeholder_frame(axis, title)
-        axis.plot([0.2, 0.8], [0.5, 0.5], color="#7A5195")
-        axis.plot([0.5, 0.5], [0.2, 0.8], color="#7A5195")
+        axis.plot([0.2, 0.8], [0.5, 0.5], color="#806491")
+        axis.plot([0.5, 0.5], [0.2, 0.8], color="#806491")
     crop_axes[0].text(-0.18, 1.12, "(a) Aligned texture crops", transform=crop_axes[0].transAxes, fontweight="bold")
     fft_axes[0].text(-0.18, 1.12, "(c) Frequency diagnostics", transform=fft_axes[0].transAxes, fontweight="bold")
     finish(figure, "figure_06_detail_frequency.svg")
@@ -155,10 +166,10 @@ def figure_6() -> None:
 def figure_7() -> None:
     figure, axis = plt.subplots(figsize=(7.2, 2.8), constrained_layout=True)
     variants = ("Full", "w/o gates", "w/o smoothing", "w/o recovery")
-    axis.bar(variants, np.ones(4), color=("#2A9D6F", "#9C755F", "#BAB0AC", "#E15759"), width=0.62)
+    axis.bar(variants, np.ones(4), color=(METHOD_COLORS["proposed"], "#806491", "#6F7478", "#B55D5D"), width=0.62)
     axis.set_ylabel("Primary metric (TBD)")
     axis.set_ylim(0, 1.35)
-    axis.grid(axis="y", color="#D9D9D9", linewidth=0.6)
+    axis.grid(axis="y", color=GRID_COLOR, linewidth=0.6)
     axis.spines[["top", "right"]].set_visible(False)
     panel_label(axis, "a", "Code-matched ablation")
     finish(figure, "figure_07_ablation.svg")
