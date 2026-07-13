@@ -17,7 +17,7 @@ The current project has enough material for a limited, descriptive paper draft, 
 | Area | Original outline requires | Current project has | Status |
 | --- | --- | --- | --- |
 | Method claim | Border-guided homography, content/screen motion separation, failure recovery, temporal smoothing | Reference-anchored LK/RANSAC tracker with reliability gates, trajectory smoothing/repair, residual alignment; boundary/point-edge code exists but is not the frozen main result path | Partially ready; wording must match code |
-| Dataset | 50 videos, 5 categories, 10 per category | 11 collected sources across 5 categories; current evaluated scope is 4 included categories and 4 representative clips; weak_border excluded | Not ready for 50-video claim |
+| Dataset | 50 videos, 5 categories, 10 per category | 4 active annotated representative source clips; 7 unannotated collected sources are backed up under `inputs/archive/removed_unannotated_2026-07-14/`; weak_border excluded | Not ready for 50-video claim |
 | Annotation | Keyframe corner annotations, protocol, quality check/relabeling | Representative annotations exist for static, scrolling, screen_video, hard; no full 50-video protocol or repeated annotation QA | Partially ready |
 | Main experiment | 3 methods over full dataset, 4 metric families, category and aggregate tables | Historical complete HTML reports for 4 representative clips; old pilot summary exists but is not formal main evidence | Pilot only |
 | Ablation | Full + three module removals with valid module triggering | 4 clips x 4 variants complete; no_offline_repair not effectively triggered; n=4 only descriptive | Numerically complete, inferentially weak |
@@ -62,12 +62,12 @@ The current project has enough material for a limited, descriptive paper draft, 
 
 ### Data And Organization
 
-- `doc/paper/data_renaming_manifest.csv` records 11 collected sources:
-  - static: 3 sources, representative `static_02`
-  - scrolling: 3 sources, representative `scrolling_03`
-  - screen_video: 3 sources, representative `screen_video_03`
-  - weak_border: 1 source, excluded from current evaluated scope
-  - hard: 1 source, representative `hard_01`
+- `doc/paper/data_renaming_manifest.csv` records 4 active representative sources and 7 archived unannotated backups:
+  - active static representative: `static_02`
+  - active scrolling representative: `scrolling_03`
+  - active screen_video representative: `screen_video_03`
+  - active hard representative: `hard_01`
+  - archived unannotated backups: `static_01`, `static_03`, `scrolling_01`, `scrolling_02`, `screen_video_01`, `screen_video_02`, `weak_border_01`
 - Current evidence scope is four included categories: static, scrolling, screen_video, hard.
 - Historical HTML links were repaired to the renamed dataset paths.
 - `inputs/README.md` documents the current input layout.
@@ -167,7 +167,7 @@ The current project has enough material for a limited, descriptive paper draft, 
 
 - Revise Abstract, Dataset, Experiments, Results, and Discussion to avoid the 50-video benchmark claim.
 - State that the current results are a four-clip descriptive pilot.
-- Use four categories as evaluated scope; mention weak_border as collected but excluded.
+- Use four categories as evaluated scope; mention weak_border as archived and excluded.
 - Replace Fig. 3-7 with pilot figures/tables and make sample sizes explicit.
 - Either remove the offline-repair ablation conclusion or label it inconclusive.
 - Do not report statistical significance.

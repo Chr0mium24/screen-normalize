@@ -6,9 +6,9 @@
 
 ## 技术结论
 
-当前阶段不再以“50 个独立视频、每类 10 个”为完成条件。正式评估范围固定为 **static、scrolling、screen_video、hard 四类**；`weak_border` 视为已收集但从当前实验与报告验收中排除。四个纳入类别各至少使用 1 个代表视频完成三种方法、四类指标和 HTML 报告。
+当前阶段不再以“50 个独立视频、每类 10 个”为完成条件。正式评估范围固定为 **static、scrolling、screen_video、hard 四类**；`weak_border` 已备份归档并从当前实验与报告验收中排除。四个纳入类别各保留 1 个已有标注/报告的代表视频。
 
-数据采集现在按用户确认视为 **完成**。`inputs/` 中的 11 个原视频已经统一重命名为类别前缀 clip ID，范围为 `static_01`–`static_03`、`scrolling_01`–`scrolling_03`、`screen_video_01`–`screen_video_03`、`weak_border_01` 和 `hard_01`；同名分段目录、分段 MP4 与角点 CSV 已同步更新。历史 run 目录作为证据保留旧名称，但其中 17 个 HTML 输入链接已全部修复并验证存在。
+数据采集现在按用户确认视为 **完成**。`inputs/` 中 active 数据集只保留 `static_02`、`scrolling_03`、`screen_video_03` 和 `hard_01` 四个已有标注/报告的代表源视频；7 个未标注源视频及其分段已备份到 `inputs/archive/removed_unannotated_2026-07-14/`，不进入当前实验分母。历史 run 目录作为证据保留旧名称。
 
 按当前四类口径，代表结果已经 **4/4 完成**：static、scrolling、screen_video、hard 均有 3/3 方法、12/12 指标 JSON 且状态为 `ok`。数据收集、标注和主方法输出不再重跑；下一阶段直接进入消融实验，最终 HTML 通过映射表显示新 clip ID。
 
@@ -28,7 +28,7 @@
 | 项目 | 论文验收要求 | 当前状态 | 仍需补充 | 优先级 |
 | --- | --- | --- | --- | --- |
 | 数据集规模 | 当前阶段：四个纳入类别各至少 1 个完整 HTML 报告 | 4/4 类完成；weak_border 排除 | 无数据规模缺口 | 完成 |
-| 数据组织 | `static/scrolling/screen_video/weak_border/hard`，文件名为 clip ID | 11 个原视频、分段和已有 CSV 已统一命名 | 无 | 完成 |
+| 数据组织 | active 数据只保留已有标注/报告的代表 clip；未标注数据归档 | 4 个 active 代表源视频；7 个未标注源视频及其分段已备份 | 无 | 完成 |
 | 几何真值 | 当前四个代表 clip 的选定关键帧具有 TL/TR/BR/BL | 四类代表标注已存在 | 不重标；直接复用现有 CSV | 完成 |
 | 标注质量 | 当前消融使用与主实验相同的固定标注 | 现有标注可供同输入配对比较 | 本阶段不新增复标；复标属于后续扩展 | 完成 |
 | Proposed 方法证据 | 消融名称与当前真实模块一一对应 | reliability gates、trajectory smoothing、offline trajectory repair 已存在，但缺独立关闭配置 | 增加三个独立配置与隔离测试 | P0 |
@@ -44,7 +44,8 @@
 
 ## 数据重命名与整理结果
 
-- [x] 11 个原视频采用 `category_NN` 命名。
+- [x] 4 个 active 代表源视频采用 `category_NN` 命名。
+- [x] 7 个未标注源视频及其分段已备份到 `inputs/archive/removed_unannotated_2026-07-14/`。
 - [x] 所有已有分段目录改为对应 clip ID。
 - [x] 分段 MP4 与角点 CSV 使用与分段目录一致的名称。
 - [x] `hard/moire/` 中的正式数据移到 `inputs/hard/hard_01.*`。
@@ -67,7 +68,7 @@
 | static | `static_02_000.mp4` | 1 | [x] 完成 | 无 |
 | scrolling | `scrolling_03_000.mp4` | 1 | [x] 完成 | 无 |
 | screen_video | `screen_video_03_000.mp4` | 1 | [x] 完成 | 无 |
-| weak_border | `weak_border_01.mp4` / `weak_border_01_000.mp4` | 排除 | [x] 已收集 | 当前实验不使用 |
+| weak_border | `archive/removed_unannotated_2026-07-14/weak_border/weak_border_01.mp4` | 排除 | [x] 已备份 | 当前实验不使用 |
 | hard | `hard_01.mp4` | 1 | [x] 完成 | 无 |
 | **合计** | **五类均已有视频** | **4 个纳入类别** | **4/4** | **无数据缺口** |
 
@@ -272,7 +273,7 @@
 
 ### P0：当前数据与四类 HTML 闭环
 
-- [x] 五类视频数据均已收集并按统一 clip ID 整理。
+- [x] 四类 active 代表视频数据均已保留；未标注视频已备份归档。
 - [x] 将当前数据集规模目标改为“四个纳入类别各至少一个完整 HTML 报告”。
 - [x] 审计现有报告的三方法、12 个指标 JSON 和状态。
 - [x] static 至少 1 个完整 HTML 报告。
@@ -323,7 +324,7 @@
 
 当前阶段只有在以下条件同时满足时才视为“数据集规模完成”：
 
-1. [x] 五类视频都已存在，不缺新的视频类别；
+1. [x] 四个纳入类别的 active 代表视频都已存在；未标注视频已备份归档；
 2. [x] static、scrolling、screen_video、hard 各有至少 1 个完整 HTML 报告；
 3. [x] weak_border 明确排除，不进入当前实验分母；
 4. [x] 四类历史代表报告均为 3/3 方法、12/12 指标 JSON 且状态为 `ok`；
