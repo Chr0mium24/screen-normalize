@@ -1,0 +1,12 @@
+category,clip_id,old_source,new_source,segment_count,annotation_count,role
+static,static_01,inputs/static/IMG_0957.MOV,inputs/static/static_01.MOV,7,0,collected_source
+static,static_02,inputs/static/IMG_0974.MOV,inputs/static/static_02.MOV,2,2,representative_with_report
+static,static_03,inputs/static/VID20260712170254.mp4,inputs/static/static_03.mp4,0,0,collected_source
+scrolling,scrolling_01,inputs/scrolling/IMG_0958.MOV,inputs/scrolling/scrolling_01.MOV,3,0,collected_source
+scrolling,scrolling_02,inputs/scrolling/IMG_0959.MOV,inputs/scrolling/scrolling_02.MOV,1,0,collected_source
+scrolling,scrolling_03,inputs/scrolling/VID20260712165829.mp4,inputs/scrolling/scrolling_03.mp4,5,4,representative_with_report
+screen_video,screen_video_01,inputs/screen_video/IMG_0963 (1).MOV,inputs/screen_video/screen_video_01.MOV,6,0,collected_source
+screen_video,screen_video_02,inputs/screen_video/IMG_0968.MOV,inputs/screen_video/screen_video_02.MOV,6,0,collected_source
+screen_video,screen_video_03,inputs/screen_video/VID20260712170039.mp4,inputs/screen_video/screen_video_03.mp4,3,3,representative_with_report
+weak_border,weak_border_01,inputs/weak_border/IMG_0964.MOV,inputs/weak_border/weak_border_01.MOV,1,0,collected_source
+hard,hard_01,inputs/hard/moire/VID20260712170803.mp4,inputs/hard/hard_01.mp4,1,2,representative_with_report
