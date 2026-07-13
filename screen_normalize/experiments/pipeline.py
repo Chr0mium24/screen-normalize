@@ -5,8 +5,23 @@ from typing import Any
 
 from ..metrics import evaluate_detail, evaluate_frequency, evaluate_geometry, evaluate_temporal
 from .reporting import render_clip_report
-from .run_io import METHOD_IDS, METRIC_IDS, clip_directory, method_directory, write_json
+from .run_io import (
+    METHOD_IDS,
+    METRIC_IDS,
+    RUNNABLE_METHOD_IDS,
+    clip_directory,
+    method_directory,
+    write_json,
+)
 from .runner import run_method
+
+
+def video_identity(video: Path) -> tuple[str, str]:
+    """Return the dataset category and clip id for source or nested segment paths."""
+    category = video.parent.name
+    if video.parent.parent.name == "segments":
+        category = video.parent.parent.parent.name
+    return category, video.stem
 
 
 def analyze_clip(
@@ -19,7 +34,7 @@ def analyze_clip(
     skip_existing: bool = False,
 ) -> dict[str, Any]:
     video = video.resolve()
-    category, clip_id = video.parent.name, video.stem
+    category, clip_id = video_identity(video)
     annotation = video.with_suffix(".csv")
     clip_dir = clip_directory(run_dir, category, clip_id)
     failures: list[str] = []
@@ -51,7 +66,11 @@ def analyze_clip(
                 raise ValueError(f"unsupported metric: {metric}")
             if summary["status"] == "failed":
                 failures.append(f"{method}/{metric}: {summary.get('reason')}")
-    report_methods = [method for method in METHOD_IDS if (clip_dir / method / "method.json").exists()]
+    report_methods = [
+        method
+        for method in RUNNABLE_METHOD_IDS
+        if (clip_dir / method / "method.json").exists()
+    ]
     report = render_clip_report(clip_dir, video, category, clip_id, report_methods)
     return {
         "category": category,

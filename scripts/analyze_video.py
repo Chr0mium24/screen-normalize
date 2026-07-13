@@ -5,13 +5,20 @@ import argparse
 from pathlib import Path
 
 from screen_normalize.experiments.pipeline import analyze_clip
-from screen_normalize.experiments.run_io import METHOD_IDS, METRIC_IDS, create_analysis_run
+from screen_normalize.experiments.run_io import (
+    METHOD_IDS,
+    METRIC_IDS,
+    RUNNABLE_METHOD_IDS,
+    create_analysis_run,
+)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run methods, metrics, and an HTML report for one video.")
     parser.add_argument("video", type=Path)
-    parser.add_argument("--methods", nargs="+", choices=METHOD_IDS, default=list(METHOD_IDS))
+    parser.add_argument(
+        "--methods", nargs="+", choices=RUNNABLE_METHOD_IDS, default=list(METHOD_IDS)
+    )
     parser.add_argument("--metrics", nargs="+", choices=METRIC_IDS, default=list(METRIC_IDS))
     parser.add_argument("--run-dir", type=Path)
     parser.add_argument("--reuse-outputs", action="store_true")

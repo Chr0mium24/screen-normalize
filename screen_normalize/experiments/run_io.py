@@ -11,6 +11,12 @@ from .evaluation import as_jsonable
 
 
 METHOD_IDS = ("frame_wise", "optical_flow", "proposed", "point_edge")
+ABLATION_METHOD_IDS = (
+    "no_reliability_gates",
+    "no_trajectory_smoothing",
+    "no_offline_repair",
+)
+RUNNABLE_METHOD_IDS = METHOD_IDS + ABLATION_METHOD_IDS
 METRIC_IDS = ("geometry", "temporal", "detail", "frequency")
 
 
@@ -27,7 +33,7 @@ def clip_directory(run_dir: Path, category: str, clip_id: str) -> Path:
 
 
 def method_directory(run_dir: Path, category: str, clip_id: str, method: str) -> Path:
-    if method not in METHOD_IDS:
+    if method not in RUNNABLE_METHOD_IDS:
         raise ValueError(f"unsupported method: {method}")
     path = clip_directory(run_dir, category, clip_id) / method
     path.mkdir(parents=True, exist_ok=True)

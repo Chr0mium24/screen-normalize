@@ -7,7 +7,13 @@ from pathlib import Path
 
 from screen_normalize.experiments.pipeline import analyze_clip
 from screen_normalize.experiments.reporting import render_run_index
-from screen_normalize.experiments.run_io import METHOD_IDS, METRIC_IDS, create_analysis_run, write_csv
+from screen_normalize.experiments.run_io import (
+    METHOD_IDS,
+    METRIC_IDS,
+    RUNNABLE_METHOD_IDS,
+    create_analysis_run,
+    write_csv,
+)
 
 
 VIDEO_SUFFIXES = {".mp4", ".mov", ".mkv"}
@@ -30,7 +36,9 @@ def main() -> None:
     parser.add_argument("--input", type=Path, default=Path("inputs"))
     parser.add_argument("--videos", nargs="+", type=Path)
     parser.add_argument("--categories", nargs="+")
-    parser.add_argument("--methods", nargs="+", choices=METHOD_IDS, default=list(METHOD_IDS))
+    parser.add_argument(
+        "--methods", nargs="+", choices=RUNNABLE_METHOD_IDS, default=list(METHOD_IDS)
+    )
     parser.add_argument("--metrics", nargs="+", choices=METRIC_IDS, default=list(METRIC_IDS))
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--run-dir", type=Path)

@@ -19,7 +19,7 @@ from ..algorithms.trajectory import (
 from ..common import DEFAULT_FALLBACK_CORNERS, open_capture, parse_corners, require_ffmpeg
 from ..normalize_args import apply_reference_profile, parse_args
 from .annotations import load_annotations
-from .run_io import METHOD_IDS, write_csv, write_json
+from .run_io import RUNNABLE_METHOD_IDS, write_csv, write_json
 
 
 @dataclass(frozen=True)
@@ -32,6 +32,9 @@ class MethodConfig:
     interpolate: bool
     geometry_gate: bool
     reference_align: bool
+    reference_reliability_gates: bool = True
+    ablation_of: str | None = None
+    disabled_module: str | None = None
 
 
 METHOD_CONFIGS = {
@@ -39,6 +42,43 @@ METHOD_CONFIGS = {
     "optical_flow": MethodConfig("optical_flow", "flow", 0.0, 1, 1, False, False, False),
     "proposed": MethodConfig("proposed", "reference", 0.85, 5, 9, True, True, True),
     "point_edge": MethodConfig("point_edge", "boundary", 0.0, 3, 5, True, True, False),
+    "no_reliability_gates": MethodConfig(
+        "no_reliability_gates",
+        "reference",
+        0.85,
+        5,
+        9,
+        True,
+        False,
+        True,
+        reference_reliability_gates=False,
+        ablation_of="proposed",
+        disabled_module="reliability_gates",
+    ),
+    "no_trajectory_smoothing": MethodConfig(
+        "no_trajectory_smoothing",
+        "reference",
+        0.0,
+        1,
+        1,
+        True,
+        True,
+        True,
+        ablation_of="proposed",
+        disabled_module="trajectory_smoothing",
+    ),
+    "no_offline_repair": MethodConfig(
+        "no_offline_repair",
+        "reference",
+        0.85,
+        5,
+        9,
+        False,
+        True,
+        True,
+        ablation_of="proposed",
+        disabled_module="offline_repair",
+    ),
 }
 
 
@@ -52,7 +92,7 @@ class RunResult:
 
 def _method_args(source: Path, config: MethodConfig):
     args = parse_args([str(source)])
-    if config.method == "proposed":
+    if config.tracker == "reference":
         args.reference_profile = "dynamic"
         apply_reference_profile(args)
     args.tracker = config.tracker
@@ -62,6 +102,26 @@ def _method_args(source: Path, config: MethodConfig):
     args.trajectory_interpolate = config.interpolate
     args.trajectory_geometry_gate = config.geometry_gate
     args.reference_align = config.reference_align
+    if config.tracker == "reference" and not config.reference_reliability_gates:
+        # Disable optional quality and geometry thresholds while retaining the
+        # minimum point/solver validity checks required to estimate a transform.
+        args.reference_min_inliers = 1
+        args.reference_min_inlier_ratio = 0.0
+        args.reference_max_reprojection_error = 1.0e9
+        args.reference_max_scale_step = 0.0
+        args.reference_max_area_step = 0.0
+        args.reference_min_point_age = 1
+        args.reference_min_coverage_x = 0.0
+        args.reference_min_coverage_y = 0.0
+        args.reference_align_min_inliers = 1
+        args.reference_align_min_inlier_ratio = 0.0
+        args.reference_align_min_coverage_x = 0.0
+        args.reference_align_min_coverage_y = 0.0
+        args.reference_align_max_reprojection_error = 0.0
+        args.reference_align_max_translation = 0.0
+        args.reference_align_max_rotation_deg = 0.0
+        args.reference_align_max_scale_delta = 0.0
+        args.reference_align_min_accept_ratio = 0.0
     return args
 
 
@@ -69,7 +129,9 @@ def method_config(method: str) -> MethodConfig:
     try:
         return METHOD_CONFIGS[method]
     except KeyError as exc:
-        raise ValueError(f"unsupported method {method!r}; choose from {', '.join(METHOD_IDS)}") from exc
+        raise ValueError(
+            f"unsupported method {method!r}; choose from {', '.join(RUNNABLE_METHOD_IDS)}"
+        ) from exc
 
 
 def _corner_rows(trajectory: np.ndarray) -> list[dict[str, float | int]]:

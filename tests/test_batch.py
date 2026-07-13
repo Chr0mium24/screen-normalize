@@ -2,6 +2,7 @@ from pathlib import Path
 
 from scripts.make_paper_results import aggregate_table, collect
 from scripts.run_batch import select_videos
+from screen_normalize.experiments.pipeline import video_identity
 from screen_normalize.experiments.run_io import write_json
 
 
@@ -23,3 +24,10 @@ def test_summary_collects_only_metric_json(tmp_path: Path) -> None:
     aggregate = aggregate_table(rows)
     assert aggregate[0]["n"] == 1
     assert aggregate[0]["median"] == 2.0
+
+
+def test_video_identity_preserves_dataset_category_for_nested_segments() -> None:
+    segment = Path("inputs/static/segments/static_02/static_02_000.mp4")
+    source = Path("inputs/hard/hard_01.mp4")
+    assert video_identity(segment) == ("static", "static_02_000")
+    assert video_identity(source) == ("hard", "hard_01")
