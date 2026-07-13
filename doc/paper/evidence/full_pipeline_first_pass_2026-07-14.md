@@ -145,3 +145,46 @@ runs/20260714_full_ablation_first_pass
 ```
 
 The corresponding `proposed` outputs for ablation comparison will be read from `runs/20260714_full_pipeline_first_pass`. The first pass will record failures and missing metrics without changing the algorithm.
+
+## Stage 4: Full Ablation First Pass Result
+
+Command:
+
+```bash
+uv run scripts/run_batch.py --input inputs --methods no_reliability_gates no_trajectory_smoothing no_offline_repair --metrics geometry temporal detail frequency --run-dir runs/20260714_full_ablation_first_pass
+```
+
+Run directory:
+
+```text
+runs/20260714_full_ablation_first_pass
+```
+
+Outcome:
+
+- Ablation batch status: 50/50 clips `ok`
+- Completed reports by category: `hard=10`, `screen_video=10`, `scrolling=10`, `static=10`, `weak_border=10`
+- Ablation method videos: 150 `normalized.mp4` files
+- Ablation metric JSON files: 600
+- Failed ablation method or metric JSON files: 0
+- Logs: `runs/20260714_full_ablation_first_pass.stdout.log`, `runs/20260714_full_ablation_first_pass.stderr.log`
+
+Committed summary evidence:
+
+```text
+doc/paper/results/full_ablation_first_pass/
+```
+
+Combined comparison summary:
+
+- Compared methods: `proposed` from the main run plus the three ablation methods from the ablation run
+- Combined method-metric records: 800
+- Metric status summary: `detail=200 ok`, `frequency=200 ok`, `temporal=200 ok`, `geometry=180 ok`, `geometry=20 skipped`
+- Non-ok metric scope: `scrolling_06` through `scrolling_10`, all four compared methods, geometry only
+- Non-ok reason: `no overlapping annotation and estimate frames`
+
+First-pass interpretation notes:
+
+- This stage proves the ablation configurations can run across all 50 clips, but does not prove the module conclusions are valid.
+- `hard` and `weak_border` still need manual HTML/video review because logs show high reference-tracker rejection in several clips.
+- `no_offline_repair` matches `proposed` in the aggregate first-pass primary metrics, so this module remains potentially inconclusive until repair-triggering intervals are audited.
