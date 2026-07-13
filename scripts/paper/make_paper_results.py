@@ -30,6 +30,29 @@ METRIC_SPECS = {
 }
 
 
+def method_label(method: str) -> str:
+    return METHOD_LABELS.get(method, method.replace("_", " ").title())
+
+
+def method_color(method: str) -> str:
+    return METHOD_COLORS.get(method, "#6F7478")
+
+
+def method_marker(method: str) -> str:
+    return METHOD_MARKERS.get(method, "o")
+
+
+def method_line(method: str) -> str:
+    return METHOD_LINES.get(method, "-")
+
+
+def ordered_methods(rows: list[dict[str, Any]]) -> list[str]:
+    present = {str(row["method"]) for row in rows if row.get("method")}
+    ordered = [method for method in METHOD_IDS if method in present]
+    ordered.extend(sorted(present - set(ordered)))
+    return ordered
+
+
 def flatten(prefix: str, value: Any, output: dict[str, Any]) -> None:
     if isinstance(value, dict):
         for key, item in value.items():
@@ -56,14 +79,25 @@ def collect(run_dir: Path) -> list[dict[str, Any]]:
     return rows
 
 
-def metric_values(rows: list[dict[str, Any]], metric: str) -> list[tuple[str, list[float]]]:
+def metric_values(
+    rows: list[dict[str, Any]],
+    metric: str,
+    methods: list[str] | tuple[str, ...] | None = None,
+) -> list[tuple[str, list[float]]]:
     field = METRIC_SPECS[metric][0]
-    values = {method: [] for method in METHOD_IDS}
+    ordered = list(methods) if methods is not None else ordered_methods(rows)
+    values = {method: [] for method in ordered}
     for row in rows:
         value = row.get(field)
-        if row["metric"] == metric and row.get("status") == "ok" and isinstance(value, (int, float)):
-            values[row["method"]].append(float(value))
-    return [(method, values[method]) for method in METHOD_IDS if values[method]]
+        method = row["method"]
+        if (
+            method in values
+            and row["metric"] == metric
+            and row.get("status") == "ok"
+            and isinstance(value, (int, float))
+        ):
+            values[method].append(float(value))
+    return [(method, values[method]) for method in ordered if values[method]]
 
 
 def distribution_panel(axis: Any, available: list[tuple[str, list[float]]], metric: str, panel: str) -> None:
@@ -81,20 +115,20 @@ def distribution_panel(axis: Any, available: list[tuple[str, list[float]]], metr
         flierprops={"marker": "o", "markersize": 2.5, "markerfacecolor": "none", "markeredgecolor": "#777777"},
     )
     for patch, (method, samples), position in zip(plot["boxes"], available, positions):
-        patch.set_facecolor(METHOD_COLORS[method])
+        patch.set_facecolor(method_color(method))
         patch.set_alpha(0.78)
         jitter = np.linspace(-0.085, 0.085, len(samples)) if len(samples) > 1 else np.asarray([0.0])
         axis.scatter(
             position + jitter,
             samples,
             s=14,
-            marker=METHOD_MARKERS[method],
-            color=METHOD_COLORS[method],
+            marker=method_marker(method),
+            color=method_color(method),
             edgecolor="white",
             linewidth=0.45,
             zorder=3,
         )
-    axis.set_xticks(positions, [METHOD_LABELS[method] for method, _ in available])
+    axis.set_xticks(positions, [method_label(method) for method, _ in available])
     axis.tick_params(axis="x", rotation=10)
     finish_axis(axis, panel, metric.title(), METRIC_SPECS[metric][1])
 
@@ -125,18 +159,23 @@ def read_numeric_csv(path: Path) -> list[dict[str, float]]:
     return result
 
 
-def representative_temporal_clip(run_dir: Path) -> tuple[str, dict[str, list[dict[str, float]]]] | None:
+def representative_temporal_clip(
+    run_dir: Path,
+    methods: list[str] | tuple[str, ...],
+) -> tuple[str, dict[str, list[dict[str, float]]]] | None:
+    if not methods:
+        return None
     candidates = []
     category_priority = {"static": 0, "scrolling": 1, "screen_video": 2, "weak_border": 3, "hard": 4}
     for clip_dir in sorted(run_dir.glob("*/*")):
         series = {}
-        for method in METHOD_IDS:
+        for method in methods:
             path = clip_dir / method / "temporal_frames.csv"
             if path.exists():
                 rows = read_numeric_csv(path)
                 if rows:
                     series[method] = rows
-        if len(series) == len(METHOD_IDS):
+        if len(series) == len(methods):
             candidates.append(
                 (
                     category_priority.get(clip_dir.parent.name, 99),
@@ -151,8 +190,12 @@ def representative_temporal_clip(run_dir: Path) -> tuple[str, dict[str, list[dic
     return name, series
 
 
-def make_temporal_figure(run_dir: Path, output: Path) -> Path | None:
-    selected = representative_temporal_clip(run_dir)
+def make_temporal_figure(
+    run_dir: Path,
+    output: Path,
+    methods: list[str] | tuple[str, ...],
+) -> Path | None:
+    selected = representative_temporal_clip(run_dir, methods)
     if selected is None:
         return None
     clip_name, series = selected
@@ -165,7 +208,7 @@ def make_temporal_figure(run_dir: Path, output: Path) -> Path | None:
     for panel_index, (field, title, ylabel, multiplier) in enumerate(specs):
         axis = axes[panel_index]
         pooled = []
-        for method in METHOD_IDS:
+        for method in methods:
             method_rows = series[method]
             frame = np.asarray([row["frame"] for row in method_rows])
             value = np.asarray([row[field] * multiplier for row in method_rows])
@@ -173,11 +216,11 @@ def make_temporal_figure(run_dir: Path, output: Path) -> Path | None:
             axis.plot(
                 frame,
                 value,
-                color=METHOD_COLORS[method],
-                linestyle=METHOD_LINES[method],
+                color=method_color(method),
+                linestyle=method_line(method),
                 linewidth=1.35 if method == "proposed" else 0.95,
                 alpha=0.95,
-                label=METHOD_LABELS[method],
+                label=method_label(method),
             )
         pooled_values = np.asarray(pooled, dtype=float)
         if field == "translation_px":
@@ -271,7 +314,7 @@ def render_tables(summary: Path, aggregate: list[dict[str, Any]]) -> Path:
         for row in records:
             spread = f"{row['median']:.3g} [{row['q1']:.3g}, {row['q3']:.3g}]"
             mean = f"{row['mean']:.3g} &#177; {row['std']:.3g}" if row["std"] is not None else f"{row['mean']:.3g}"
-            body.append(f"<tr><td><span class='swatch' style='background:{METHOD_COLORS[row['method']]}'></span>{METHOD_LABELS[row['method']]}</td><td>{row['n']}</td><td>{spread}</td><td>{mean}</td></tr>")
+            body.append(f"<tr><td><span class='swatch' style='background:{method_color(row['method'])}'></span>{method_label(row['method'])}</td><td>{row['n']}</td><td>{spread}</td><td>{mean}</td></tr>")
         groups.append(
             f"<section><h2>{html.escape(metric.title())} {arrows[records[0]['direction']]}</h2>"
             "<table><thead><tr><th>Method</th><th>n</th><th>Median [Q1, Q3]</th><th>Mean &#177; SD</th></tr></thead><tbody>"
@@ -316,7 +359,7 @@ def main() -> None:
     apply_paper_style()
     generated = {
         "figure_03": make_geometry_figure(rows, figures_dir),
-        "figure_04": make_temporal_figure(run_dir, figures_dir),
+        "figure_04": make_temporal_figure(run_dir, figures_dir, ordered_methods(rows)),
         "figure_06": make_detail_frequency_figure(rows, figures_dir),
         "figure_07": make_ablation_figure(rows, figures_dir),
     }
