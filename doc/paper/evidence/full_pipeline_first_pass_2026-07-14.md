@@ -95,3 +95,35 @@ First-pass audit notes:
 - This is a computational completion result, not a quality acceptance result.
 - Several `hard` and `weak_border` clips showed very high reference-tracker rejection counts in stderr progress logs.
 - Those clips should be manually reviewed in the generated HTML reports before writing final claims.
+
+## Stage 3: Main Paper Summary
+
+Command:
+
+```bash
+uv run scripts/paper/make_paper_results.py runs/20260714_full_pipeline_first_pass
+```
+
+Generated local summary:
+
+```text
+runs/20260714_full_pipeline_first_pass/summary
+```
+
+Committed summary evidence:
+
+```text
+doc/paper/results/full_pipeline_first_pass/
+```
+
+Outcome:
+
+- `figure_03_geometry_comparison.svg`: generated
+- `figure_06_detail_frequency.svg`: generated
+- `figure_04_temporal_stability.svg`: omitted because the current summary script expects all `METHOD_IDS`, including `point_edge`, while this first pass ran only three main methods.
+- `figure_07_ablation.svg`: omitted because this main run does not contain ablation methods.
+- Metric status summary: `detail=150 ok`, `frequency=150 ok`, `temporal=150 ok`, `geometry=135 ok`, `geometry=15 skipped`
+- Non-ok metric scope: `scrolling_06` through `scrolling_10`, all three methods, geometry only
+- Non-ok reason: `no overlapping annotation and estimate frames`
+
+Evidence files copied to `doc/paper/results/full_pipeline_first_pass/` include `batch.csv`, `aggregate_metrics.csv`, `all_metrics.csv`, per-metric tables, metric status tables, the figure manifest, and generated SVG figures.

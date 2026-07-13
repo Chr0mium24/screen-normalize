@@ -1,0 +1,38 @@
+{
+  "figure_03": {
+    "status": "generated",
+    "path": "D:\\2522\\ECE4512\\ourproject\\screen-normalize\\runs\\20260714_full_pipeline_first_pass\\summary\\figures\\figure_03_geometry_comparison.svg"
+  },
+  "figure_04": {
+    "status": "omitted_missing_data",
+    "path": null
+  },
+  "figure_06": {
+    "status": "generated",
+    "path": "D:\\2522\\ECE4512\\ourproject\\screen-normalize\\runs\\20260714_full_pipeline_first_pass\\summary\\figures\\figure_06_detail_frequency.svg"
+  },
+  "figure_07": {
+    "status": "omitted_missing_data",
+    "path": null
+  },
+  "figure_01": {
+    "status": "pending_intermediate_assets",
+    "path": null
+  },
+  "figure_02": {
+    "status": "pending_formal_dataset",
+    "path": null
+  },
+  "figure_05": {
+    "status": "pending_reviewed_frames",
+    "path": null
+  },
+  "figure_08": {
+    "status": "pending_failure_audit",
+    "path": null
+  },
+  "figure_09": {
+    "status": "optional_runtime_protocol_pending",
+    "path": null
+  }
+}
