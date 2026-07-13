@@ -64,7 +64,7 @@ uv run scripts/paper/make_paper_results.py runs/20260712-153000_analysis
 和 `notes.md`，run 根目录有批处理 `index.html`。`scripts/paper/make_paper_results.py` 只读取 run，
 在 `summary/` 生成表格、图和汇总报告。
 
-代码测试与本机 pilot smoke run 已验证完整调用链。当前 active 数据集已有 50 个本地 mp4 clip，五类各 10 个，并且每个 clip 都有同名角点 CSV。正式论文结果仍需要运行 50-clip 主实验、审核运行报告、生成论文图表和重写结果章节。
+代码测试与 2026-07-14 first-pass run 已验证完整调用链。当前 active 数据集已有 50 个本地 mp4 clip，五类各 10 个，并且每个 clip 都有同名角点 CSV。50-clip 三方法主实验和三消融方法 first pass 已跑完，提交汇总见 `doc/paper/results/full_pipeline_first_pass/` 和 `doc/paper/results/full_ablation_first_pass/`；正式论文仍需要人工审核运行报告、修复/解释跳过指标、补失败案例并重写结果章节。
 
 ## 数据与结果
 
