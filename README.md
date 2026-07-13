@@ -4,7 +4,7 @@
 
 当前工作以最终论文结果为目标：采集五类视频并标注关键帧四角，运行三种方法，计算几何、时域、细节和频域四类指标，为每个视频生成 HTML 审核报告，最后从选定 run 汇总论文图表。
 
-实验产物规格见 [`doc/paper/plan/experiment_pipeline.md`](doc/paper/plan/experiment_pipeline.md)，代码开发顺序见 [`doc/paper/plan/code_implementation.md`](doc/paper/plan/code_implementation.md)，论文目标见 [`doc/paper/outline_zh.md`](doc/paper/outline_zh.md)。
+当前论文状态、证据边界和下一步缺口见 [`doc/paper/current_status.md`](doc/paper/current_status.md)，论文目标见 [`doc/paper/outline_zh.md`](doc/paper/outline_zh.md)。
 
 ## 当前入口
 
@@ -12,16 +12,12 @@
 
 ```bash
 uv run scripts/normalize_screen.py --help
-uv run scripts/select_corners.py inputs/static/static_01.mp4
-uv run scripts/annotate_corners.py inputs/static/static_01.mp4 --stride 30
 uv run scripts/annotate_web.py
 uv run scripts/diagnostics/diagnose_screen_edges.py input.mp4 annotations.csv runs/edge_diagnostic
 ```
 
 - `scripts/normalize_screen.py`：当前屏幕归一化算法入口。
-- `scripts/select_corners.py`：单帧四角点选取和算法调试工具。
-- `scripts/annotate_corners.py`：正式多关键帧角点 CSV 标注工具。
-- `scripts/annotate_web.py`：推荐的浏览器批量标注界面；启动本地服务后自动打开页面，输出格式与原 CSV 工具完全兼容。
+- `scripts/annotate_web.py`：当前唯一推荐的浏览器批量标注界面；启动本地服务后自动打开页面，输出同名角点 CSV。
 - `scripts/diagnostics/`：参考点、屏幕边界等诊断入口，不属于主批处理流水线。
 - `scripts/dataset/`：一次性数据命名和迁移入口。
 - `scripts/paper/`：论文图表、报告和消融汇总构建入口。
@@ -29,7 +25,7 @@ uv run scripts/diagnostics/diagnose_screen_edges.py input.mp4 annotations.csv ru
 - `screen_normalize/experiments/`：标注、方法 runner、run 读写、单视频 pipeline、报告和论文绘图样式。
 - `screen_normalize/metrics/`：Geometry、Temporal、Detail 和 Frequency 四类论文指标。
 - `screen_normalize/` 根层只保留公共参数、CLI 和通用工具；历史演示支持代码集中在 `archive/`。
-- `scripts/archive/`：新流水线前的诊断和实验入口，仅供追溯。
+- `scripts/archive/`：旧 Tk 标注器、新流水线前诊断和实验入口，仅供追溯。
 
 ## 实验运行
 
@@ -68,12 +64,11 @@ uv run scripts/paper/make_paper_results.py runs/20260712-153000_analysis
 和 `notes.md`，run 根目录有批处理 `index.html`。`scripts/paper/make_paper_results.py` 只读取 run，
 在 `summary/` 生成表格、图和汇总报告。
 
-代码测试与本机 pilot smoke run 已验证完整调用链。正式实验完成仍需要在五类目录放入
-各 10 个视频、完成角点标注并运行 5-clip smoke batch 和正式 batch；pilot archive 不作为论文结果。
+代码测试与本机 pilot smoke run 已验证完整调用链。当前 active 数据集已有 36 个本地 mp4 clip；正式实验完成仍需要完成角点标注并运行 smoke batch 和正式 batch。
 
 ## 数据与结果
 
-正式数据固定为五类，每类目标 10 个视频；视频文件不提交 Git，同名角点 CSV 可以提交：
+正式数据固定为五类；视频文件和同名角点 CSV 都按 `.gitignore` 保持本地：
 
 ```text
 inputs/
@@ -102,8 +97,6 @@ inputs/
 
 - `doc/paper/source/proposal.pdf`：正式 proposal。
 - `doc/paper/outline_zh.md`：结果导向的最终论文大纲。
-- `doc/paper/implementation_roadmap.md`：从结果反推的实现路线。
-- `doc/paper/plan/experiment_pipeline.md`：当前唯一实验流水线计划。
-- `doc/paper/plan/code_implementation.md`：从现有代码到完整实验工具链的实施计划。
+- `doc/paper/current_status.md`：当前事实、证据边界和下一步缺口。
 - `doc/paper/references/samples/`：教师论文和课程 final report 示例。
 - `doc/archive/`：过期计划、旧稿和开发记录。

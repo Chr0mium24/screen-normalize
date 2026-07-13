@@ -45,30 +45,51 @@ class AnnotationStore:
     def __post_init__(self) -> None:
         object.__setattr__(self, "input_dir", self.input_dir.resolve())
 
+    def video_paths(self, category: str) -> list[Path]:
+        category_dir = self.input_dir / category
+        if not category_dir.is_dir():
+            return []
+
+        paths = list(category_dir.glob("*.mp4"))
+        segments_dir = category_dir / "segments"
+        if segments_dir.is_dir():
+            paths.extend(segments_dir.rglob("*.mp4"))
+
+        return sorted(set(paths), key=lambda path: path.relative_to(self.input_dir).as_posix())
+
+    def video_item(self, path: Path, category: str) -> dict[str, object]:
+        item: dict[str, object] = {
+            "id": path.relative_to(self.input_dir).as_posix(),
+            "name": path.name,
+            "category": category,
+        }
+        try:
+            width, height, count = video_shape(path)
+            keyframes = select_keyframes(count, self.frames_per_clip)
+            annotations = load_annotations(path.with_suffix(".csv"), width, height)
+            done = sum(frame in annotations for frame in keyframes)
+            item.update(
+                width=width,
+                height=height,
+                frameCount=count,
+                keyframes=keyframes,
+                done=done,
+                total=len(keyframes),
+                status=(
+                    "complete"
+                    if keyframes and done == len(keyframes)
+                    else ("started" if done else "pending")
+                ),
+            )
+        except (ValueError, AnnotationError) as exc:
+            item.update(done=0, total=0, status="error", error=str(exc))
+        return item
+
     def videos(self) -> list[dict[str, object]]:
         result: list[dict[str, object]] = []
         for category in CATEGORIES:
-            segments = self.input_dir / category / "segments"
-            if not segments.is_dir():
-                continue
-            for path in sorted(segments.rglob("*.mp4")):
-                item: dict[str, object] = {
-                    "id": path.relative_to(self.input_dir).as_posix(),
-                    "name": path.name,
-                    "category": category,
-                }
-                try:
-                    width, height, count = video_shape(path)
-                    keyframes = select_keyframes(count, self.frames_per_clip)
-                    annotations = load_annotations(path.with_suffix(".csv"), width, height)
-                    done = sum(frame in annotations for frame in keyframes)
-                    item.update(width=width, height=height, frameCount=count,
-                                keyframes=keyframes, done=done, total=len(keyframes),
-                                status="complete" if keyframes and done == len(keyframes) else
-                                ("started" if done else "pending"))
-                except (ValueError, AnnotationError) as exc:
-                    item.update(done=0, total=0, status="error", error=str(exc))
-                result.append(item)
+            for path in self.video_paths(category):
+                result.append(self.video_item(path, category))
         return result
 
     def resolve_video(self, video_id: str) -> Path:
