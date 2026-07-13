@@ -18,7 +18,6 @@ SAMPLES_PER_CATEGORY = 3
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 VIDEO_EXTENSIONS = {".mp4"}
 THUMB_SIZE = (360, 203)
-ROW_LABEL_WIDTH = 130
 TITLE_HEIGHT = 34
 PADDING = 8
 
@@ -172,9 +171,8 @@ def build_mosaic(input_dir: Path) -> tuple[np.ndarray, list[dict[str, object]]]:
                 }
             )
 
-        row = np.full((tile_height, ROW_LABEL_WIDTH + len(tiles) * THUMB_SIZE[0], 3), 12, np.uint8)
-        cv2.putText(row, category, (12, tile_height // 2 + 8), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (235, 240, 245), 2, cv2.LINE_AA)
-        x = ROW_LABEL_WIDTH
+        row = np.full((tile_height, len(tiles) * THUMB_SIZE[0], 3), 12, np.uint8)
+        x = 0
         for tile in tiles:
             row[:, x : x + THUMB_SIZE[0]] = tile
             x += THUMB_SIZE[0]
