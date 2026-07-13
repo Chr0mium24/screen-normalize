@@ -65,3 +65,33 @@ Notes:
 
 - The active direct-child dataset layout was accepted by `scripts/run_batch.py`.
 - The smoke covered one clip from each active category.
+
+## Stage 2: Full Main Experiment
+
+Command:
+
+```bash
+uv run scripts/run_batch.py --input inputs --methods frame_wise optical_flow proposed --metrics geometry temporal detail frequency --run-dir runs/20260714_full_pipeline_first_pass
+```
+
+Run directory:
+
+```text
+runs/20260714_full_pipeline_first_pass
+```
+
+Outcome:
+
+- Batch status: 50/50 clips `ok`
+- Completed reports by category: `hard=10`, `screen_video=10`, `scrolling=10`, `static=10`, `weak_border=10`
+- Method videos: 150 `normalized.mp4` files
+- Metric JSON files: 600
+- Failed method or metric JSON files: 0
+- Run index: `runs/20260714_full_pipeline_first_pass/index.html`
+- Logs: `runs/20260714_full_pipeline_first_pass.stdout.log`, `runs/20260714_full_pipeline_first_pass.stderr.log`
+
+First-pass audit notes:
+
+- This is a computational completion result, not a quality acceptance result.
+- Several `hard` and `weak_border` clips showed very high reference-tracker rejection counts in stderr progress logs.
+- Those clips should be manually reviewed in the generated HTML reports before writing final claims.
