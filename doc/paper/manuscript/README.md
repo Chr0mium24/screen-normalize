@@ -9,7 +9,7 @@
 Regenerate both PDFs from the repository root:
 
 ```bash
-scripts/build_paper_pdfs.sh
+scripts/paper/build_paper_pdfs.sh
 ```
 
 Formal figures and measurements are intentionally absent; clearly marked layout placeholders are included. Replace result placeholders only from one reviewed formal run.
@@ -17,7 +17,7 @@ Formal figures and measurements are intentionally absent; clearly marked layout 
 Generate the eight SVG layout placeholders with:
 
 ```bash
-uv run scripts/build_placeholder_figures.py
+uv run scripts/paper/build_placeholder_figures.py
 ```
 
 Placeholder charts use identical values of `1.0` and carry a red warning. They establish layout only and must never be cited as results.

@@ -321,13 +321,13 @@ Run 根目录的 `index.html` 列出所有 clip，显示类别、成功/失败�
 正式实验 run 经人工审核后，再运行后续脚本：
 
 ```text
-scripts/make_paper_results.py
+scripts/paper/make_paper_results.py
 ```
 
 该脚本只读取指定 run：
 
 ```bash
-uv run scripts/make_paper_results.py \
+uv run scripts/paper/make_paper_results.py \
   runs/20260712-153000_analysis/
 ```
 

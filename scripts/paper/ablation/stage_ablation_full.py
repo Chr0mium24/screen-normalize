@@ -77,7 +77,7 @@ def stage_full_outputs(repo_root: Path, run_dir: Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Stage historical full-method outputs for ablation.")
     parser.add_argument("--run-dir", type=Path, default=Path("runs/20260713_ablation"))
-    parser.add_argument("--repo-root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--repo-root", type=Path, default=Path(__file__).resolve().parents[3])
     args = parser.parse_args()
 
     stage_full_outputs(args.repo_root.resolve(), args.run_dir)

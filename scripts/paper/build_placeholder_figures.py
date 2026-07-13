@@ -16,7 +16,7 @@ from screen_normalize.experiments.paper_style import (
 )
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "doc" / "paper" / "manuscript" / "figures" / "placeholders"
 METHODS = ("Frame-wise", "Optical flow", "Proposed")
 METHOD_IDS = ("frame_wise", "optical_flow", "proposed")

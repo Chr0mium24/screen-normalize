@@ -142,7 +142,7 @@ def rename_collected_dataset(repo_root: Path, update_historical_html: bool = Tru
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Rename collected source clips into paper dataset IDs.")
-    parser.add_argument("--repo-root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--repo-root", type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument(
         "--no-update-historical-html",
         action="store_true",

@@ -81,9 +81,9 @@ Three new variants were run. Historical `proposed` outputs were reused and only 
 
 ```bash
 uv run python scripts/run_batch.py --videos inputs/static/segments/static_02/static_02_000.mp4 inputs/scrolling/segments/scrolling_03/scrolling_03_000.mp4 inputs/screen_video/segments/screen_video_03/screen_video_03_000.mp4 inputs/hard/hard_01.mp4 --methods no_reliability_gates no_trajectory_smoothing no_offline_repair --metrics geometry temporal detail frequency --run-dir runs/20260713_ablation
-python scripts/stage_ablation_full.py
+uv run python scripts/paper/ablation/stage_ablation_full.py
 uv run python scripts/run_batch.py --videos inputs/static/segments/static_02/static_02_000.mp4 inputs/scrolling/segments/scrolling_03/scrolling_03_000.mp4 inputs/screen_video/segments/screen_video_03/screen_video_03_000.mp4 inputs/hard/hard_01.mp4 --methods proposed --metrics geometry temporal detail frequency --run-dir runs/20260713_ablation --reuse-outputs
-uv run python scripts/summarize_ablation.py runs/20260713_ablation --output-dir doc/paper/results/ablation --paper-dir doc/paper
+uv run python scripts/paper/ablation/summarize_ablation.py runs/20260713_ablation --output-dir doc/paper/results/ablation --paper-dir doc/paper
 ```
 
 Evidence is stored under `doc/paper/results/ablation/`, including the clip metrics, summary table, quality report, video-integrity table, and HTML report.

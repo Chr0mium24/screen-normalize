@@ -138,7 +138,7 @@ scripts/analyze_video.py
 
 ```text
 scripts/run_batch.py
-scripts/make_paper_results.py
+scripts/paper/make_paper_results.py
 ```
 
 `run_batch.py` 是唯一遍历入口：选择视频、创建一个 run、逐个调用单视频 Python API、记录失败并生成 `index.html`。它不复制指标实现。
