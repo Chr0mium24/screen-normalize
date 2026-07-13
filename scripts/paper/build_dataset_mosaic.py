@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a category-row mosaic from annotated dataset clips."""
+"""Build a category-row mosaic from annotated dataset samples."""
 
 from __future__ import annotations
 
@@ -13,7 +13,10 @@ import numpy as np
 from screen_normalize.experiments.annotations import load_annotations
 
 
-CATEGORIES = ("scrolling", "screen_video", "static")
+CATEGORIES = ("scrolling", "screen_video", "static", "weak_border", "hard")
+SAMPLES_PER_CATEGORY = 3
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
+VIDEO_EXTENSIONS = {".mp4"}
 THUMB_SIZE = (360, 203)
 ROW_LABEL_WIDTH = 130
 TITLE_HEIGHT = 34
@@ -48,7 +51,23 @@ def video_shape(path: Path) -> tuple[int, int, int]:
     return width, height, count
 
 
-def read_frame(path: Path, frame_index: int) -> np.ndarray:
+def image_shape(path: Path) -> tuple[int, int, int]:
+    image = cv2.imread(str(path), cv2.IMREAD_COLOR)
+    if image is None:
+        raise RuntimeError(f"could not open image: {path}")
+    height, width = image.shape[:2]
+    return width, height, 1
+
+
+def media_shape(path: Path) -> tuple[int, int, int]:
+    if path.suffix.lower() in IMAGE_EXTENSIONS:
+        return image_shape(path)
+    if path.suffix.lower() in VIDEO_EXTENSIONS:
+        return video_shape(path)
+    raise RuntimeError(f"unsupported media file: {path}")
+
+
+def read_video_frame(path: Path, frame_index: int) -> np.ndarray:
     capture = cv2.VideoCapture(str(path))
     if not capture.isOpened():
         raise RuntimeError(f"could not open video: {path}")
@@ -58,6 +77,15 @@ def read_frame(path: Path, frame_index: int) -> np.ndarray:
     if not ok:
         raise RuntimeError(f"could not read frame {frame_index}: {path}")
     return frame
+
+
+def read_media_frame(path: Path, frame_index: int) -> np.ndarray:
+    if path.suffix.lower() in IMAGE_EXTENSIONS:
+        image = cv2.imread(str(path), cv2.IMREAD_COLOR)
+        if image is None:
+            raise RuntimeError(f"could not read image: {path}")
+        return image
+    return read_video_frame(path, frame_index)
 
 
 def choose_annotation(csv_path: Path, width: int, height: int) -> tuple[int, np.ndarray]:
@@ -95,8 +123,24 @@ def make_tile(frame: np.ndarray, label: str) -> np.ndarray:
     return tile
 
 
-def list_videos(input_dir: Path, category: str) -> list[Path]:
-    return sorted((input_dir / category).glob(f"{category}_*.mp4"))
+def sample_media(input_dir: Path, category: str) -> list[tuple[Path, str]]:
+    if category == "hard":
+        source_indices = (11, 12, 13)
+    else:
+        source_indices = tuple(range(1, SAMPLES_PER_CATEGORY + 1))
+
+    samples: list[tuple[Path, str]] = []
+    for display_index, source_index in enumerate(source_indices, start=1):
+        stem = f"{category}_{source_index:02d}"
+        candidates = [
+            input_dir / category / f"{stem}{extension}"
+            for extension in [".mp4", ".jpg", ".jpeg", ".png"]
+        ]
+        media_path = next((candidate for candidate in candidates if candidate.exists()), None)
+        if media_path is None:
+            raise RuntimeError(f"missing sample media for {category}: {stem}")
+        samples.append((media_path, f"{category}_{display_index:02d}"))
+    return samples
 
 
 def build_mosaic(input_dir: Path) -> tuple[np.ndarray, list[dict[str, object]]]:
@@ -105,23 +149,22 @@ def build_mosaic(input_dir: Path) -> tuple[np.ndarray, list[dict[str, object]]]:
     tile_height = THUMB_SIZE[1] + TITLE_HEIGHT
 
     for category in CATEGORIES:
-        videos = list_videos(input_dir, category)
-        if len(videos) != 10:
-            raise RuntimeError(f"{category} expected 10 videos, found {len(videos)}")
-
+        samples = sample_media(input_dir, category)
         tiles = []
-        for video in videos:
-            width, height, frame_count = video_shape(video)
-            csv_path = video.with_suffix(".csv")
+        for media_path, display_id in samples:
+            width, height, frame_count = media_shape(media_path)
+            csv_path = media_path.with_suffix(".csv")
             frame_index, corners = choose_annotation(csv_path, width, height)
-            frame = read_frame(video, frame_index)
-            tile = make_tile(draw_overlay(frame, corners), f"{video.stem}  f{frame_index}")
+            frame = read_media_frame(media_path, frame_index)
+            tile = make_tile(draw_overlay(frame, corners), f"{display_id}  f{frame_index}")
             tiles.append(tile)
             manifest.append(
                 {
                     "category": category,
-                    "clip_id": video.stem,
-                    "video": video.as_posix(),
+                    "display_id": display_id,
+                    "source_id": media_path.stem,
+                    "media_type": "image" if media_path.suffix.lower() in IMAGE_EXTENSIONS else "video",
+                    "media": media_path.as_posix(),
                     "annotation_csv": csv_path.as_posix(),
                     "selected_frame": frame_index,
                     "used_frame_zero": frame_index == 0,
@@ -146,7 +189,17 @@ def build_mosaic(input_dir: Path) -> tuple[np.ndarray, list[dict[str, object]]]:
 
 def write_manifest(path: Path, rows: list[dict[str, object]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = ["category", "clip_id", "video", "annotation_csv", "selected_frame", "used_frame_zero", "frame_count"]
+    fieldnames = [
+        "category",
+        "display_id",
+        "source_id",
+        "media_type",
+        "media",
+        "annotation_csv",
+        "selected_frame",
+        "used_frame_zero",
+        "frame_count",
+    ]
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
