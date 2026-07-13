@@ -17,7 +17,7 @@ uv run scripts/diagnostics/diagnose_screen_edges.py input.mp4 annotations.csv ru
 ```
 
 - `scripts/normalize_screen.py`：当前屏幕归一化算法入口。
-- `scripts/annotate_web.py`：当前唯一推荐的浏览器批量标注界面；启动本地服务后自动打开页面，输出同名角点 CSV。
+- `scripts/annotate_web.py`：当前唯一推荐的浏览器批量标注界面；支持 `mp4`、`jpg`、`jpeg`、`png`，输出同名角点 CSV。
 - `scripts/diagnostics/`：参考点、屏幕边界等诊断入口，不属于主批处理流水线。
 - `scripts/dataset/`：一次性数据命名和迁移入口。
 - `scripts/paper/`：论文图表、报告和消融汇总构建入口。

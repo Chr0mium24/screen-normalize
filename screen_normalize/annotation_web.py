@@ -15,6 +15,9 @@ from .experiments.annotations import AnnotationError, load_annotations, save_ann
 
 
 CATEGORIES = ("static", "scrolling", "screen_video", "weak_border", "hard")
+VIDEO_EXTENSIONS = {".mp4"}
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
+MEDIA_EXTENSIONS = VIDEO_EXTENSIONS | IMAGE_EXTENSIONS
 
 
 def select_keyframes(frame_count: int, frames_per_clip: int) -> list[int]:
@@ -37,6 +40,46 @@ def video_shape(path: Path) -> tuple[int, int, int]:
     return width, height, count
 
 
+def image_shape(path: Path) -> tuple[int, int, int]:
+    image = cv2.imread(str(path), cv2.IMREAD_COLOR)
+    if image is None:
+        raise ValueError(f"无法打开图片：{path.name}")
+    height, width = image.shape[:2]
+    if width <= 0 or height <= 0:
+        raise ValueError(f"图片信息无效：{path.name}")
+    return width, height, 1
+
+
+def media_shape(path: Path) -> tuple[int, int, int]:
+    if path.suffix.lower() in IMAGE_EXTENSIONS:
+        return image_shape(path)
+    return video_shape(path)
+
+
+def media_keyframes(path: Path, frame_count: int, frames_per_clip: int) -> list[int]:
+    if path.suffix.lower() in IMAGE_EXTENSIONS:
+        return [0]
+    return select_keyframes(frame_count, frames_per_clip)
+
+
+def read_media_frame(path: Path, frame_index: int) -> np.ndarray:
+    if path.suffix.lower() in IMAGE_EXTENSIONS:
+        if frame_index != 0:
+            raise ValueError("图片只有第 0 帧")
+        image = cv2.imread(str(path), cv2.IMREAD_COLOR)
+        if image is None:
+            raise ValueError(f"无法读取图片：{path.name}")
+        return image
+
+    capture = cv2.VideoCapture(str(path))
+    capture.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
+    ok, frame = capture.read()
+    capture.release()
+    if not ok:
+        raise ValueError(f"无法读取第 {frame_index} 帧")
+    return frame
+
+
 @dataclass(frozen=True)
 class AnnotationStore:
     input_dir: Path
@@ -45,15 +88,15 @@ class AnnotationStore:
     def __post_init__(self) -> None:
         object.__setattr__(self, "input_dir", self.input_dir.resolve())
 
-    def video_paths(self, category: str) -> list[Path]:
+    def media_paths(self, category: str) -> list[Path]:
         category_dir = self.input_dir / category
         if not category_dir.is_dir():
             return []
 
-        paths = list(category_dir.glob("*.mp4"))
+        paths = [path for path in category_dir.iterdir() if path.suffix.lower() in MEDIA_EXTENSIONS]
         segments_dir = category_dir / "segments"
         if segments_dir.is_dir():
-            paths.extend(segments_dir.rglob("*.mp4"))
+            paths.extend(path for path in segments_dir.rglob("*") if path.suffix.lower() in MEDIA_EXTENSIONS)
 
         return sorted(set(paths), key=lambda path: path.relative_to(self.input_dir).as_posix())
 
@@ -62,10 +105,11 @@ class AnnotationStore:
             "id": path.relative_to(self.input_dir).as_posix(),
             "name": path.name,
             "category": category,
+            "mediaType": "image" if path.suffix.lower() in IMAGE_EXTENSIONS else "video",
         }
         try:
-            width, height, count = video_shape(path)
-            keyframes = select_keyframes(count, self.frames_per_clip)
+            width, height, count = media_shape(path)
+            keyframes = media_keyframes(path, count, self.frames_per_clip)
             annotations = load_annotations(path.with_suffix(".csv"), width, height)
             done = sum(frame in annotations for frame in keyframes)
             item.update(
@@ -88,7 +132,7 @@ class AnnotationStore:
     def videos(self) -> list[dict[str, object]]:
         result: list[dict[str, object]] = []
         for category in CATEGORIES:
-            for path in self.video_paths(category):
+            for path in self.media_paths(category):
                 result.append(self.video_item(path, category))
         return result
 
@@ -98,34 +142,29 @@ class AnnotationStore:
             candidate.relative_to(self.input_dir)
         except ValueError as exc:
             raise ValueError("视频路径超出输入目录") from exc
-        if candidate.suffix.lower() != ".mp4" or not candidate.is_file():
-            raise FileNotFoundError("视频不存在")
+        if candidate.suffix.lower() not in MEDIA_EXTENSIONS or not candidate.is_file():
+            raise FileNotFoundError("媒体不存在")
         return candidate
 
     def annotations(self, video_id: str) -> tuple[Path, int, int, dict[int, np.ndarray]]:
         video = self.resolve_video(video_id)
-        width, height, _ = video_shape(video)
+        width, height, _ = media_shape(video)
         return video, width, height, load_annotations(video.with_suffix(".csv"), width, height)
 
     def frame_jpeg(self, video_id: str, frame_index: int) -> bytes:
         video = self.resolve_video(video_id)
-        _, _, count = video_shape(video)
+        _, _, count = media_shape(video)
         if not 0 <= frame_index < count:
             raise ValueError("帧号超出视频范围")
-        capture = cv2.VideoCapture(str(video))
-        capture.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
-        ok, frame = capture.read()
-        capture.release()
-        if not ok:
-            raise ValueError(f"无法读取第 {frame_index} 帧")
+        frame = read_media_frame(video, frame_index)
         encoded, data = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 92])
         if not encoded:
-            raise ValueError("无法编码视频帧")
+            raise ValueError("无法编码媒体帧")
         return data.tobytes()
 
     def save(self, video_id: str, frame: int, corners: object) -> dict[str, object]:
         video, width, height, annotations = self.annotations(video_id)
-        _, _, count = video_shape(video)
+        _, _, count = media_shape(video)
         if not 0 <= frame < count:
             raise AnnotationError("帧号超出视频范围")
         annotations[frame] = validate_corners(np.asarray(corners, dtype=np.float32), width, height)
@@ -140,14 +179,11 @@ class AnnotationStore:
 
     def preview_jpeg(self, video_id: str, frame: int, corners: object) -> bytes:
         video = self.resolve_video(video_id)
-        width, height, _ = video_shape(video)
+        width, height, count = media_shape(video)
+        if not 0 <= frame < count:
+            raise ValueError("帧号超出视频范围")
         points = validate_corners(np.asarray(corners, dtype=np.float32), width, height)
-        capture = cv2.VideoCapture(str(video))
-        capture.set(cv2.CAP_PROP_POS_FRAMES, frame)
-        ok, image = capture.read()
-        capture.release()
-        if not ok:
-            raise ValueError("无法读取预览帧")
+        image = read_media_frame(video, frame)
         destination = np.asarray([[0, 0], [1919, 0], [1919, 1079], [0, 1079]], np.float32)
         warped = cv2.warpPerspective(image, cv2.getPerspectiveTransform(points, destination), (1920, 1080))
         preview = cv2.resize(warped, (480, 270), interpolation=cv2.INTER_AREA)
