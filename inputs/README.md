@@ -6,10 +6,10 @@
 
 | Category | Collected source clips | Representative evidence clip |
 | --- | --- | --- |
-| `static` | `static_01.MOV`, `static_02.MOV`, `static_03.mp4` | `segments/static_02/static_02_000.mp4` |
-| `scrolling` | `scrolling_01.MOV`, `scrolling_02.MOV`, `scrolling_03.mp4` | `segments/scrolling_03/scrolling_03_000.mp4` |
-| `screen_video` | `screen_video_01.MOV`, `screen_video_02.MOV`, `screen_video_03.mp4` | `segments/screen_video_03/screen_video_03_000.mp4` |
-| `weak_border` | `weak_border_01.MOV` | `segments/weak_border_01/weak_border_01_000.mp4` |
+| `static` | `static_01.mp4`, `static_02.mp4`, `static_03.mp4` | `segments/static_02/static_02_000.mp4` |
+| `scrolling` | `scrolling_01.mp4`, `scrolling_02.mp4`, `scrolling_03.mp4` | `segments/scrolling_03/scrolling_03_000.mp4` |
+| `screen_video` | `screen_video_01.mp4`, `screen_video_02.mp4`, `screen_video_03.mp4` | `segments/screen_video_03/screen_video_03_000.mp4` |
+| `weak_border` | `weak_border_01.mp4` | `segments/weak_border_01/weak_border_01_000.mp4` |
 | `hard` | `hard_01.mp4` | `hard_01.mp4` |
 
 ## Current completion state

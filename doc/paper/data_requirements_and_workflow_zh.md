@@ -67,7 +67,7 @@
 | static | `static_02_000.mp4` | 1 | [x] 完成 | 无 |
 | scrolling | `scrolling_03_000.mp4` | 1 | [x] 完成 | 无 |
 | screen_video | `screen_video_03_000.mp4` | 1 | [x] 完成 | 无 |
-| weak_border | `weak_border_01.MOV` / `weak_border_01_000.mp4` | 排除 | [x] 已收集 | 当前实验不使用 |
+| weak_border | `weak_border_01.mp4` / `weak_border_01_000.mp4` | 排除 | [x] 已收集 | 当前实验不使用 |
 | hard | `hard_01.mp4` | 1 | [x] 完成 | 无 |
 | **合计** | **五类均已有视频** | **4 个纳入类别** | **4/4** | **无数据缺口** |
 
