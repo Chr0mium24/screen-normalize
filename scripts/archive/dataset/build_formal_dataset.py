@@ -94,6 +94,15 @@ def build_sample_plan() -> list[SampleSpec]:
             )
         )
 
+    samples.append(
+        SampleSpec(
+            category="hard",
+            clip_id="hard_01",
+            source_name="VID20260712172657.mp4",
+            start_seconds=0.0,
+        )
+    )
+
     return samples
 
 

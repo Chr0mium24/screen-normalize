@@ -12,7 +12,7 @@
 | `screen_video` | 10 | `VID20260712170039.mp4`、`VID20260712170115.mp4` 各切 5 个样本 |
 | `static` | 10 | 5 个短视频各裁到 5 秒，`VID20260712170211.mp4` 再切 5 个样本 |
 | `weak_border` | 5 | 5 个短视频各裁到 5 秒 |
-| `hard` | 0 | 当前未纳入 active 数据集 |
+| `hard` | 1 | `VID20260712172657.mp4` 裁到 5 秒 |
 
 ## Naming contract
 
@@ -27,6 +27,7 @@ inputs/scrolling/scrolling_01.mp4
 inputs/screen_video/screen_video_06.mp4
 inputs/static/static_10.mp4
 inputs/weak_border/weak_border_05.mp4
+inputs/hard/hard_01.mp4
 ```
 
 ## Local raw archive
