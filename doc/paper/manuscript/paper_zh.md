@@ -80,7 +80,7 @@ $$
 
 矫正单应矩阵 $H_t$ 在齐次坐标下满足 $\tilde{\mathbf r}_i \sim H_t\tilde{\mathbf q}_{t,i}$。完整流程包括初始化、不同方法的轨迹估计、可靠性过滤、轨迹修复和平滑、投影变换、可选残余对齐和视频编码。
 
-![**图 1. 处理流程版式占位图。** 五个面板预留输入帧、屏幕平面证据、单应估计、透视矫正和稳定输出的位置。灰色图像区域及全部显示数值均为占位内容，不构成实验证据。](figures/placeholders/figure_01_pipeline.svg){width=100%}
+> TODO 图 1：用真实样本生成处理流程图，包含输入帧、屏幕平面证据、单应估计、透视矫正和稳定输出。
 
 ## 3.2 屏幕初始化
 
@@ -150,7 +150,7 @@ $$
 
 类别由目录确定，文件名就是 clip ID。分辨率、帧率、时长、设备、光照和难度不作为人工维护的数据集元数据；解码时可以读取视频属性作为运行参数。本预结果版本中，正式采集完成状态为 **[TBD-DATASET-STATUS]**。
 
-![**图 2. 数据集示例和标注版式占位图。** 最终图将为每个预定义类别展示一张代表帧及一张四角叠加图；当前全部面板均为占位内容。](figures/placeholders/figure_02_dataset.svg){width=100%}
+> TODO 图 2：用当前 active 数据集生成五类视频样本示例；完成标注后叠加四角标注。
 
 ## 4.2 四角标注
 
@@ -210,15 +210,15 @@ $$
 
 在 **[TBD-N-ANNOTATED]** 个标注关键帧上，Proposed 的角点 RMSE、四边形 IoU 和相对宽高比误差分别为 **[TBD] px**、**[TBD]** 和 **[TBD]%**。Frame-wise 的相应结果为 **[TBD]**、**[TBD]** 和 **[TBD]**，Optical flow 为 **[TBD]**、**[TBD]** 和 **[TBD]**。分类结果显示 **[TBD-DIRECTIONAL-FINDING]**。任何“改善”结论都必须同时报告配对不确定性和匹配帧数，而不能只给总体均值。
 
-![**图 3. 定量对比版式占位图。** 分组柱状图为三种方法预留分类几何指标面板。所有柱均固定为 1.0，必须由经过审核的正式 run 替换。](figures/placeholders/figure_03_quantitative.svg){width=100%}
+> TODO 图 3：用经过审核的正式 run 生成分类几何指标对比图。
 
 ## 6.3 时域稳定性
 
 按照最终独立时域定义，Proposed 的残余平移、旋转和尺度变化为 **[TBD]**、**[TBD]** 和 **[TBD]**，Frame-wise 和 Optical flow 分别为 **[TBD]** 和 **[TBD]**。逐帧曲线表现为 **[TBD-CURVE-OBSERVATION]**。方法差异在 **[TBD-CATEGORY]** 类别最大，而 **[TBD-CATEGORY]** 仍然困难，原因是 **[TBD-CAUSE]**。基于估计轨迹的数值单独报告，避免将估计器自身的平滑当作物理稳定性的独立证据。
 
-![**图 4. 时域稳定版式占位图。** 平移、旋转和尺度面板使用完全相同的 1.0 曲线，仅用于固定字体、坐标轴、方法配色和面板间距。](figures/placeholders/figure_04_temporal.svg){width=100%}
+> TODO 图 4：用正式 run 生成平移、旋转和尺度的时域稳定性曲线。
 
-![**图 5. 定性对比版式占位图。** 五行对应五类场景，四列预留输入和三种方法输出。灰色区域必须由固定选择协议下审核过的真实帧替换。](figures/placeholders/figure_05_qualitative.svg){width=92%}
+> TODO 图 5：按固定帧选择协议导出输入和方法输出的定性对比图。
 
 ## 6.4 细节与频域行为
 
@@ -226,17 +226,17 @@ $$
 
 在预先确定的频域子集上，矫正后的方向和正交统计为 **[TBD]**，代表频谱表现为 **[TBD-DIAGNOSTIC-OBSERVATION]**。这些结果只描述几何归一化和重采样的影响，不作为去摩尔纹证据。
 
-![**图 6. 细节保持和频域诊断版式占位图。** 最终面板将包含对齐局部、边缘保持对比及原始/矫正频谱；当前 1.0 柱和灰色图像均不是测量结果。](figures/placeholders/figure_06_detail_frequency.svg){width=100%}
+> TODO 图 6：用真实输出生成细节保持和频域诊断图。
 
 ## 6.5 消融与失败案例
 
 移除一致性/可靠性门控后，**[TBD-METRIC]** 从 **[TBD]** 变化到 **[TBD]**；移除轨迹平滑后为 **[TBD]**；移除失败恢复后为 **[TBD]**。由于当前实现不包含 proposal 中独立的“边框运动对内部内容运动”一致性模块，最终消融名称必须与实际运行代码一致。
 
-![**图 7. 消融实验版式占位图。** 四个变体全部固定为 1.0；正式使用前必须让变体名称与可执行开关一致。](figures/placeholders/figure_07_ablation.svg){width=90%}
+> TODO 图 7：从 `doc/paper/results/ablation/ablation_table.csv` 或新正式 run 生成消融图。
 
 人工审核识别出 **[TBD-N-FAILURES]** 类代表失败：**[TBD-FAILURE-1]**、**[TBD-FAILURE-2]** 和 **[TBD-FAILURE-3]**。每个案例都需要关联 tracker 拒绝诊断和可见输出缺陷。
 
-![**图 8. 失败案例版式占位图。** 三行预留眩光/弱证据、遮挡和快速运动案例，三列预留输入估计、输出缺陷和诊断证据。](figures/placeholders/figure_08_failures.svg){width=92%}
+> TODO 图 8：补充滚动漂移、困难样本跟踪冻结等失败案例的真实证据图。
 
 # 7. 讨论
 

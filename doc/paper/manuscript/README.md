@@ -1,23 +1,19 @@
 # Bilingual Manuscript Workspace
 
-- `paper_en.md`: polished English pre-results manuscript.
-- `paper_zh.md`: claim-equivalent Chinese manuscript.
-- `paper_en.pdf` and `paper_zh.pdf`: PDF exports generated from the Markdown sources.
-- `comparison_and_qa.md`: comparison with the teacher paper and course report examples, plus the writing QA record.
-- `00_scope.md` through `05_style_guide.md`: evidence and writing contracts used to prevent unsupported claims.
+- `paper_en.md`: English manuscript source.
+- `paper_zh.md`: Chinese manuscript source.
+- `paper.css`: shared print/PDF styling.
 
-Regenerate both PDFs from the repository root:
+Generated PDFs are not kept in the active manuscript directory. Rebuild them from the repository root only after real figures and final numbers are in place:
 
 ```bash
 scripts/paper/build_paper_pdfs.sh
 ```
 
-Formal figures and measurements are intentionally absent; clearly marked layout placeholders are included. Replace result placeholders only from one reviewed formal run.
+Old PDFs, layout placeholder SVGs, and writing scaffold notes were archived under `doc/archive/paper_workspace_cleanup_2026-07-14/`.
 
-Generate the eight SVG layout placeholders with:
+Current manuscript state:
 
-```bash
-uv run scripts/paper/build_placeholder_figures.py
-```
-
-Placeholder charts use identical values of `1.0` and carry a red warning. They establish layout only and must never be cited as results.
+- The Markdown drafts still need claim cleanup for the actual evaluated scope.
+- Placeholder figure references must be replaced by real figure paths before final PDF export.
+- Any regenerated local placeholders are layout-only artifacts and must not be cited as results.

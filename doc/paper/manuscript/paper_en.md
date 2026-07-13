@@ -86,7 +86,7 @@ $$
 
 The rectifying homography $H_t$ satisfies $\tilde{\mathbf r}_i \sim H_t\tilde{\mathbf q}_{t,i}$ in homogeneous coordinates. The processing sequence is initialization, method-specific trajectory estimation, reliability filtering, temporal repair and smoothing, projective warping, optional residual alignment, and video encoding.
 
-![**Figure 1. Processing-pipeline layout placeholder.** Panels reserve the final positions for input frames, screen-plane evidence, homography estimation, rectification, and stabilized output. Grey image regions and all displayed values are placeholders and do not constitute experimental evidence.](figures/placeholders/figure_01_pipeline.svg){width=100%}
+> TODO Figure 1: generate a real pipeline figure with input frame, screen-plane evidence, homography estimation, rectification, and stabilized output.
 
 ## 3.2 Screen initialization
 
@@ -156,7 +156,7 @@ The formal dataset is designed to contain 50 approximately five-second handheld 
 
 Category is determined by the containing directory and the filename is the clip identifier. Resolution, frame rate, duration, device, illumination, and difficulty labels are not manually curated dataset metadata. Video properties may be read during decoding only as operational values. At the time of this pre-results draft, formal collection is **[TBD-DATASET-STATUS]** complete.
 
-![**Figure 2. Dataset-example and annotation layout placeholder.** The final figure will show one representative frame and one four-corner overlay for each predefined category. All current panels are placeholders.](figures/placeholders/figure_02_dataset.svg){width=100%}
+> TODO Figure 2: generate real examples for the five active dataset categories and add corner overlays after annotation.
 
 ## 4.2 Corner annotations
 
@@ -216,15 +216,15 @@ The formal run processed **[TBD-N-CLIPS]** clips and **[TBD-N-FRAMES]** frames. 
 
 Across **[TBD-N-ANNOTATED]** annotated keyframes, the Proposed method obtained a corner RMSE of **[TBD] px**, quadrilateral IoU of **[TBD]**, and relative aspect-ratio error of **[TBD]%**. The corresponding Frame-wise values were **[TBD]**, **[TBD]**, and **[TBD]**, while Optical flow obtained **[TBD]**, **[TBD]**, and **[TBD]**. The category-level results indicate **[TBD-DIRECTIONAL-FINDING]**. Any claim of improvement will be stated with paired uncertainty and the number of matched frames, not only the aggregate mean.
 
-![**Figure 3. Quantitative-comparison layout placeholder.** Grouped bars reserve category-wise geometry panels for the three methods. Every bar is fixed to 1.0 and must be replaced from the reviewed formal run.](figures/placeholders/figure_03_quantitative.svg){width=100%}
+> TODO Figure 3: generate category-wise geometry comparisons from a reviewed formal run.
 
 ## 6.3 Temporal stability
 
 Under the final independent temporal definition, residual translation, rotation, and scale variation were **[TBD]**, **[TBD]**, and **[TBD]** for Proposed, compared with **[TBD]** for Frame-wise and **[TBD]** for Optical flow. Per-frame curves show **[TBD-CURVE-OBSERVATION]**. The largest method difference occurred in **[TBD-CATEGORY]**, whereas **[TBD-CATEGORY]** remained difficult because **[TBD-CAUSE]**. Trajectory-derived values are reported separately to avoid presenting smoothing of the estimator as independent evidence of physical stabilization.
 
-![**Figure 4. Temporal-stability layout placeholder.** Translation, rotation, and scale panels use identical 1.0 curves solely to establish typography, axes, method colors, and panel spacing.](figures/placeholders/figure_04_temporal.svg){width=100%}
+> TODO Figure 4: generate temporal translation, rotation, and scale curves from a formal run.
 
-![**Figure 5. Qualitative-comparison layout placeholder.** Rows correspond to the five scene categories; columns reserve the input and three method outputs. Grey regions must be replaced by audited frames selected under a fixed protocol.](figures/placeholders/figure_05_qualitative.svg){width=92%}
+> TODO Figure 5: export qualitative comparisons from audited frames selected under a fixed protocol.
 
 ## 6.4 Detail and frequency behavior
 
@@ -232,17 +232,17 @@ On **[TBD-N-DETAIL]** aligned frames, average gradient ratio and edge-preservati
 
 For the predefined frequency subset, the post-rectification direction and orthogonality statistics were **[TBD]**. Spectrum examples show **[TBD-DIAGNOSTIC-OBSERVATION]**. These measurements are reported as consequences of geometric normalization and resampling; they are not evidence of moiré suppression.
 
-![**Figure 6. Detail-preservation and frequency-diagnostic layout placeholder.** The final panels will contain aligned crops, an edge-preservation comparison, and original/rectified spectra. The current 1.0 bars and grey images are not measurements.](figures/placeholders/figure_06_detail_frequency.svg){width=100%}
+> TODO Figure 6: generate detail-preservation and frequency-diagnostic panels from real outputs.
 
 ## 6.5 Ablation and failure cases
 
 Removing consistency/reliability gates changed **[TBD-METRIC]** from **[TBD]** to **[TBD]**; removing trajectory smoothing changed it to **[TBD]**; removing failure recovery changed it to **[TBD]**. Because the current implementation does not contain the proposal's explicit border-versus-content consistency module, the final ablation name must match the code actually run.
 
-![**Figure 7. Ablation-study layout placeholder.** All four variants are fixed to 1.0. Variant names must be matched to executable switches before formal use.](figures/placeholders/figure_07_ablation.svg){width=90%}
+> TODO Figure 7: generate the ablation figure from `doc/paper/results/ablation/ablation_table.csv` or a new formal run.
 
 Manual audit identified **[TBD-N-FAILURES]** representative failure modes: **[TBD-FAILURE-1]**, **[TBD-FAILURE-2]**, and **[TBD-FAILURE-3]**. Each case is linked to tracker rejection diagnostics and a visible output defect.
 
-![**Figure 8. Failure-case layout placeholder.** Rows reserve glare/weak-evidence, occlusion, and fast-motion cases; columns reserve the input estimate, output defect, and diagnostic evidence.](figures/placeholders/figure_08_failures.svg){width=92%}
+> TODO Figure 8: add real failure evidence for scrolling drift, hard-sample tracker freeze, and one additional limitation.
 
 # 7. Discussion
 

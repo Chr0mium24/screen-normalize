@@ -48,4 +48,4 @@ inputs/archive/removed_unannotated_2026-07-14/
 
 - 构建脚本：`scripts/archive/dataset/build_formal_dataset.py`
 - 样本来源清单：`doc/archive/paper_workspace_cleanup_2026-07-14/generated_outputs/dataset_5s_manifest_2026-07-14.csv`
-- 本次整理记录：`doc/paper/plan/dataset_organization_2026-07-14.md`
+- 本次整理记录：`doc/archive/paper_workspace_cleanup_2026-07-14/operation_records/dataset_organization_2026-07-14.md`

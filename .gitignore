@@ -22,7 +22,15 @@ runs/*
 *.png
 *.trf
 
-# LaTeX build products; keep source documents and final PDFs only.
+# Generated paper/report outputs; keep Markdown, CSV, JSON evidence, and references tracked.
+/doc/paper/data_requirements_and_workflow_zh.html
+/doc/paper/data_requirements_report_artifact.json
+/doc/paper/results/ablation/ablation_report.html
+/doc/paper/results/ablation/ablation_report_artifact.json
+/doc/paper/manuscript/*.pdf
+/doc/paper/manuscript/figures/placeholders/
+
+# LaTeX build products.
 *.aux
 *.log
 *.nav
