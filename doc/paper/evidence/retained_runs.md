@@ -25,3 +25,12 @@
 - `archive/pre_pipeline/eval_smoke_self_consistency`
 
 完整命令见 `run_manifest.md`，已汇总数字见 `experiment_summary.csv`。其他早期 `debug_*`、`verify_*`、`inspect_*` 和未被报告引用的试验性 run 已删除。
+
+## Current Four-Clip Ablation
+
+- Run：`runs/20260713_ablation`
+- 范围：static、scrolling、screen_video、hard 各一个代表 clip；weak_border 排除。
+- 新运行：`no_reliability_gates`、`no_trajectory_smoothing`、`no_offline_repair`。
+- 复用：历史 `proposed` 视频与角点轨迹；指标按当前代码重算并排除初始化帧。
+- 汇总：`doc/paper/results/ablation/`。
+- 限制：仅描述性 n=4；offline repair 未被当前四个 clip 有效触发。

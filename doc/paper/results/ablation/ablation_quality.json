@@ -1,0 +1,71 @@
+{
+  "run_dir": "runs\\20260713_ablation",
+  "expected_method_outputs": 16,
+  "observed_method_outputs": 16,
+  "expected_metric_outputs": 64,
+  "observed_metric_outputs": 64,
+  "issues": [
+    {
+      "severity": "high",
+      "category": "hard",
+      "clip_id": "hard_01",
+      "method": "proposed",
+      "check": "geometry_failure",
+      "message": "full geometry is poor: RMSE=129.916px, IoU=0.889"
+    },
+    {
+      "severity": "high",
+      "category": "hard",
+      "clip_id": "hard_01",
+      "method": "proposed",
+      "check": "tracker_freeze",
+      "message": "only 2/348 tracker rows were accepted"
+    },
+    {
+      "severity": "high",
+      "category": "scrolling",
+      "clip_id": "scrolling_03_000",
+      "method": "proposed",
+      "check": "geometry_failure",
+      "message": "full geometry is poor: RMSE=715.858px, IoU=0.490"
+    },
+    {
+      "severity": "high",
+      "category": "all",
+      "clip_id": "four-clip ablation subset",
+      "method": "no_offline_repair",
+      "check": "module_not_exercised",
+      "message": "no full-method clip contains rejected frames bracketed by later accepted frames; offline interpolation has no repairable interval"
+    },
+    {
+      "severity": "medium",
+      "category": "screen_video",
+      "clip_id": "screen_video_03_000",
+      "method": "proposed vs no_offline_repair",
+      "check": "cross_run_nondeterminism",
+      "message": "the historical full and current no-repair trajectory hashes differ even though the repair path had no eligible interval; small differences are not attributable to repair"
+    },
+    {
+      "severity": "medium",
+      "category": "all",
+      "clip_id": "four paired clips",
+      "method": "all",
+      "check": "sample_size",
+      "message": "n=4 supports descriptive paired results only, not strong inferential claims"
+    }
+  ],
+  "manuscript_gaps": {
+    "manuscripts": {
+      "paper_zh.md": {
+        "tbd_tokens": 59,
+        "placeholder_figure_references": 8
+      },
+      "paper_en.md": {
+        "tbd_tokens": 58,
+        "placeholder_figure_references": 8
+      }
+    },
+    "placeholder_figures": 8
+  },
+  "statistical_scope": "descriptive pilot; four paired clips are insufficient for strong inferential claims"
+}
