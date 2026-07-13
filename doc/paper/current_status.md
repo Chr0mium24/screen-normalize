@@ -15,7 +15,7 @@ The current data scope is a local 50-clip, five-category video collection with m
 | Dataset scale claim | 50 local 5-second mp4 clips; 50 active annotation CSV files found in the current filesystem check | The dataset can be described as locally annotated and processed once. |
 | Main first-pass scope | 50 clips x 3 methods x 4 metrics | `geometry` has 15 skipped records from five scrolling clips; other metrics completed. |
 | Ablation first-pass scope | 50 clips x 4 compared methods x 4 metrics, with `proposed` read from the main run | `geometry` has 20 skipped records from five scrolling clips; offline repair remains potentially inconclusive. |
-| Manuscript figures | Fig. 3 and Fig. 6 first-pass SVGs generated; Fig. 4 and Fig. 7 omitted by current summary limitations | Generate/rebuild real final figures before final PDF. |
+| Manuscript figures | Fig. 3, Fig. 4, Fig. 6, and a first-pass Fig. 7 SVG are generated | Review and promote final figures before final PDF. |
 
 ## Dataset State
 
@@ -64,10 +64,9 @@ Older pilot evidence that should be treated as historical unless explicitly cite
 Known limitations:
 
 - The first-pass outputs have not been manually reviewed clip by clip.
-- `scrolling_06` through `scrolling_10` have geometry status `skipped` because annotation frames and estimate frames do not overlap.
+- `scrolling_06` through `scrolling_10` have geometry status `skipped` because they only have frame-0 annotations, and frame 0 is excluded as initialization.
 - `no_offline_repair` matches `proposed` in aggregate first-pass primary metrics; treat that ablation as potentially inconclusive until repair-triggering intervals are audited.
-- The summary script omitted Fig. 4 because it expects `point_edge` alongside the three main methods; this is a reporting-script limitation, not missing temporal metric JSON.
-- Fig. 7 still needs a formal plotting path for the full ablation first-pass summary.
+- Fig. 4 and first-pass Fig. 7 now have reproducible generation paths, but still need visual review before use in the manuscript.
 - The current manuscript still needs real figures and claim cleanup before submission.
 
 ## Done
@@ -86,9 +85,9 @@ Known limitations:
 ## Next Missing Work
 
 1. Manually review the generated HTML/video reports, especially `hard`, `weak_border`, and scrolling clips with high rejection counts.
-2. Fix or explicitly explain the `scrolling_06` through `scrolling_10` geometry skip caused by non-overlapping annotation and estimate frames.
+2. Add non-initialization annotations for `scrolling_06` through `scrolling_10`, or explicitly report that their geometry metrics are excluded because only frame 0 is labeled.
 3. Decide how to handle `no_offline_repair`: find repair-triggering intervals or mark the ablation inconclusive.
-4. Update the paper summary/plotting path so Fig. 4 can use the three-method temporal outputs and Fig. 7 can use the full ablation first-pass summary.
+4. Review the generated Fig. 3, Fig. 4, Fig. 6, and Fig. 7 first-pass SVGs and decide which need redesign before manuscript use.
 5. Generate final real figures from reviewed outputs; do not use archived placeholder SVGs as evidence.
 6. Rewrite `paper_zh.md` and `paper_en.md` around the first-pass/reviewed scope and replace every TBD.
 7. Add failure-case evidence for at least scrolling drift and hard/weak-border tracker freeze.

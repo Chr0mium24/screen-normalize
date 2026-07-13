@@ -22,8 +22,8 @@ This directory contains committed summary evidence from the first full main-meth
 
 ## Known First-Pass Issues
 
-- `scrolling_06` through `scrolling_10` have no overlapping annotation and estimate frames for geometry evaluation, so geometry aggregates use 45 clips per method rather than 50.
-- `figure_04` was omitted by the current paper summary script because it expects every `METHOD_IDS` method, including `point_edge`, while this first pass intentionally ran only the three main methods.
+- `scrolling_06` through `scrolling_10` only have frame-0 annotations. Geometry evaluation excludes frame 0 because it is used for initialization, so geometry aggregates use 45 clips per method rather than 50.
+- `figure_04_temporal_stability.svg` now generates from the three methods present in this run.
 - `figure_07` was omitted because this run does not include ablation methods.
 - Several `hard` and `weak_border` clips showed high reference-tracker rejection counts in stderr progress logs; these require manual HTML/video review before final claims.
 

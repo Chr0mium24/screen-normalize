@@ -4,8 +4,8 @@
     "path": "D:\\2522\\ECE4512\\ourproject\\screen-normalize\\runs\\20260714_full_pipeline_first_pass\\summary\\figures\\figure_03_geometry_comparison.svg"
   },
   "figure_04": {
-    "status": "omitted_missing_data",
-    "path": null
+    "status": "generated",
+    "path": "D:\\2522\\ECE4512\\ourproject\\screen-normalize\\runs\\20260714_full_pipeline_first_pass\\summary\\figures\\figure_04_temporal_stability.svg"
   },
   "figure_06": {
     "status": "generated",

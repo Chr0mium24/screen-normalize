@@ -1,21 +1,21 @@
-"metric","category","clip_id","method","status","reason"
-"geometry","scrolling","scrolling_06","proposed","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_06","no_reliability_gates","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_06","no_trajectory_smoothing","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_06","no_offline_repair","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_07","proposed","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_07","no_reliability_gates","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_07","no_trajectory_smoothing","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_07","no_offline_repair","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_08","proposed","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_08","no_reliability_gates","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_08","no_trajectory_smoothing","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_08","no_offline_repair","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_09","proposed","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_09","no_reliability_gates","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_09","no_trajectory_smoothing","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_09","no_offline_repair","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_10","proposed","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_10","no_reliability_gates","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_10","no_trajectory_smoothing","skipped","no overlapping annotation and estimate frames"
-"geometry","scrolling","scrolling_10","no_offline_repair","skipped","no overlapping annotation and estimate frames"
+metric,category,clip_id,method,status,reason
+geometry,scrolling,scrolling_06,proposed,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_06,no_reliability_gates,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_06,no_trajectory_smoothing,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_06,no_offline_repair,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_07,proposed,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_07,no_reliability_gates,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_07,no_trajectory_smoothing,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_07,no_offline_repair,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_08,proposed,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_08,no_reliability_gates,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_08,no_trajectory_smoothing,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_08,no_offline_repair,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_09,proposed,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_09,no_reliability_gates,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_09,no_trajectory_smoothing,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_09,no_offline_repair,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_10,proposed,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_10,no_reliability_gates,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_10,no_trajectory_smoothing,skipped,only initialization-frame annotation is available after excluding frame 0
+geometry,scrolling,scrolling_10,no_offline_repair,skipped,only initialization-frame annotation is available after excluding frame 0

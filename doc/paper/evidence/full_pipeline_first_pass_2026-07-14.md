@@ -120,11 +120,11 @@ Outcome:
 
 - `figure_03_geometry_comparison.svg`: generated
 - `figure_06_detail_frequency.svg`: generated
-- `figure_04_temporal_stability.svg`: omitted because the current summary script expects all `METHOD_IDS`, including `point_edge`, while this first pass ran only three main methods.
+- `figure_04_temporal_stability.svg`: generated after updating the summary script to use methods present in the run.
 - `figure_07_ablation.svg`: omitted because this main run does not contain ablation methods.
 - Metric status summary: `detail=150 ok`, `frequency=150 ok`, `temporal=150 ok`, `geometry=135 ok`, `geometry=15 skipped`
 - Non-ok metric scope: `scrolling_06` through `scrolling_10`, all three methods, geometry only
-- Non-ok reason: `no overlapping annotation and estimate frames`
+- Non-ok reason: `only initialization-frame annotation is available after excluding frame 0`
 
 Evidence files copied to `doc/paper/results/full_pipeline_first_pass/` include `batch.csv`, `aggregate_metrics.csv`, `all_metrics.csv`, per-metric tables, metric status tables, the figure manifest, and generated SVG figures.
 
@@ -181,7 +181,8 @@ Combined comparison summary:
 - Combined method-metric records: 800
 - Metric status summary: `detail=200 ok`, `frequency=200 ok`, `temporal=200 ok`, `geometry=180 ok`, `geometry=20 skipped`
 - Non-ok metric scope: `scrolling_06` through `scrolling_10`, all four compared methods, geometry only
-- Non-ok reason: `no overlapping annotation and estimate frames`
+- Non-ok reason: `only initialization-frame annotation is available after excluding frame 0`
+- Figure output: `doc/paper/results/full_ablation_first_pass/figures/figure_07_ablation_first_pass.svg`
 
 First-pass interpretation notes:
 
