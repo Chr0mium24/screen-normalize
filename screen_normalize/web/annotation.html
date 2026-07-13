@@ -32,12 +32,12 @@
     </div>
     <div id="canvasWrap" class="canvas-wrap"><canvas id="canvas"></canvas><div id="empty" class="empty">从左侧选择一个视频开始标注</div></div>
     <div class="toolbar"><button id="back">返回列表 (B)</button><button id="skipClip">跳过视频 (N)</button><span class="grow"></span><button id="delete" class="danger">删除本帧标注</button><button id="skip">跳过当前帧 (Esc)</button><button id="save" class="primary">保存并继续 (Enter)</button></div>
-    <div id="status" class="status muted">依次点击 TL、TR、BR、BL；拖动已有点可调整。滚轮缩放，按住空格/中键/右键拖动画面。</div>
+    <div id="status" class="status muted">依次点击 TL、TR、BR、BL；拖动已有点可调整。1/2/3/4 跳到四角放大图像。</div>
   </section>
   <aside class="right">
     <div class="card"><h2>透视预览</h2><img id="preview" class="preview" alt="选择四个有效角点后显示预览"><div id="previewText" class="muted" style="margin-top:7px">等待四个角点</div></div>
     <div class="card"><h2>原始视频坐标</h2><table class="coords"><tbody id="coords"></tbody></table></div>
-    <div class="card shortcuts"><h2>操作说明</h2><div class="muted">点击顺序：TL → TR → BR → BL<br>鼠标滚轮：以指针为中心缩放<br>空格/中键/右键 + 拖动：平移放大视图<br>Enter 保存　Esc 跳过　U 撤销　R 重置<br>F 完整画面　N 跳过视频　B 返回列表</div></div>
+    <div class="card shortcuts"><h2>操作说明</h2><div class="muted">点击顺序：TL → TR → BR → BL<br>1/2/3/4：跳到左上/右上/右下/左下放大图像<br>鼠标滚轮：以指针为中心缩放<br>空格/中键/右键 + 拖动：平移放大视图<br>Enter 保存　Esc 跳过　U 撤销　R 重置<br>F 完整画面　N 跳过视频　B 返回列表</div></div>
   </aside>
 </main>
 <script>
@@ -56,6 +56,7 @@ async function openVideo(v,preferred=null){if(v.status==='error'){status(v.error
 async function loadFrame(frame){if(!state.video)return;frame=Math.max(0,Math.min(state.video.frameCount-1,Number(frame)));const image=new Image();image.onload=()=>{state.image=image;state.frame=frame;state.points=(state.annotations[frame]||[]).map(p=>[...p]);fit();syncUI();status(state.points.length===4?'已加载本帧标注，可拖动修改或直接保存。':'请依次标注 TL、TR、BR、BL。');preview()};image.onerror=()=>status('视频帧加载失败',true);image.src=`/api/frame?video=${q(state.video.id)}&frame=${frame}&t=${Date.now()}`}
 function fit(){if(!state.image)return;const rect=wrap.getBoundingClientRect();canvas.width=Math.max(1,Math.floor(rect.width));canvas.height=Math.max(1,Math.floor(rect.height));state.scale=Math.min(canvas.width/state.image.width,canvas.height/state.image.height);state.ox=(canvas.width-state.image.width*state.scale)/2;state.oy=(canvas.height-state.image.height*state.scale)/2;draw()}
 function screenPoint(p){return[p[0]*state.scale+state.ox,p[1]*state.scale+state.oy]}function imagePoint(x,y){return[(x-state.ox)/state.scale,(y-state.oy)/state.scale]}
+function focusCorner(i){if(!state.image)return;const fallback=[[0,0],[state.image.width-1,0],[state.image.width-1,state.image.height-1],[0,state.image.height-1]],p=state.points[i]||fallback[i],fitScale=Math.min(canvas.width/state.image.width,canvas.height/state.image.height);state.scale=Math.max(state.scale,Math.min(fitScale*30,fitScale*4));state.ox=canvas.width/2-p[0]*state.scale;state.oy=canvas.height/2-p[1]*state.scale;draw();status(`已跳到 ${labels[i]} 放大视图。`)}
 function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);if(!state.image)return;ctx.drawImage(state.image,state.ox,state.oy,state.image.width*state.scale,state.image.height*state.scale);const pts=state.points.map(screenPoint);if(pts.length>1){ctx.strokeStyle='#39e798';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(...pts[0]);pts.slice(1).forEach(p=>ctx.lineTo(...p));if(pts.length===4)ctx.closePath();ctx.stroke()}pts.forEach((p,i)=>{ctx.fillStyle='#ff4964';ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(...p,6,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='white';ctx.font='bold 13px system-ui';ctx.fillText(labels[i],p[0]+10,p[1]-10)})}
 function nearest(x,y){let best=-1,d=14;state.points.forEach((p,i)=>{const s=screenPoint(p),n=Math.hypot(s[0]-x,s[1]-y);if(n<d){d=n;best=i}});return best}
 canvas.oncontextmenu=e=>e.preventDefault();
@@ -75,7 +76,7 @@ function nextBatch(){if(!state.batch.length)return;const i=state.batch.indexOf(s
 function skipClip(){nextBatch();status('已跳过当前视频。')}
 $('#search').oninput=renderVideos;$('#category').onchange=renderVideos;$('#stateFilter').onchange=renderVideos;$('#selectPending').onclick=()=>{state.batch=filtered().filter(v=>v.status!=='complete'&&v.status!=='error').map(v=>v.id);renderVideos()};$('#startBatch').onclick=()=>{const v=state.batch.map(id=>state.videos.find(x=>x.id===id)).find(x=>x&&x.status!=='complete');if(v)openVideo(v);else status('请先选择未完成的视频。',true)};
 $('#prev').onclick=()=>adjacent(-1);$('#next').onclick=()=>adjacent(1);$('#jump').onclick=()=>loadFrame($('#frameInput').value);$('#fit').onclick=fit;$('#undo').onclick=()=>{state.points.pop();changed()};$('#reset').onclick=()=>{state.points=[];changed()};$('#save').onclick=save;$('#delete').onclick=remove;$('#skip').onclick=advance;$('#skipClip').onclick=skipClip;$('#back').onclick=()=>{state.batch=[];renderVideos();status('已返回视频列表。')};
-window.onkeydown=e=>{if(['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName))return;if(e.code==='Space'){state.space=true;e.preventDefault()}else if(e.key==='Enter')save();else if(e.key==='Escape')advance();else if(e.key.toLowerCase()==='u'){state.points.pop();changed()}else if(e.key.toLowerCase()==='r'){state.points=[];changed()}else if(e.key.toLowerCase()==='f')fit();else if(e.key.toLowerCase()==='n')skipClip();else if(e.key.toLowerCase()==='b'){$('#back').click()}};window.onkeyup=e=>{if(e.code==='Space')state.space=false};
+window.onkeydown=e=>{if(['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName))return;if(e.code==='Space'){state.space=true;e.preventDefault()}else if(['1','2','3','4'].includes(e.key)){focusCorner(Number(e.key)-1)}else if(e.key==='Enter')save();else if(e.key==='Escape')advance();else if(e.key.toLowerCase()==='u'){state.points.pop();changed()}else if(e.key.toLowerCase()==='r'){state.points=[];changed()}else if(e.key.toLowerCase()==='f')fit();else if(e.key.toLowerCase()==='n')skipClip();else if(e.key.toLowerCase()==='b'){$('#back').click()}};window.onkeyup=e=>{if(e.code==='Space')state.space=false};
 let lastWrapWidth=0,lastWrapHeight=0;new ResizeObserver(entries=>{const box=entries[0].contentRect,w=Math.round(box.width),h=Math.round(box.height);if(w===lastWrapWidth&&h===lastWrapHeight)return;lastWrapWidth=w;lastWrapHeight=h;if(state.image)requestAnimationFrame(fit)}).observe(wrap);
 loadVideos();
 </script>
