@@ -42,7 +42,7 @@
 </main>
 <script>
 const $=s=>document.querySelector(s), labels=['TL','TR','BR','BL'];
-const state={videos:[],video:null,annotations:{},frame:0,points:[],image:null,scale:1,ox:0,oy:0,drag:-1,panning:false,space:false,batch:[],previewTimer:null};
+const state={videos:[],video:null,annotations:{},frame:0,points:[],image:null,imageCache:new Map(),scale:1,ox:0,oy:0,drag:-1,panning:false,space:false,batch:[],previewTimer:null};
 const api=async(url,options={})=>{const r=await fetch(url,options);if(!r.ok){let e;try{e=(await r.json()).error}catch{}throw new Error(e||`请求失败 (${r.status})`)}return r};
 const q=v=>encodeURIComponent(v), canvas=$('#canvas'),ctx=canvas.getContext('2d'),wrap=$('#canvasWrap');
 function status(text,error=false){$('#status').textContent=text;$('#status').className='status '+(error?'error':'muted')}
@@ -53,7 +53,13 @@ function renderVideos(){const list=$('#videoList');list.innerHTML='';for(const v
 function toggleBatch(id,on){state.batch=on?[...new Set([...state.batch,id])]:state.batch.filter(x=>x!==id)}
 function updateOverall(){const ok=state.videos.filter(v=>v.status==='complete').length;$('#overall').textContent=`${ok}/${state.videos.length} 个视频已完成`}
 async function openVideo(v,preferred=null){if(v.status==='error'){status(v.error||'该视频无法标注',true);return}state.video=v;try{state.annotations=(await (await api(`/api/annotations?video=${q(v.id)}`)).json()).annotations;const first=preferred??v.keyframes.find(f=>!state.annotations[f])??v.keyframes[0]??0;await loadFrame(first);renderVideos();$('#currentTitle').textContent=`${v.category} / ${v.name}`}catch(e){status(e.message,true)}}
-async function loadFrame(frame){if(!state.video)return;frame=Math.max(0,Math.min(state.video.frameCount-1,Number(frame)));const image=new Image();image.onload=()=>{state.image=image;state.frame=frame;state.points=(state.annotations[frame]||[]).map(p=>[...p]);fit();syncUI();status(state.points.length===4?'已加载本帧标注，可拖动修改或直接保存。':'请依次标注 TL、TR、BR、BL。');preview()};image.onerror=()=>status('视频帧加载失败',true);image.src=`/api/frame?video=${q(state.video.id)}&frame=${frame}&t=${Date.now()}`}
+function frameUrl(video,frame){return`/api/frame?video=${q(video.id)}&frame=${frame}`}
+function cacheKey(video,frame){return`${video.id}#${frame}`}
+function rememberImage(key,image){state.imageCache.set(key,image);while(state.imageCache.size>8)state.imageCache.delete(state.imageCache.keys().next().value)}
+function applyFrameImage(frame,image){state.image=image;state.frame=frame;state.points=(state.annotations[frame]||[]).map(p=>[...p]);fit();syncUI();status(state.points.length===4?'已加载本帧标注，可拖动修改或直接保存。':'请依次标注 TL、TR、BR、BL。');preview();preloadNextFrame()}
+function preloadFrame(frame){if(!state.video)return;const video=state.video;frame=Math.max(0,Math.min(video.frameCount-1,Number(frame)));const key=cacheKey(video,frame);if(state.imageCache.has(key))return;const image=new Image();image.onload=()=>rememberImage(key,image);image.src=frameUrl(video,frame)}
+function preloadNextFrame(){if(!state.video)return;const next=state.video.keyframes.find(f=>f>state.frame);if(next!==undefined)preloadFrame(next)}
+async function loadFrame(frame){if(!state.video)return;const video=state.video;frame=Math.max(0,Math.min(video.frameCount-1,Number(frame)));const key=cacheKey(video,frame),cached=state.imageCache.get(key);if(cached){applyFrameImage(frame,cached);return}const image=new Image();image.onload=()=>{rememberImage(key,image);if(state.video?.id===video.id)applyFrameImage(frame,image)};image.onerror=()=>status('视频帧加载失败',true);image.src=frameUrl(video,frame)}
 function fit(){if(!state.image)return;const rect=wrap.getBoundingClientRect();canvas.width=Math.max(1,Math.floor(rect.width));canvas.height=Math.max(1,Math.floor(rect.height));state.scale=Math.min(canvas.width/state.image.width,canvas.height/state.image.height);state.ox=(canvas.width-state.image.width*state.scale)/2;state.oy=(canvas.height-state.image.height*state.scale)/2;draw()}
 function screenPoint(p){return[p[0]*state.scale+state.ox,p[1]*state.scale+state.oy]}function imagePoint(x,y){return[(x-state.ox)/state.scale,(y-state.oy)/state.scale]}
 function focusCorner(i){if(!state.image)return;const fallback=[[0,0],[state.image.width-1,0],[state.image.width-1,state.image.height-1],[0,state.image.height-1]],anchors=[[0,0],[canvas.width,0],[canvas.width,canvas.height],[0,canvas.height]],p=state.points[i]||fallback[i],a=anchors[i],fitScale=Math.min(canvas.width/state.image.width,canvas.height/state.image.height);state.scale=Math.max(state.scale,Math.min(fitScale*30,fitScale*4));state.ox=a[0]-p[0]*state.scale;state.oy=a[1]-p[1]*state.scale;draw();status(`已将 ${labels[i]} 对齐到视图对应角。`)}
