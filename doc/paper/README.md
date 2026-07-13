@@ -25,6 +25,6 @@
 - `current_status.md` 是当前论文状态的权威摘要。
 - `results/ablation/*.csv` 和 `results/ablation/*.json` 是当前消融实验的提交结果。
 - `evidence/experiment_summary.csv`、`evidence/run_manifest.md`、`evidence/retained_runs.md` 是已保留的实验记录。
-- 当前工作树有 36 个本地 active mp4 clip；目前未发现 active 标注 CSV，正式实验前需要补标注或限定已标注子集。
-- Proposal 中的 50 个视频和完整五类 benchmark 仍未被当前证据支持。
+- 当前工作树有 50 个本地 active mp4 clip，五类各 10 个；每个 active clip 都有同名角点 CSV。
+- Proposal 中的 50 个视频和完整五类 benchmark 已具备本地数据和标注基础，但正式三方法全量实验和论文图表尚未完成。
 - 原 mock 稿件和 mock 图表已从当前分支移除，不得将模拟数字用于论文结论。

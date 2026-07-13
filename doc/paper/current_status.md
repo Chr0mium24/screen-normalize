@@ -6,13 +6,13 @@ This file is the current status entry for the paper workspace. Older plans, gene
 
 ## Current Scope
 
-The current data scope is a local 36-clip, five-category video collection. The current evaluated-result scope is still a four-clip ablation pilot, because the newly organized 36 clips do not yet have committed annotation CSV files or completed full experiment results.
+The current data scope is a local 50-clip, five-category video collection with matching local annotation CSV files. The current evaluated-result scope is still a four-clip ablation pilot, because the 50 active clips have not yet been processed through a reviewed full experiment run.
 
 | Area | Current fact | Paper implication |
 | --- | --- | --- |
-| Active video categories | `static`, `scrolling`, `screen_video`, `weak_border`, `hard` | Dataset section can describe the 36 collected clips. |
-| Evaluated result categories | `static`, `scrolling`, `screen_video`, `hard` from the existing ablation summaries | Results must remain pilot/descriptive until the 36 clips are annotated and rerun. |
-| Dataset scale claim | 36 local 5-second mp4 clips; 0 active annotation CSV files found in the current filesystem check | Do not claim a fully annotated benchmark yet. |
+| Active video categories | `static`, `scrolling`, `screen_video`, `weak_border`, `hard` | Dataset section can describe the 50 collected and annotated clips. |
+| Evaluated result categories | `static`, `scrolling`, `screen_video`, `hard` from the existing ablation summaries | Results must remain pilot/descriptive until the 50 clips are rerun and reviewed. |
+| Dataset scale claim | 50 local 5-second mp4 clips; 50 active annotation CSV files found in the current filesystem check | The dataset can be described as locally annotated, but not yet as fully evaluated. |
 | Ablation scope | 4 clips x 4 variants in committed CSV/JSON summaries | Descriptive only; no significance claims. |
 | Manuscript figures | Old placeholder SVGs are archived | Generate real figures before final PDF. |
 
@@ -25,9 +25,9 @@ Current filesystem check:
 - `inputs/static/`: 10 mp4 clips.
 - `inputs/scrolling/`: 10 mp4 clips.
 - `inputs/screen_video/`: 10 mp4 clips.
-- `inputs/weak_border/`: 5 mp4 clips.
-- `inputs/hard/`: 1 mp4 clip.
-- Active annotation CSV files found: 0.
+- `inputs/weak_border/`: 10 mp4 clips.
+- `inputs/hard/`: 10 mp4 clips.
+- Active annotation CSV files found: 50.
 - Raw source videos are archived locally under `inputs/archive/raw_premodify_2026-07-14/`.
 - Older unannotated backups remain under `inputs/archive/removed_unannotated_2026-07-14/`.
 
@@ -35,12 +35,12 @@ Current active video count:
 
 | Category | Active mp4 clips | Active annotation CSV |
 | --- | ---: | ---: |
-| `static` | 10 | 0 |
-| `scrolling` | 10 | 0 |
-| `screen_video` | 10 | 0 |
-| `weak_border` | 5 | 0 |
-| `hard` | 1 | 0 |
-| Total | 36 | 0 |
+| `static` | 10 | 10 |
+| `scrolling` | 10 | 10 |
+| `screen_video` | 10 | 10 |
+| `weak_border` | 10 | 10 |
+| `hard` | 10 | 10 |
+| Total | 50 | 50 |
 
 ## Current Evidence
 
@@ -56,7 +56,7 @@ Committed evidence that can be cited only within the pilot scope:
 
 Known limitations:
 
-- The 36 active videos are not yet annotated in the current active layout.
+- The 50 active videos have local annotation CSV files, but they have not yet been processed through a reviewed full three-method experiment run.
 - `no_offline_repair` was not meaningfully exercised; treat that ablation as inconclusive.
 - `n=4` supports descriptive comparison only.
 - The current manuscript still needs real figures and claim cleanup before submission.
@@ -66,17 +66,18 @@ Known limitations:
 - [x] Package and script entrypoints were reorganized by responsibility.
 - [x] Ablation-capable runner and summary scripts exist.
 - [x] Four-clip ablation summaries are committed.
-- [x] Formal 5-second active video dataset is organized locally: 36 mp4 clips across five categories.
+- [x] Formal 5-second active video dataset is organized locally: 50 mp4 clips across five categories.
+- [x] Active dataset has matching local annotation CSV files for all 50 clips.
 - [x] Non-current paper plans, operation records, generated reports, PDFs, and placeholder figures were archived.
 - [x] Current paper workspace now has a single status entry.
 
 ## Next Missing Work
 
-1. Annotate the active 36 clips, or explicitly choose a smaller labeled subset and record that scope.
-2. Update the runner/report path so it skips clips without CSV labels and reports missing-label counts clearly.
-3. Rerun main experiments and ablations on the chosen annotated scope.
-4. Generate real figures from reviewed outputs; do not use archived placeholder SVGs as evidence.
-5. Rewrite `paper_zh.md` and `paper_en.md` around the actual evaluated scope.
-6. Remove all TBDs, placeholder figure references, and unsupported 50-video/full-benchmark claims.
+1. Run a small smoke batch on the active annotated layout to confirm the runner reads the 50 direct child clips and CSV files correctly.
+2. Run the full 50-clip three-method experiment: `frame_wise`, `optical_flow`, and `proposed` with geometry, temporal, detail, and frequency metrics.
+3. Review the generated HTML reports and record any failed clips, frozen trackers, drift, or unusable metrics before aggregating.
+4. Rerun or extend ablations on the evaluated scope; the current four-clip ablation remains descriptive, and `no_offline_repair` is inconclusive.
+5. Generate real figures from reviewed outputs; do not use archived placeholder SVGs as evidence.
+6. Rewrite `paper_zh.md` and `paper_en.md` around the actual evaluated scope and replace every TBD.
 7. Add failure-case evidence for at least scrolling drift and hard tracker freeze.
 8. Rebuild PDFs only after the manuscript points to real figures and all numbers trace to committed CSV/JSON or retained runs.
