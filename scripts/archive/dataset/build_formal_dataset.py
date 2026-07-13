@@ -77,6 +77,23 @@ def build_sample_plan() -> list[SampleSpec]:
             )
         )
 
+    weak_border_sources = (
+        "VID20260712170738.mp4",
+        "VID20260712170803.mp4",
+        "VID20260712170822.mp4",
+        "VID20260712170854.mp4",
+        "VID20260712170915.mp4",
+    )
+    for index, source_name in enumerate(weak_border_sources):
+        samples.append(
+            SampleSpec(
+                category="weak_border",
+                clip_id=f"weak_border_{index + 1:02d}",
+                source_name=source_name,
+                start_seconds=0.0,
+            )
+        )
+
     return samples
 
 

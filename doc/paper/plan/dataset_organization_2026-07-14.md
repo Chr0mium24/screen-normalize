@@ -19,6 +19,7 @@ inputs/archive/raw_premodify_2026-07-14/
 | `scrolling` | `VID20260712165829.mp4` 从 0s 开始每 5s 切一段 | 10 |
 | `screen_video` | `VID20260712170039.mp4`、`VID20260712170115.mp4` 各切 5 段 | 10 |
 | `static` | 5 个短视频各取前 5s；`VID20260712170211.mp4` 切 5 段 | 10 |
+| `weak_border` | 5 个短视频各取前 5s | 5 |
 
 输出路径统一为：
 
@@ -39,6 +40,11 @@ inputs/<category>/<category>_<two_digit_id>.mp4
 | `static_04` | `VID20260712170428.mp4` | `0` |
 | `static_05` | `VID20260712170444.mp4` | `0` |
 | `static_06`–`static_10` | `VID20260712170211.mp4` | `0, 5, 10, 15, 20` |
+| `weak_border_01` | `VID20260712170738.mp4` | `0` |
+| `weak_border_02` | `VID20260712170803.mp4` | `0` |
+| `weak_border_03` | `VID20260712170822.mp4` | `0` |
+| `weak_border_04` | `VID20260712170854.mp4` | `0` |
+| `weak_border_05` | `VID20260712170915.mp4` | `0` |
 
 完整逐 clip 清单见 `doc/archive/paper_workspace_cleanup_2026-07-14/generated_outputs/dataset_5s_manifest_2026-07-14.csv`。
 
@@ -67,8 +73,9 @@ uv run python scripts/archive/dataset/build_formal_dataset.py \
 | `scrolling` | 10 | 4.983s–5.000s | 3840×2160 | 60 fps |
 | `screen_video` | 10 | 4.983s–5.000s | 3840×2160 | 60 fps |
 | `static` | 10 | 4.983s–5.000s | 3840×2160 | 60 fps |
+| `weak_border` | 5 | 5.000s–5.000s | 3840×2160 | 60 fps |
 
-总计生成 30 个 active clip。`premodify/` 已不存在于工作区根目录，根目录只保留项目目录。
+总计生成 35 个 active clip。`premodify/` 已不存在于工作区根目录，根目录只保留项目目录。
 
 ## Current dataset layout
 
@@ -82,6 +89,9 @@ inputs/
 │   └── ...
 ├── static/
 │   ├── static_01.mp4
+│   └── ...
+├── weak_border/
+│   ├── weak_border_01.mp4
 │   └── ...
 └── archive/
     └── raw_premodify_2026-07-14/
