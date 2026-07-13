@@ -127,3 +127,21 @@ Outcome:
 - Non-ok reason: `no overlapping annotation and estimate frames`
 
 Evidence files copied to `doc/paper/results/full_pipeline_first_pass/` include `batch.csv`, `aggregate_metrics.csv`, `all_metrics.csv`, per-metric tables, metric status tables, the figure manifest, and generated SVG figures.
+
+## Stage 4: Full Ablation First Pass Plan
+
+The main three-method run is kept separate from ablation outputs so that `make_paper_results.py` can read the main run without encountering ablation-only method IDs.
+
+Planned ablation command:
+
+```bash
+uv run scripts/run_batch.py --input inputs --methods no_reliability_gates no_trajectory_smoothing no_offline_repair --metrics geometry temporal detail frequency --run-dir runs/20260714_full_ablation_first_pass
+```
+
+Planned run directory:
+
+```text
+runs/20260714_full_ablation_first_pass
+```
+
+The corresponding `proposed` outputs for ablation comparison will be read from `runs/20260714_full_pipeline_first_pass`. The first pass will record failures and missing metrics without changing the algorithm.
