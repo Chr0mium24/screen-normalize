@@ -38,4 +38,30 @@ uv run scripts/paper/make_paper_results.py runs/20260714_full_pipeline_first_pas
 
 ## Results
 
-Pending. This file will be updated after each stage.
+## Stage 1: Smoke Batch
+
+Command:
+
+```bash
+uv run scripts/run_batch.py --videos inputs/static/static_01.mp4 inputs/scrolling/scrolling_01.mp4 inputs/screen_video/screen_video_01.mp4 inputs/weak_border/weak_border_01.mp4 inputs/hard/hard_01.mp4 --methods frame_wise optical_flow proposed --metrics geometry temporal detail frequency --run-dir runs/20260714_full_pipeline_smoke
+```
+
+Run directory:
+
+```text
+runs/20260714_full_pipeline_smoke
+```
+
+Outcome:
+
+- Batch status: 5/5 clips `ok`
+- Method videos: 15 `normalized.mp4` files
+- Metric JSON files: 60
+- Failed method or metric JSON files: 0
+- Run index: `runs/20260714_full_pipeline_smoke/index.html`
+- Per-clip reports: 5 `report.html` files
+
+Notes:
+
+- The active direct-child dataset layout was accepted by `scripts/run_batch.py`.
+- The smoke covered one clip from each active category.
