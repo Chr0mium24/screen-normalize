@@ -1,0 +1,1 @@
+The remaining failure modes occur when reflection, occlusion, or extreme low contrast makes the physical border ambiguous for a sustained period. The current gates, diagnostics, redetection, and hold behavior limit damage, while future work should improve adaptive search, multi-frame recovery, and confidence-aware output.

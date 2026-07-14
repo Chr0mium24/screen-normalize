@@ -1,0 +1,1 @@
+The equal rows are explained by execution counts, not by assuming that the safety modules have no value. After one initialization frame, the Profile observation is accepted on all 298 remaining frames, so the LK conflict branch, automatic redetection, and relaxed gates never alter the output.

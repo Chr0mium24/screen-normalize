@@ -1,0 +1,16 @@
+{
+  "stage": "stage3",
+  "lang": "zh",
+  "recommend": {
+    "image_usage": [
+      "provided"
+    ],
+    "generation_mode": "continuous"
+  },
+  "image_notes": {
+    "value": "只使用仓库现有的论文图和实验可视化素材，不使用 AI 或网络图片。优先复用 figure_01_pipeline.png 与 figure_05_qualitative.png；总体结果和分类结果根据现有数值重绘为可编辑矢量图，避免整页截图。"
+  },
+  "refine_spec": {
+    "value": false
+  }
+}

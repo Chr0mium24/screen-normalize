@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" data-pptx-page-role="content">
+  <rect id="background" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="screen-plane-motif">
+    <polygon points="820,126 1190,96 1220,626 850,654" fill="#EFF4F8" stroke="#0066FF" stroke-width="4"/>
+    <circle cx="820" cy="126" r="8" fill="#0066FF"/><circle cx="1190" cy="96" r="8" fill="#0066FF"/><circle cx="1220" cy="626" r="8" fill="#0066FF"/><circle cx="850" cy="654" r="8" fill="#0066FF"/>
+  </g>
+  <g id="conclusion-title">
+    <text x="56" y="86" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="54" font-weight="700" fill="#111827">The physical border should drive the homography</text>
+    <text x="56" y="144" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="42" font-weight="600" fill="#5B6472">Internal flow should only diagnose conflicts</text>
+    <line x1="56" y1="168" x2="786" y2="168" stroke="#111827" stroke-width="2"/>
+  </g>
+  <g id="takeaway-list">
+    <circle cx="80" cy="232" r="18" fill="#0066FF"/><text x="80" y="241" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#FFFFFF">1</text>
+    <text x="120" y="226" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="36" font-weight="700" fill="#111827">A border-first pipeline</text>
+    <text x="120" y="264" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#5B6472">Local profiles → robust lines → validated corners → smooth output</text>
+    <line x1="120" y1="292" x2="758" y2="292" stroke="#CFD8E3" stroke-width="2"/>
+    <circle cx="80" cy="356" r="18" fill="#14B8A6"/><text x="80" y="365" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#FFFFFF">2</text>
+    <text x="120" y="350" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="36" font-weight="700" fill="#111827">A clean aggregate win</text>
+    <text x="120" y="388" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#5B6472">Best RMSE, IoU, and temporal stability on the annotated set</text>
+    <line x1="120" y1="416" x2="758" y2="416" stroke="#CFD8E3" stroke-width="2"/>
+    <circle cx="80" cy="480" r="18" fill="#111827"/><text x="80" y="489" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#FFFFFF">3</text>
+    <text x="120" y="474" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="36" font-weight="700" fill="#111827">Robust where baselines break</text>
+    <text x="120" y="512" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#5B6472">Especially under scrolling content and weak physical borders</text>
+  </g>
+  <g id="metric-signature">
+    <text x="888" y="220" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="64" font-weight="700" fill="#0066FF">3.87 px</text>
+    <text x="892" y="254" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#1F2937">CORNER RMSE ↓</text>
+    <line x1="888" y1="286" x2="1168" y2="286" stroke="#CFD8E3" stroke-width="2"/>
+    <text x="888" y="370" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="64" font-weight="700" fill="#0066FF">0.996</text>
+    <text x="892" y="404" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#1F2937">QUADRILATERAL IoU ↑</text>
+    <line x1="888" y1="436" x2="1168" y2="436" stroke="#CFD8E3" stroke-width="2"/>
+    <text x="888" y="520" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="64" font-weight="700" fill="#0066FF">2.45</text>
+    <text x="892" y="554" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#1F2937">TRANSLATION VARIATION ↓</text>
+  </g>
+  <g id="closing-line">
+    <text x="56" y="620" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="42" font-weight="700" fill="#111827">Track the display, not the pixels moving inside it.</text>
+    <text x="56" y="666" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#5B6472">Thank you · Questions</text>
+  </g>
+  <g id="footer" data-pptx-role="footer">
+    <text x="1224" y="690" text-anchor="end" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" fill="#5B6472">13</text>
+  </g>
+</svg>

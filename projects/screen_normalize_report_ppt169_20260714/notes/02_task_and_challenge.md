@@ -1,0 +1,1 @@
+The hard part is not rectifying a single frame; it is keeping the screen plane stable while the camera and the content inside the screen move at the same time. Our key design choice is to let the physical border determine the homography and use internal optical flow only to diagnose conflicts.

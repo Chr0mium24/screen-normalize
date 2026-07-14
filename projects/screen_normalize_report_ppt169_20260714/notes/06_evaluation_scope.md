@@ -1,0 +1,1 @@
+The broader project set contains 50 videos and 14,985 frames, while the formal three-method ranking uses 10 annotated clips across five scene categories. The current comparable evidence covers corner accuracy, quadrilateral overlap, and temporal translation stability; detail and frequency-domain behavior are supporting observations rather than current numeric rankings.

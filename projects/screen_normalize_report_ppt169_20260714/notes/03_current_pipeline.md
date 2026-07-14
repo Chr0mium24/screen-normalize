@@ -1,0 +1,1 @@
+With the objective defined, this slide shows the complete pipeline. We initialize one quadrilateral, observe the four physical borders with local profiles, validate or recover the candidate, and finally smooth the trajectory before perspective normalization.

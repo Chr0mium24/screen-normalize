@@ -1,0 +1,1 @@
+The qualitative grid shows that the normalized view follows the physical display rather than the pixels moving inside it. On the hardest subset, frame-wise detection is slightly better in RMSE, but our method stays competitive in accuracy and gives the best temporal stability.

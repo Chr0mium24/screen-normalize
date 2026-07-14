@@ -1,0 +1,55 @@
+{
+  "canvas": "ppt169",
+  "audience": "ECE4512 课程教师、助教与同学；听众具备计算机视觉基础，需要在课堂汇报中快速理解方案、证据与局限。",
+  "content_divergence": "保持当前汇报大纲的章节顺序与核心结论；继续压缩项目背景、算法细节和普通方法介绍，将主要篇幅用于当前管线、逐帧/光流/本方案的定量比较、消融与失败分析；只使用仓库现有材料和数据，不新增未经支持的结论。",
+  "mode": "pyramid",
+  "visual_style": "swiss-minimal",
+  "delivery_purpose": "presentation",
+  "page_count": "13",
+  "color": {
+    "name": "",
+    "palette": {
+      "background": "#FFFFFF",
+      "secondary_bg": "#EFF4F8",
+      "primary": "#111827",
+      "accent": "#0066FF",
+      "secondary_accent": "#14B8A6",
+      "body_text": "#1F2937"
+    }
+  },
+  "icons": "tabler-outline",
+  "typography": {
+    "name": "",
+    "heading": {
+      "cjk": "Microsoft YaHei",
+      "css": "Arial, 'Microsoft YaHei', sans-serif",
+      "latin": "Arial",
+      "sample_cjk": "物理边框主导的屏幕归一化",
+      "sample_latin": "Physical-Border Screen Normalization"
+    },
+    "body": {
+      "cjk": "Microsoft YaHei",
+      "css": "Arial, 'Microsoft YaHei', sans-serif",
+      "latin": "Arial",
+      "sample_cjk": "在滚动与弱边框场景中保持准确且稳定。",
+      "sample_latin": "Accurate and stable under scrolling and weak borders."
+    },
+    "body_size": 32,
+    "sizes": {
+      "annotation": 24,
+      "subtitle": 42,
+      "title": 54
+    },
+    "body_size_unit": "px"
+  },
+  "formula_policy": "text-only",
+  "image_usage": [
+    "provided"
+  ],
+  "image_notes": "只使用仓库现有的论文图和实验可视化素材，不使用 AI 或网络图片。优先复用 figure_01_pipeline.png 与 figure_05_qualitative.png；总体结果和分类结果根据现有数值重绘为可编辑矢量图，避免整页截图。",
+  "generation_mode": "continuous",
+  "refine_spec": false,
+  "stage": "final",
+  "status": "confirmed",
+  "confirmed_at": "2026-07-14T20:52:43"
+}

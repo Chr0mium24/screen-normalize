@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" data-pptx-page-role="content">
+  <rect id="background" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header">
+    <text x="56" y="66" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="54" font-weight="700" fill="#111827">The three methods differ mainly</text>
+    <text x="56" y="122" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="54" font-weight="700" fill="#111827">in which evidence they trust</text>
+  </g>
+  <g id="method-comparison-table" data-pptx-replace-with="table">
+    <metadata type="application/json">{"name":"method_comparison","x":56,"y":158,"width":1168,"height":440,"strict_grid":true,"column_widths":[250,306,306,306],"row_heights":[72,92,92,92,92],"style":{"font_family":"Arial","font_size":20,"header_font_size":20,"header_fill":"#111827","header_text":"#FFFFFF","body_fill":"#FFFFFF","body_text":"#1F2937","band_fill":"#EFF4F8","border_color":"#CFD8E3","border_width":1,"padding":{"left":12,"right":12,"top":6,"bottom":6},"valign":"middle"},"columns":[{"text":"DECISION AXIS","bold":true},{"text":"FRAME-WISE","align":"ctr","bold":true},{"text":"OPTICAL FLOW","align":"ctr","bold":true},{"text":"PROPOSED","align":"ctr","bold":true}],"rows":[[{"text":"Primary evidence","bold":true},{"text":"Independent screen detection"},{"text":"Internal feature motion"},{"text":"Physical screen border","bold":true,"color":"#0066FF"}],[{"text":"State update","bold":true},{"text":"Restart every frame"},{"text":"Propagate previous corners"},{"text":"Fit four local border lines","bold":true}],[{"text":"Internal motion","bold":true},{"text":"Can perturb detections"},{"text":"Becomes false camera motion"},{"text":"Used only as a diagnostic","bold":true}],[{"text":"Failure signature","bold":true},{"text":"Jitter or frame-wise jumps"},{"text":"Accumulated drift"},{"text":"Hold or redetect when evidence fails","bold":true}]]}</metadata>
+    <rect x="56" y="158" width="1168" height="440" fill="#FFFFFF" stroke="#CFD8E3" stroke-width="2"/>
+    <rect x="56" y="158" width="1168" height="72" fill="#111827"/>
+    <rect x="918" y="230" width="306" height="368" fill="#EFF4F8"/>
+    <line x1="306" y1="158" x2="306" y2="598" stroke="#CFD8E3" stroke-width="2"/>
+    <line x1="612" y1="158" x2="612" y2="598" stroke="#CFD8E3" stroke-width="2"/>
+    <line x1="918" y1="158" x2="918" y2="598" stroke="#0066FF" stroke-width="3"/>
+    <line x1="56" y1="230" x2="1224" y2="230" stroke="#CFD8E3" stroke-width="2"/>
+    <line x1="56" y1="322" x2="1224" y2="322" stroke="#CFD8E3" stroke-width="2"/>
+    <line x1="56" y1="414" x2="1224" y2="414" stroke="#CFD8E3" stroke-width="2"/>
+    <line x1="56" y1="506" x2="1224" y2="506" stroke="#CFD8E3" stroke-width="2"/>
+    <text x="76" y="203" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#FFFFFF">DECISION AXIS</text>
+    <text x="459" y="203" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#FFFFFF">FRAME-WISE</text>
+    <text x="765" y="203" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#FFFFFF">OPTICAL FLOW</text>
+    <text x="1071" y="203" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#14B8A6">PROPOSED</text>
+    <text x="76" y="285" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#111827">Primary evidence</text>
+    <text x="459" y="276" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#1F2937"><tspan x="459" dy="0">Independent screen</tspan><tspan x="459" dy="28">detection</tspan></text>
+    <text x="765" y="276" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#1F2937"><tspan x="765" dy="0">Internal feature</tspan><tspan x="765" dy="28">motion</tspan></text>
+    <text x="1071" y="285" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#0066FF">Physical screen border</text>
+    <text x="76" y="377" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#111827">State update</text>
+    <text x="459" y="377" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#1F2937">Restart every frame</text>
+    <text x="765" y="368" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#1F2937"><tspan x="765" dy="0">Propagate previous</tspan><tspan x="765" dy="28">corners</tspan></text>
+    <text x="1071" y="368" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#111827"><tspan x="1071" dy="0">Fit four local</tspan><tspan x="1071" dy="28">border lines</tspan></text>
+    <text x="76" y="469" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#111827">Internal motion</text>
+    <text x="459" y="460" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#1F2937"><tspan x="459" dy="0">Can perturb</tspan><tspan x="459" dy="28">detections</tspan></text>
+    <text x="765" y="460" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#1F2937"><tspan x="765" dy="0">Becomes false</tspan><tspan x="765" dy="28">camera motion</tspan></text>
+    <text x="1071" y="460" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#111827"><tspan x="1071" dy="0">Consistency</tspan><tspan x="1071" dy="28">diagnostic only</tspan></text>
+    <text x="76" y="561" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#111827">Failure signature</text>
+    <text x="459" y="552" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#1F2937"><tspan x="459" dy="0">Jitter or</tspan><tspan x="459" dy="28">frame-wise jumps</tspan></text>
+    <text x="765" y="561" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#1F2937">Accumulated drift</text>
+    <text x="1071" y="552" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#111827"><tspan x="1071" dy="0">Hold or redetect</tspan><tspan x="1071" dy="28">on weak evidence</tspan></text>
+  </g>
+  <g id="takeaway">
+    <line x1="56" y1="630" x2="1224" y2="630" stroke="#0066FF" stroke-width="4"/>
+    <text x="56" y="666" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#0066FF">The advantage comes from a stable physical reference—not a heavier motion model.</text>
+  </g>
+  <g id="footer" data-pptx-role="footer">
+    <text x="1224" y="694" text-anchor="end" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" fill="#5B6472">05</text>
+  </g>
+</svg>

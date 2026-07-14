@@ -1,0 +1,1 @@
+verify-charts: 08_category_gains.svg | type=grouped-bar | mode=decomposable-calc | scale=0-160 (from ticks) | calc=ran×3 | value-mapped y/height unchanged (already accurate) | category x positions manually verified as layout spacing

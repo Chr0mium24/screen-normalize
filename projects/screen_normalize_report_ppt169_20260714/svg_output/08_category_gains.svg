@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" data-pptx-page-role="content">
+  <rect id="background" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header">
+    <text x="56" y="68" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="54" font-weight="700" fill="#111827">The largest gains appear under scrolling and weak borders</text>
+    <text x="56" y="112" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#5B6472">Corner RMSE in pixels · lower is better</text>
+  </g>
+  <g id="legend">
+    <rect x="620" y="94" width="18" height="18" fill="#9AA4B2"/><text x="650" y="110" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#5B6472">Frame-wise</text>
+    <rect x="796" y="94" width="18" height="18" fill="#5B6472"/><text x="826" y="110" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#5B6472">Optical flow</text>
+    <rect x="978" y="94" width="18" height="18" fill="#0066FF"/><text x="1008" y="110" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#0066FF">Proposed</text>
+  </g>
+  <g id="category-rmse-chart" data-pptx-replace-with="chart">
+    <metadata type="application/json">{"name":"category_rmse","x":72,"y":176,"width":820,"height":432,"type":"column","categories":["Scrolling","Weak border"],"series":[{"name":"Frame-wise","values":[31.76,157.26]},{"name":"Optical flow","values":[81.67,155.87]},{"name":"Proposed","values":[2.87,9.35]}],"style":{"colors":["#9AA4B2","#5B6472","#0066FF"]}}</metadata>
+    <g id="chartArea">
+      <line x1="110" y1="570" x2="870" y2="570" stroke="#111827" stroke-width="2"/>
+      <line x1="110" y1="210" x2="110" y2="570" stroke="#111827" stroke-width="2"/>
+      <!-- chart-plot-area: 110,210,870,570 -->
+      <line x1="110" y1="480" x2="870" y2="480" stroke="#CFD8E3" stroke-width="2" stroke-dasharray="6 6"/>
+      <line x1="110" y1="390" x2="870" y2="390" stroke="#CFD8E3" stroke-width="2" stroke-dasharray="6 6"/>
+      <line x1="110" y1="300" x2="870" y2="300" stroke="#CFD8E3" stroke-width="2" stroke-dasharray="6 6"/>
+      <line x1="110" y1="210" x2="870" y2="210" stroke="#CFD8E3" stroke-width="2" stroke-dasharray="6 6"/>
+      <text x="94" y="578" text-anchor="end" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" fill="#5B6472">0</text>
+      <text x="94" y="488" text-anchor="end" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" fill="#5B6472">40</text>
+      <text x="94" y="398" text-anchor="end" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" fill="#5B6472">80</text>
+      <text x="94" y="308" text-anchor="end" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" fill="#5B6472">120</text>
+      <text x="94" y="218" text-anchor="end" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" fill="#5B6472">160</text>
+      <rect x="172" y="498.5" width="64" height="71.5" fill="#9AA4B2"/>
+      <rect x="244" y="386.2" width="64" height="183.8" fill="#5B6472"/>
+      <rect x="316" y="563.5" width="64" height="6.5" fill="#0066FF"/>
+      <text x="204" y="486" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" font-weight="700" fill="#5B6472">31.76</text>
+      <text x="276" y="374" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" font-weight="700" fill="#5B6472">81.67</text>
+      <text x="348" y="550" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" font-weight="700" fill="#0066FF">2.87</text>
+      <text x="276" y="606" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#111827">Scrolling</text>
+      <rect x="574" y="216.2" width="64" height="353.8" fill="#9AA4B2"/>
+      <rect x="646" y="219.3" width="64" height="350.7" fill="#5B6472"/>
+      <rect x="718" y="549" width="64" height="21" fill="#0066FF"/>
+      <text x="606" y="204" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" font-weight="700" fill="#5B6472">157.26</text>
+      <text x="678" y="238" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" font-weight="700" fill="#FFFFFF">155.87</text>
+      <text x="750" y="536" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" font-weight="700" fill="#0066FF">9.35</text>
+      <text x="678" y="606" text-anchor="middle" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#111827">Weak border</text>
+    </g>
+  </g>
+  <g id="gain-callouts">
+    <rect x="932" y="194" width="292" height="174" fill="#EFF4F8" stroke="#0066FF" stroke-width="2"/>
+    <text x="960" y="236" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#0066FF">SCROLLING</text>
+    <text x="960" y="308" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="64" font-weight="700" fill="#111827">2.87 px</text>
+    <text x="960" y="342" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#5B6472">vs 31.76 / 81.67</text>
+    <rect x="932" y="392" width="292" height="174" fill="#FFFFFF" stroke="#0066FF" stroke-width="2"/>
+    <text x="960" y="434" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" font-weight="700" fill="#0066FF">WEAK BORDER</text>
+    <text x="960" y="506" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="64" font-weight="700" fill="#111827">9.35 px</text>
+    <text x="960" y="540" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="24" fill="#5B6472">vs 157.26 / 155.87</text>
+  </g>
+  <g id="footer" data-pptx-role="footer">
+    <text x="56" y="682" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" fill="#5B6472">CATEGORY-LEVEL RMSE · SAME ANNOTATED EVALUATION SET</text>
+    <text x="1224" y="682" text-anchor="end" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="18" fill="#5B6472">08</text>
+  </g>
+</svg>

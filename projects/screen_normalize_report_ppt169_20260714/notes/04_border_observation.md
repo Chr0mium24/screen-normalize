@@ -1,0 +1,1 @@
+The default estimator does not search the full image again on every frame. It samples narrow normal profiles around predicted edges, selects strong gradient responses, fits robust lines, and obtains updated corners from line intersections; LK motion remains a consistency check rather than the geometric driver.

@@ -1,0 +1,1 @@
+Across the annotated set, the proposed method wins all three aggregate metrics. It reduces corner RMSE to 3.87 pixels, raises quadrilateral IoU to 0.996, and lowers translation variation to 2.45 pixels per frame.
