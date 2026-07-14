@@ -42,6 +42,7 @@ METHOD_COLORS = {
     "optical_flow": "#7C8FB8",
     "proposal_border": "#2F7F73",
 }
+ELEVATED_RMSE_COLOR = "#7C8FB8"
 METHOD_MARKERS = {
     "frame_wise": "o",
     "optical_flow": "s",
@@ -426,7 +427,7 @@ def figure_04(args: argparse.Namespace, rows: list[dict[str, Any]]) -> None:
     proposed.sort(key=lambda row: (CATEGORIES.index(row["category"]), row["clip"]))
     labels = [clip_label(row) for row in proposed]
     x = np.arange(len(proposed))
-    colors = [METHOD_COLORS[PROPOSED_METHOD] if row["rmse"] <= 10 else "#B8842D" for row in proposed]
+    colors = [METHOD_COLORS[PROPOSED_METHOD] if row["rmse"] <= 10 else ELEVATED_RMSE_COLOR for row in proposed]
 
     fig, axes = plt.subplots(2, 1, figsize=(7.2, 4.35), sharex=True, constrained_layout=True)
     axes[0].bar(x, [row["rmse"] for row in proposed], color=colors, edgecolor="#2B2B2B", linewidth=0.6)

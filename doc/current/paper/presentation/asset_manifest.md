@@ -6,7 +6,7 @@ slide: 5
 method: copied from manuscript generated PNG; no crop applied
 crop_qa: pass
 preserved: full figure canvas, labels, axes, legends, and panel text retained where present
-size: 2541x807
+size: 4079x834
 purpose: 方法流程图
 
 asset: assets/figures/fig2_overall_results.png
