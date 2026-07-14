@@ -22,6 +22,7 @@ from screen_normalize.experiments.paper_style import apply_paper_style
 
 
 CATEGORIES = ("static", "scrolling", "screen_video", "weak_border", "hard")
+FIGURES = ("figure_01", "figure_02", "figure_03", "figure_04", "figure_05")
 EVAL_CLIPS = {
     "static": ("static_01", "static_02"),
     "scrolling": ("scrolling_01", "scrolling_02"),
@@ -67,6 +68,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--main-run", type=Path, default=Path("runs/20260714_small_sample_with_proposal_border"))
     parser.add_argument("--output", type=Path, default=Path("doc/current/paper/manuscript/figures"))
     parser.add_argument("--dpi", type=int, default=300)
+    parser.add_argument("--figures", nargs="+", choices=FIGURES, default=list(FIGURES), help="Subset of manuscript figures to build.")
     return parser.parse_args()
 
 
@@ -225,57 +227,118 @@ def metric_matrix(rows: list[dict[str, Any]], field: str) -> np.ndarray:
 
 def draw_pipeline(axis: plt.Axes) -> None:
     axis.set_axis_off()
-    labels = [
-        "Initial\ncorners",
-        "Border search\nbands",
-        "Physical edge\nevidence",
-        "Line fit and\nintersections",
-        "LK consistency\ncheck",
-        "Smooth and\nwarp",
-    ]
-    x0, width, gap = 0.02, 0.135, 0.032
-    for index, label in enumerate(labels):
-        x = x0 + index * (width + gap)
-        color = "#DDEEEA" if index in (2, 3) else "#E9EDF2"
+    axis.set_xlim(0, 1)
+    axis.set_ylim(0, 1)
+
+    def node(
+        xy: tuple[float, float],
+        size: tuple[float, float],
+        label: str,
+        facecolor: str,
+        edgecolor: str = "#65717C",
+        fontsize: float = 7.2,
+        linewidth: float = 0.85,
+    ) -> None:
+        x, y = xy
+        width, height = size
         box = patches.FancyBboxPatch(
-            (x, 0.30),
+            (x, y),
             width,
-            0.42,
-            boxstyle="round,pad=0.012,rounding_size=0.010",
-            linewidth=0.85,
-            edgecolor="#65717C",
-            facecolor=color,
+            height,
+            boxstyle="round,pad=0.010,rounding_size=0.012",
+            linewidth=linewidth,
+            edgecolor=edgecolor,
+            facecolor=facecolor,
         )
         axis.add_patch(box)
-        axis.text(x + width / 2, 0.51, label, ha="center", va="center", fontsize=8, color=TEXT)
-        if index < len(labels) - 1:
-            axis.annotate("", xy=(x + width + gap * 0.70, 0.51), xytext=(x + width, 0.51), arrowprops={"arrowstyle": "->", "lw": 1.0, "color": "#65717C"})
-    axis.text(0.02, 0.94, "Border-guided screen-plane normalization", ha="left", va="top", fontsize=9.5, fontweight="bold", color=TEXT)
-    axis.text(0.02, 0.12, "The screen boundary drives the homography; LK tracks are used as a consistency signal for content-motion conflicts.", ha="left", va="bottom", fontsize=7.8, color="#5B6470")
+        axis.text(x + width / 2, y + height / 2, label, ha="center", va="center", fontsize=fontsize, color=TEXT, linespacing=1.08)
+
+    def arrow(
+        start: tuple[float, float],
+        end: tuple[float, float],
+        *,
+        dashed: bool = False,
+        color: str = "#65717C",
+        rad: float = 0.0,
+        label: str | None = None,
+    ) -> None:
+        axis.annotate(
+            "",
+            xy=end,
+            xytext=start,
+            arrowprops={
+                "arrowstyle": "->",
+                "lw": 0.95,
+                "color": color,
+                "linestyle": "--" if dashed else "-",
+                "connectionstyle": f"arc3,rad={rad}",
+                "shrinkA": 2,
+                "shrinkB": 2,
+            },
+        )
+        if label:
+            x = (start[0] + end[0]) / 2
+            y = (start[1] + end[1]) / 2
+            axis.text(x, y + 0.025, label, ha="center", va="bottom", fontsize=6.4, color=color)
+
+    main_y = 0.57
+    width = 0.090
+    height = 0.175
+    gap = 0.014
+    x0 = 0.030
+    main_nodes = [
+        ("Initial\nscreen plane", "#E9EDF2"),
+        ("Predict four\nscreen sides", "#E9EDF2"),
+        ("Sample border\nsearch bands", "#DDEEEA"),
+        ("Select edge\ncandidates", "#DDEEEA"),
+        ("Robustly fit\nfour lines", "#DDEEEA"),
+        ("Intersect into\nquadrilateral", "#DDEEEA"),
+        ("Geometry gates\nand LK check", "#F1E8CF"),
+        ("Accepted\ntrajectory", "#E6EEF7"),
+        ("Frontal screen\nwarp", "#E6EEF7"),
+    ]
+    centers: list[tuple[float, float]] = []
+    for index, (label, color) in enumerate(main_nodes):
+        x = x0 + index * (width + gap)
+        node((x, main_y), (width, height), label, color)
+        centers.append((x + width / 2, main_y + height / 2))
+        if index > 0:
+            prev_x = x0 + (index - 1) * (width + gap)
+            arrow((prev_x + width, main_y + height / 2), (x, main_y + height / 2))
+
+    diagnostic_y = 0.265
+    diagnostic_nodes = [
+        ((0.335, diagnostic_y), "Sparse LK/RANSAC\non interior features", "#F4F5F5"),
+        ((0.473, diagnostic_y), "Content-motion\nconflict flag", "#F4F5F5"),
+    ]
+    for xy, label, color in diagnostic_nodes:
+        node(xy, (0.115, 0.145), label, color, edgecolor="#8A9299", fontsize=6.7)
+    arrow((0.450, diagnostic_y + 0.073), (0.473, diagnostic_y + 0.073), dashed=True, color="#8A9299")
+    arrow((0.588, diagnostic_y + 0.145), (centers[6][0], main_y), dashed=True, color="#8A9299", rad=-0.15, label="diagnostic")
+
+    fallback_y = 0.135
+    node((0.705, fallback_y), (0.120, 0.150), "If border evidence\nis missing", "#F7F0DF", edgecolor="#9A7D3E", fontsize=6.7)
+    node((0.850, fallback_y), (0.120, 0.150), "Redetect or carry\nlast valid quad", "#F7F0DF", edgecolor="#9A7D3E", fontsize=6.7)
+    arrow((centers[6][0], main_y), (0.765, fallback_y + 0.150), dashed=True, color="#9A7D3E", rad=-0.18, label="fallback")
+    arrow((0.825, fallback_y + 0.075), (0.850, fallback_y + 0.075), dashed=True, color="#9A7D3E")
+    arrow((0.910, fallback_y + 0.150), (centers[7][0], main_y), dashed=True, color="#9A7D3E", rad=-0.10)
+
+    axis.text(0.030, 0.935, "Border-guided screen-plane normalization", ha="left", va="top", fontsize=9.6, fontweight="bold", color=TEXT)
+    axis.text(
+        0.030,
+        0.055,
+        "Physical border evidence determines the homography; LK/RANSAC tracks diagnose content-motion conflicts and rejected border frames trigger redetection or carry-forward fallback.",
+        ha="left",
+        va="bottom",
+        fontsize=7.1,
+        color="#5B6470",
+    )
 
 
 def figure_01(args: argparse.Namespace) -> None:
-    category, clip = "scrolling", "scrolling_02"
-    video = args.input / category / f"{clip}.mp4"
-    frame, ground_truth = annotation_frame(video)
-    input_frame = read_frame(video, frame)
-    estimate = corners_at(args.main_run / category / clip / PROPOSED_METHOD / "estimated_corners.csv", frame)
-    proposed = normalized_frame(args.main_run, category, clip, PROPOSED_METHOD, frame)
-    optical = normalized_frame(args.main_run, category, clip, "optical_flow", frame)
-
-    fig = plt.figure(figsize=(7.2, 2.9), constrained_layout=True)
-    grid = fig.add_gridspec(2, 4, height_ratios=[0.58, 1.25])
-    draw_pipeline(fig.add_subplot(grid[0, :]))
-    panels = [
-        (overlay_corners(input_frame, ground_truth, color=(90, 90, 90)), "Input + annotation"),
-        (overlay_corners(input_frame, estimate), "Border estimate"),
-        (optical, "Optical-flow output"),
-        (proposed, "Proposed output"),
-    ]
-    for index, (image, title) in enumerate(panels):
-        axis = fig.add_subplot(grid[1, index])
-        show_image(axis, image, title)
-        add_panel_label(axis, chr(ord("a") + index))
+    fig, axis = plt.subplots(figsize=(7.2, 2.65))
+    fig.subplots_adjust(left=0.02, right=0.985, top=0.98, bottom=0.04)
+    draw_pipeline(axis)
     save(fig, args.output / "figure_01_pipeline.png", args.dpi)
 
 
@@ -400,14 +463,23 @@ def main() -> int:
     args = parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     apply_paper_style()
-    rows = collect_metrics(args.main_run)
-    if len(rows) != len(CATEGORIES) * 2 * len(METHODS):
-        raise RuntimeError(f"expected 30 method/clip metric rows, found {len(rows)}")
-    figure_01(args)
-    figure_02(args, rows)
-    figure_03(args, rows)
-    figure_04(args, rows)
-    figure_05(args)
+    requested = set(args.figures)
+    if "figure_01" in requested:
+        figure_01(args)
+
+    rows: list[dict[str, Any]] = []
+    if requested & {"figure_02", "figure_03", "figure_04"}:
+        rows = collect_metrics(args.main_run)
+        if len(rows) != len(CATEGORIES) * 2 * len(METHODS):
+            raise RuntimeError(f"expected 30 method/clip metric rows, found {len(rows)}")
+    if "figure_02" in requested:
+        figure_02(args, rows)
+    if "figure_03" in requested:
+        figure_03(args, rows)
+    if "figure_04" in requested:
+        figure_04(args, rows)
+    if "figure_05" in requested:
+        figure_05(args)
     print(f"wrote manuscript figures to {args.output}")
     return 0
 

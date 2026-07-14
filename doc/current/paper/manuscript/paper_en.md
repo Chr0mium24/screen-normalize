@@ -45,7 +45,7 @@ The input is a handheld video containing one visible display. The output is a vi
 
 The proposed method estimates each new screen quadrilateral from the physical screen boundary (Figure 1). The previous accepted quadrilateral predicts the approximate position of the four screen sides. Around each side, the method samples image profiles along the inward normal direction and selects high-gradient border candidates close to the predicted side. The candidate points for each side are fitted with a robust line model, and adjacent line intersections form the current quadrilateral.
 
-![Figure 1. Border-guided screen-plane normalization. The method initializes the screen plane, searches near the predicted physical borders, fits four edge lines, checks consistency against internal LK/RANSAC motion, and renders a frontal output.](figures/figure_01_pipeline.png)
+![Figure 1. Border-guided screen-plane normalization workflow. Physical border evidence drives the homography estimate; LK/RANSAC is used only as a consistency diagnostic for internal content motion, and missing border evidence triggers redetection or carry-forward fallback.](figures/figure_01_pipeline.png)
 
 This design changes the role of optical flow. Instead of allowing interior features to determine the screen homography, the method computes LK/RANSAC motion as a consistency signal. If internal tracks disagree with the border quadrilateral, the frame is marked as a content-motion conflict. A valid boundary estimate is still used, because such disagreement is expected when content scrolls or video plays inside the display.
 
