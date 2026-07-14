@@ -9,276 +9,163 @@ lang: en-US
 geometry: margin=22mm
 fontsize: 10pt
 papersize: a4
-header-includes:
-  - |
-    ```{=latex}
-    \usepackage{booktabs}
-    \usepackage{microtype}
-    ```
 ---
 
 # Abstract
 
-Videos of computer displays are commonly captured with handheld phones when direct screen recording is unavailable or inappropriate. The resulting footage contains background clutter, projective distortion, camera shake, weak screen boundaries, and screen content that may scroll or play independently of the camera. These effects must be separated before downstream tasks such as screen-content restoration or demoiréing can operate on a stable screen-coordinate signal. This paper presents a classical computer-vision pipeline that detects or initializes a screen quadrilateral, tracks the screen plane against a fixed reference using pyramidal Lucas--Kanade features and a RANSAC homography, rejects geometrically unreliable updates, repairs and smooths the corner trajectory, and renders a frontal video with optional residual alignment. The evaluation protocol compares frame-wise detection, adjacent-frame optical flow, and the proposed reference-anchored pipeline on a planned 50-clip dataset spanning five real-world scenarios. Geometry, temporal stability, detail preservation, and frequency-domain behavior are evaluated separately so that improved stability is not conflated with sharpness or moiré removal. On the completed formal dataset, the proposed method achieves **[TBD-GEOMETRY]** corner error, **[TBD-TEMPORAL]** residual translation, and **[TBD-DETAIL]** edge preservation, compared with **[TBD-BASELINES]** for the two baselines. These results will determine whether the additional robustness stages improve screen-plane stability without unacceptable geometric or resampling cost.
+Handheld videos of computer displays are often used when direct screen recording is unavailable or inappropriate. These videos include background clutter, projective distortion, camera shake, weak screen borders, and screen content that may scroll or play independently of the physical monitor. This paper implements and evaluates a classical computer-vision front end for this setting. The pipeline initializes a screen quadrilateral, tracks the screen plane against a fixed reference frame with pyramidal Lucas-Kanade features and a RANSAC homography, rejects unreliable updates with explicit gates, repairs and smooths the corner trajectory, and renders a frontal screen-coordinate video. The first-pass experiment processes 50 real captured-screen videos and 14985 frames across five categories: hard, screen_video, scrolling, static, and weak_border. All three evaluated methods, frame-wise detection, adjacent-frame optical flow, and the proposed reference-anchored pipeline, completed all clips. Geometry evaluation used 45 clips and 179 non-initialization annotated frames after excluding frame 0, which is used for initialization. The proposed method obtained a median corner RMSE of 191.83 px, median quadrilateral IoU of 0.849, and median relative aspect-ratio error of 0.8%. The corresponding values were 32.56 px, 0.979, and 2.0% for Frame-wise, and 34.88 px, 0.973, and 2.1% for Optical flow. The proposed method produced much smaller trajectory-derived translation variation, 0.254 px/frame versus 4.886 and 12.311 px/frame for the baselines, but its median edge-preservation index was 0.347, below 0.494 and 0.482 for the baselines. The results show that reference anchoring and conservative gates can produce a smoother estimated trajectory, but the current implementation often freezes or propagates wrong geometry under dynamic content, weak borders, and long rejection periods. The system is therefore best understood as a reproducible geometric preprocessing framework and improvement baseline, not as a completed demoireing method or an overall winner against the baselines.
 
 **Keywords:** screen rectification; video stabilization; homography; optical flow; captured-screen video; projective geometry
 
 # 1. Introduction
 
-Recording a physical display with a handheld camera is a simple way to preserve a presentation, demonstrate software, or document content on a device that cannot be directly recorded. Unlike a native screen recording, however, a camera observation includes the display's surroundings and is affected by viewpoint, lens sampling, hand motion, glare, partial occlusion, and exposure changes. The output is therefore neither a conventional scene video nor a clean screen capture. A useful front end must first identify the screen plane, remove its perspective distortion, and produce a temporally stable coordinate system.
+Recording a physical display with a handheld camera is a common way to preserve a presentation, demonstrate software, or capture content on a device that cannot be directly recorded. Unlike a native screen recording, a camera observation includes the display surroundings and is affected by viewpoint, lens sampling, hand motion, glare, partial occlusion, and exposure changes. A useful downstream system for screen restoration, demoireing, or OCR must first identify the screen plane, remove perspective distortion, and create a stable screen-coordinate signal.
 
-Captured-screen restoration and demoiréing research establishes the importance of recovering content degraded by the interaction between a display and a camera. Such restoration is easier to define once the screen region is cropped or aligned. In an uncontrolled user video, that assumption is itself a substantial preprocessing problem: the visible content may scroll, animate, or play a video while the physical display moves only because of the camera. A tracker that follows all interior texture can confuse content motion with screen motion. Conversely, detecting the screen independently in every frame can convert small detection errors into visible jitter.
+The geometric front end is not trivial. Visible screen content may scroll, animate, or play video while the physical display moves only because of camera motion. A tracker that follows all internal texture can confuse content motion with screen motion. Conversely, detecting the screen independently in every frame can convert small detection errors into visible output jitter. This work estimates a time-varying screen quadrilateral from full handheld scene videos and renders frontal screen videos with explicit diagnostics.
 
-This work studies the missing geometric front end. We model the display as a planar quadrilateral and estimate a screen-to-image homography over time. The implemented pipeline anchors tracked features to a fixed reference screen plane rather than accumulating only adjacent-frame motion. Forward--backward flow, RANSAC support, reprojection error, spatial coverage, and quadrilateral-change gates determine whether an update is usable. Rejected observations do not immediately alter the output trajectory: the system holds the last accepted geometry online, then applies offline interpolation and robust temporal filtering before rendering. A bounded residual-alignment stage compensates for small motion that remains after the main warp.
+The project makes four practical contributions:
 
-The contributions of the project are:
+1. a reproducible workflow from full-scene videos and sparse four-corner annotations to rectified videos, structured metrics, and per-clip HTML audit reports;
+2. a reference-anchored screen-plane tracker with acceptance diagnostics, failure holding, offline repair, and temporal smoothing;
+3. a controlled comparison against frame-wise detection and adjacent-frame optical flow on 50 real videos; and
+4. an evaluation protocol that separates geometric accuracy, trajectory variation, detail preservation, and frequency diagnostics.
 
-1. a reproducible end-to-end workflow from full-scene video and sparse four-corner annotations to rectified video, structured metrics, and per-clip audit reports;
-2. a reference-anchored screen-plane tracker with explicit acceptance diagnostics, failure holding, trajectory repair, and temporal smoothing;
-3. a controlled comparison with frame-wise detection and adjacent-frame optical-flow baselines across five planned scene categories; and
-4. an evaluation protocol that separates geometric accuracy, temporal variation, aligned detail preservation, and frequency diagnostics.
-
-The current implementation should not be interpreted as a demoiréing system. It performs geometric normalization and resampling, and its Fourier analysis reports directional regularity and high-frequency changes only. It also differs from the original proposal in one important respect: physical border lines do not yet provide the primary per-frame motion estimate. This boundary is retained throughout the paper so that experimental claims remain consistent with executable code.
+The implementation should not be interpreted as a demoireing system. It performs geometric normalization and resampling only. The Fourier analysis reports directional regularity and high-frequency structure after rectification; it is not a moire-suppression score. The current implementation also differs from the original proposal: physical border lines are not yet the dominant evidence for per-frame motion estimation. All claims in this paper are limited to the code that was actually run.
 
 # 2. Related Work
 
-## 2.1 Captured-screen restoration
+Captured-screen restoration and video demoireing methods usually assume that the screen region is already well cropped or aligned. Dai et al. build spatially and temporally aligned captured/clean video pairs and learn relation-based temporal consistency [16]. Xu et al. combine direction-aware frequency processing, alignment, color correction, and detail refinement [17]. Yue et al. study raw-domain screen recapture and modulation-based restoration [18]. These works focus on content restoration. The present work addresses the preceding front end: producing a frontal screen-coordinate video from a full handheld scene.
 
-Recent video demoiréing work treats camera-captured displays as a restoration problem. Dai *et al.* construct spatially and temporally aligned captured/clean videos and learn relation-based temporal consistency [16]. Xu *et al.* combine direction-aware frequency processing, alignment, color correction, and detail refinement [17]. Yue *et al.* study raw-domain screen recapture and build aligned raw image and video data [18]. These methods address moiré removal and content restoration after controlled acquisition and alignment. Our task is complementary: it starts from a full handheld scene and produces the frontal screen-coordinate video that a restoration model could consume. The distinction also explains why the present FFT measurements are diagnostics rather than demoiréing scores.
+Planar document and screen rectification rely on the same projective geometry: a planar surface observed by a perspective camera is mapped to a frontal coordinate system by a homography. Camera-based document analysis has used page borders, line evidence, layout cues, and vanishing points to recover frontal document images [1--4]. Screen-camera calibration also treats the display as a planar projective surface, although controlled projected patterns provide evidence unavailable in ordinary handheld recordings [4]. These methods support the geometric model used here, but single-image rectification applied frame by frame does not guarantee temporal continuity.
 
-## 2.2 Planar document and screen rectification
+The tracker uses classic feature tracking and robust model fitting. Lucas-Kanade registration [7] and its pyramidal implementation [8] support local tracking under larger displacements, while Shi-Tomasi features [9] provide trackable corners. RANSAC and related robust estimators [10] estimate homographies when incorrect correspondences are present. Video-stabilization research further shows that path smoothing, geometric distortion, and crop cost should be evaluated separately [11--14]. Our target is narrower: only the physical screen plane is stabilized, and the output canvas is the screen rectangle itself. This removes the usual background crop trade-off but introduces ambiguity between camera motion and dynamic screen content.
 
-A planar surface observed by a perspective camera is related to a frontal coordinate system by a homography. Camera-based document analysis has consequently used page boundaries, layout cues, text structure, and vanishing points to recover frontal document views [1--4]. Jagannathan and Jawahar organize perspective correction around the available geometric evidence, while Yin *et al.* combine line information and vanishing-point detection for mobile document images [1,2]. Williem *et al.* emphasize computationally efficient boundary extraction and robust rectification on smartphones [3]. Screen--camera calibration likewise treats the screen as a planar projective surface, although controlled projected patterns provide evidence unavailable in ordinary handheld recordings [4].
+# 3. Method
 
-These methods support the geometric model used here, but most address a single image or a controlled calibration sequence. Applying independent image rectification to video does not guarantee that the estimated quadrilateral varies smoothly. The present task therefore adds tracking, rejection, and temporal trajectory processing to planar rectification.
+## 3.1 Pipeline
 
-## 2.3 Line and vanishing-point evidence
+For each frame, the observed screen is represented by four ordered corners: top-left, top-right, bottom-right, and bottom-left. The system initializes the screen plane from manual frame-0 corners or from an automatic contour detector. It then selects Shi-Tomasi features inside the reference screen region. For a new frame, pyramidal LK optical flow tracks reference features into the current image, and a forward-backward check removes inconsistent matches. The remaining correspondences are used to estimate a RANSAC homography, which projects the reference quadrilateral into the current frame.
 
-Physical display borders and interface lines are useful because a frontal rectangular screen contains two approximately orthogonal direction families. The Line Segment Detector (LSD) provides a parameter-controlled method for extracting line segments [5], while vanishing-point methods group line evidence to infer scene directions [6]. Such evidence motivates the border-guided design in the project proposal. The current system uses contour-based initialization and line-based residual roll correction; full border-dominant motion estimation remains future implementation work. We therefore do not attribute current results to an LSD/Hough border tracker.
+Candidate updates must pass reliability checks, including minimum match count, RANSAC inlier count and ratio, median reprojection error, spatial coverage on the screen plane, quadrilateral area change, side-length ratios, and convexity. If an update fails, the online trajectory holds the last accepted quadrilateral. After all frames are processed, the trajectory is repaired by interpolation, robust median filtering, and exponential smoothing. Each frame is finally warped to a fixed frontal canvas. An optional residual-alignment step allows only small affine corrections after the main homography.
 
-## 2.4 Feature tracking and robust homography estimation
+![Figure 1. Implemented pipeline: input frame, screen quadrilateral evidence, reference tracking, homography estimation, reliability gates, trajectory repair and smoothing, and frontal rendering.](figures/figure_01_pipeline.png)
 
-Lucas and Kanade formulate image registration as an iterative alignment problem [7]. The pyramidal implementation extends the usable displacement range by solving from coarse to fine resolution [8]. Shi and Tomasi show that points with well-conditioned local gradients are more reliable for tracking [9]. These ideas underlie OpenCV's pyramidal LK tracker and good-features-to-track detector used in this project.
+## 3.2 Compared methods
 
-A homography estimated from tracked points is sensitive to incorrect correspondences. RANSAC-type estimators seek a model supported by an inlier subset; robust alternatives such as MLESAC further formalize model scoring [10]. Our implementation uses RANSAC and supplements it with minimum inlier count, inlier ratio, median reprojection error, screen-plane coverage, and quadrilateral geometry checks. This combination is intended to prevent a compact group of moving content features from controlling the entire screen transform, although formal evaluation on dynamic content is still required.
+The experiment compares three methods. Frame-wise estimates the screen quadrilateral independently in each frame and does not smooth the result. Optical flow propagates geometry from the previous frame to the current frame without fixed-reference anchoring. Proposed uses fixed-reference tracking, reliability gates, failure holding, offline interpolation, median filtering, exponential smoothing, and residual alignment. The recorded Proposed configuration for the formal run is `smooth=0.85`, `median_window=5`, `trajectory_window=9`, `interpolate=true`, `geometry_gate=true`, `reference_align=true`, and `reference_reliability_gates=true`.
 
-## 2.5 Video stabilization
+All methods process the same input clips and use the same frame-0 initialization, output canvas, encoder, annotations, and metric functions. The comparison therefore isolates the trajectory-estimation and temporal-processing choices as much as possible.
 
-Classical video stabilization estimates a camera-motion path, smooths that path, and renders compensated frames. Grundmann *et al.* use robust L1 optimization to encourage simple camera motions [11]. Sánchez compares parametric motion-smoothing strategies and demonstrates that the choice of motion model and temporal filter affects both stability and distortion [12]. Bradley *et al.* formulate stabilization in log-homography space to retain projective motion while imposing cinematic path priors [13]. Evaluation frameworks consequently separate motion stability from cropping and geometric distortion [14].
+# 4. Dataset and Evaluation Protocol
 
-Our objective is narrower: only the physical screen plane is stabilized, and the target canvas is the screen rectangle itself. This removes the usual background crop trade-off but introduces a different ambiguity between camera motion and dynamic screen content. The present method uses a fixed reference plane and conservative update gates instead of optimizing a general camera path.
+## 4.1 Dataset
 
-# 3. Proposed Processing Pipeline
+The experiment uses 50 videos from `data/active`, totaling 14985 frames. The five categories each contain ten clips: `hard` for difficult viewpoints or backgrounds, `screen_video` for videos playing inside the display, `scrolling` for scrolling content, `static` for mostly static content, and `weak_border` for weak or low-contrast screen boundaries. Category is determined by folder name, and filename is the clip identifier.
 
-## 3.1 Overview and notation
+![Figure 2. Category distribution, frame counts, and representative frames from the 50 formal clips.](figures/figure_02_dataset.png)
 
-Let frame $I_t$ contain an observed screen quadrilateral
+Frame 0 is used for initialization and is excluded from geometry scoring. Human annotations provide the visible screen corners in top-left, top-right, bottom-right, bottom-left order. The 50 clips contain 228 annotated frames. After excluding initialization frames, 45 clips retain 179 matched annotated frames. Five `scrolling` clips have only frame-0 annotations, so their geometry metrics are skipped while they remain in temporal, detail, and frequency evaluations.
 
-$$
-Q_t = \{\mathbf{q}_{t,1},\mathbf{q}_{t,2},\mathbf{q}_{t,3},\mathbf{q}_{t,4}\},
-$$
+| Category | Clips | Frames |
+|---|---:|---:|
+| hard | 10 | 3000 |
+| screen_video | 10 | 2996 |
+| scrolling | 10 | 2995 |
+| static | 10 | 2994 |
+| weak_border | 10 | 3000 |
+| Total | 50 | 14985 |
 
-ordered as top-left, top-right, bottom-right, and bottom-left. The output rectangle is
+## 4.2 Metrics
 
-$$
-R = \{(0,0),(W-1,0),(W-1,H-1),(0,H-1)\}.
-$$
+Geometry is evaluated on non-initialization annotated frames using corner RMSE, quadrilateral IoU, and relative aspect-ratio error. Temporal stability is measured from the frame-to-frame projective change of each method's estimated screen quadrilateral and is decomposed into translation, rotation, and scale variation. This metric is a trajectory-derived diagnostic, not an independent proof of physical stabilization, because it shares information with the estimator being evaluated.
 
-The rectifying homography $H_t$ satisfies $\tilde{\mathbf r}_i \sim H_t\tilde{\mathbf q}_{t,i}$ in homogeneous coordinates. The processing sequence is initialization, method-specific trajectory estimation, reliability filtering, temporal repair and smoothing, projective warping, optional residual alignment, and video encoding.
+Detail preservation is measured on sampled frames using gradient-magnitude ratio and an edge-preservation index. Frequency diagnostics analyze FFT direction and orthogonality on fixed sampled frames. These frequency values describe directional regularity after geometric normalization; they do not measure demoireing quality. Results are aggregated per clip and reported as medians with interquartile ranges, with per-clip CSV and JSON files retained for audit.
 
-> TODO Figure 1: generate a real pipeline figure with input frame, screen-plane evidence, homography estimation, rectification, and stabilized output.
+The run environment was Windows 11, Python 3.12.13, OpenCV 5.0.0, NumPy 2.5.1, and FFmpeg 8.1. Runtime includes algorithm execution and metric generation but excludes manual annotation.
 
-## 3.2 Screen initialization
+# 5. Results
 
-The first screen quadrilateral is supplied manually or detected automatically. Automatic initialization converts the frame to HSV, thresholds a configurable color range, applies morphological closing and opening, selects the largest sufficiently large contour, and searches polygonal approximations for a valid convex quadrilateral. The result is ordered and checked for image bounds, convexity, area, and plausible geometry. This detector is deliberately lightweight and is not expected to cover every display appearance. A validated manual initialization remains available for difficult clips.
+## 5.1 Run completion
 
-The formal annotation tool is separate from initialization. It records sparse ground-truth corners in a CSV file with columns `frame, tl_x, tl_y, ..., bl_y`; these labels are used for evaluation and are not silently injected into automatic runs.
+The main run, `runs/20260714_full_pipeline_first_pass`, completed all 50 clips. The three methods produced 150 rectified videos, 600 metric JSON files, and 50 HTML audit reports. Total processing time was approximately 1111.2 s for Frame-wise, 1647.9 s for Optical flow, and 1800.3 s for Proposed. Median per-clip time was 22.3 s, 32.9 s, and 36.1 s, respectively.
 
-## 3.3 Baseline trajectories
+## 5.2 Overall metrics
 
-**Frame-wise detection** applies screen detection independently at each frame and does not use cross-frame smoothing. It measures how much temporal inconsistency is introduced when every frame is treated as an unrelated image.
+Table 2 summarizes the main metrics. Lower geometry, temporal, and frequency errors are better, while higher edge preservation is better. Proposed is the most stable in trajectory-derived translation, rotation, and scale variation, but it is not best in geometry or edge preservation.
 
-**Optical-flow tracking** propagates screen geometry from the preceding frame using interior features. When a new detection is available, a small correction can be blended with the flow prediction. Because this baseline follows adjacent content, scrolling or video playback may bias the transform and accumulate drift.
+| Metric | Frame-wise | Optical flow | Proposed |
+|---|---:|---:|---:|
+| Corner RMSE, px ↓ | 32.56 [8.98, 205.83] | 34.88 [27.79, 167.78] | 191.83 [3.56, 206.27] |
+| Quadrilateral IoU ↑ | 0.979 [0.855, 0.991] | 0.973 [0.892, 0.978] | 0.849 [0.810, 0.996] |
+| Relative aspect error ↓ | 2.0% [0.3%, 6.2%] | 2.1% [0.8%, 5.6%] | 0.8% [0.1%, 3.2%] |
+| Translation variation, px/frame ↓ | 4.886 [3.641, 8.354] | 12.311 [4.136, 13.648] | 0.254 [0.026, 3.411] |
+| Rotation variation, deg/frame ↓ | 0.037 | 0.048 | 0.0005 |
+| Scale variation, relative/frame ↓ | 0.0028 | 0.0048 | 0.0001 |
+| Gradient-magnitude ratio | 0.974 | 0.984 | 0.985 |
+| Edge-preservation index ↑ | 0.494 [0.409, 0.656] | 0.482 [0.459, 0.640] | 0.347 [0.192, 0.795] |
+| FFT orthogonality error, deg ↓ | 0.944 [0.000, 2.278] | 0.556 [0.000, 1.000] | 0.556 [0.000, 1.333] |
 
-Both baselines use the same output resolution, warping implementation, encoding settings, and metric code as the proposed method.
+## 5.3 Geometry
 
-## 3.4 Reference-anchored tracking
+Category-level geometry shows that Proposed has the lowest median error in `static`, where content motion is limited and reference anchoring is useful. However, it performs poorly in `hard`, `screen_video`, `scrolling`, and `weak_border`. The `scrolling` median reaches 801.48 px, indicating that internal content motion can still contaminate reference features or cause long failure holds. Frame-wise and Optical flow have similar overall median geometry errors and are both much lower than Proposed.
 
-The proposed implementation detects Shi--Tomasi features inside an eroded screen mask and stores their positions in a reference frame. For each subsequent frame, pyramidal LK flow predicts new positions. A backward flow from the current frame to the preceding frame yields the round-trip error
+![Figure 3. Category-wise corner RMSE, quadrilateral IoU, and aspect-ratio error.](figures/figure_03_geometry.png)
 
-$$
-e_i^{\mathrm{fb}} = \left\|\mathbf p_{t-1,i}-\hat{\mathbf p}_{t-1,i}\right\|_2.
-$$
+This constrains the interpretation of temporal stability. A smoother Proposed trajectory is useful only if the held or smoothed quadrilateral is still geometrically correct. The current version should therefore not claim overall geometric superiority over the baselines.
 
-Only points with successful forward and backward status and $e_i^{\mathrm{fb}}<\tau_{\mathrm{fb}}$ remain candidates. Points must also survive a minimum age before contributing to the homography. This prevents newly inserted points from immediately changing the screen plane.
+## 5.4 Trajectory variation and qualitative results
 
-The current-to-reference homography $G_t$ is estimated with RANSAC from mature correspondences. A candidate is accepted only if it satisfies thresholds on inlier count, inlier ratio, median reprojection error, and horizontal and vertical inlier coverage. The inverse transform maps the reference quadrilateral into the current frame:
+Proposed obtains a median trajectory-derived translation variation of 0.254 px/frame, much lower than 4.886 for Frame-wise and 12.311 for Optical flow. Rotation and scale variation follow the same pattern. Figure 4 shows that Proposed is especially smooth in `hard` and `weak_border`, while `scrolling` remains problematic. This matches the failure diagnostics: gates reduce jitter, but may also hide camera motion or wrong estimates by holding stale geometry.
 
-$$
-Q_t = G_t^{-1} Q_0.
-$$
+![Figure 4. Trajectory-derived translation, rotation, and scale variation across categories.](figures/figure_04_temporal.png)
 
-Finally, the quadrilateral must remain convex, inside the frame, and within maximum scale and area changes relative to the last accepted state. Accepted transforms are also used to reject high-reprojection-error tracks and to add fresh points while retaining their reference coordinates.
+The qualitative comparison shows the same trade-off. On static or clearly bounded screens, Proposed often appears more stable. On scrolling content and difficult views, it can crop, shift, or retain an old geometry too long. Figure 5 shows input frames and outputs selected with a fixed protocol.
 
-## 3.5 Failure handling and trajectory repair
+![Figure 5. Representative input frames and rectified outputs from the three methods.](figures/figure_05_qualitative.png)
 
-If flow fails, too few mature tracks remain, RANSAC fails, support is spatially concentrated, reprojection error is excessive, or the predicted quadrilateral is implausible, the online tracker appends the last accepted corners. This hold behavior avoids a sudden warp generated from an unsupported estimate. Every frame records its acceptance state and rejection reason in `debug.csv`.
+## 5.5 Detail and frequency diagnostics
 
-After the full trajectory is available, a second geometry gate checks scale and area changes between reliable observations. Rejected positions are replaced by linear interpolation between reliable corner coordinates. Endpoint gaps use the nearest reliable state. This repair converts isolated failures into a continuous trajectory but cannot reconstruct motion across a long unobserved interval; such intervals must be inspected as failure cases.
+The median gradient-magnitude ratio for Proposed is 0.985, close to the baselines. Its median edge-preservation index, however, is 0.347, below 0.494 for Frame-wise and 0.482 for Optical flow. This indicates that a smoother trajectory does not automatically preserve local edge alignment. The loss may come from geometry error, stale holds, extra resampling, or residual alignment.
 
-## 3.6 Temporal smoothing and residual alignment
+In the frequency diagnostics, Proposed and Optical flow both have a median FFT orthogonality error of 0.556 deg, lower than 0.944 deg for Frame-wise. Proposed also has lower axis-alignment error. This means that rectified output directions are more regular, not that moire artifacts are removed. Figure 6 summarizes the detail and frequency panels.
 
-The repaired corner trajectory is filtered first by a centered median window and then by a centered moving average:
+![Figure 6. Edge preservation, gradient-magnitude ratio, and frequency-direction diagnostics.](figures/figure_06_detail_frequency.png)
 
-$$
-\bar{Q}_t = \frac{1}{2k+1}\sum_{j=-k}^{k} Q'_{t+j},
-$$
+## 5.6 Ablation
 
-with endpoint replication. The median stage limits isolated corner jumps; the average suppresses remaining high-frequency variation. The formal experiment must report the chosen windows and include a no-smoothing ablation because a temporal metric derived from the same trajectory can otherwise favor smoothing by construction.
+The full ablation run, `runs/20260714_full_ablation_first_pass`, repeated all 50 clips. Removing reliability gates reduces median geometry RMSE from 191.83 px to 35.63 px and raises IoU from 0.849 to 0.968, but increases trajectory translation variation from 0.254 px/frame to 6.165 px/frame. Edge preservation also rises from 0.347 to 0.552. This shows that the present gates are too conservative: they strongly reduce trajectory variation but sacrifice much of the geometric fit and edge consistency. Removing trajectory smoothing leaves geometry almost unchanged and increases translation variation to 0.617 px/frame, showing that smoothing mainly affects temporal diagnostics. Removing offline repair is nearly identical to the full Proposed method on the primary metrics, suggesting that this module was not strongly triggered in the first-pass run.
 
-After the main projective warp, an optional residual stage tracks features in the normalized frame against a reference normalized image. Only small translation, rotation, and scale corrections passing support, coverage, and reprojection gates are retained. Corrections are step-limited and smoothed; the entire residual stage is disabled when its whole-video acceptance ratio is below a threshold. Stable horizontal interface lines may additionally estimate a bounded roll correction. These secondary corrections are diagnostic and conservative rather than substitutes for correct screen-plane tracking.
+![Figure 7. Proposed and three ablation variants across geometry, temporal, and detail metrics.](figures/figure_07_ablation.png)
 
-## 3.7 Rendering
+## 5.7 Failure cases
 
-Each smoothed quadrilateral is mapped to a fixed $W\times H$ canvas with a perspective transform. Optional fractional crops remove unreliable boundary pixels. Frames are encoded with H.264 settings shared by all methods, and the source audio is muxed into the final video. The pipeline writes `normalized.mp4`, `estimated_corners.csv`, `debug.csv`, `method.json`, metric JSON/CSV files, visual diagnostics, and a static audit report for every clip.
+Manual audit identified three representative failure modes. First, scrolling content creates reference features unrelated to the physical screen, leading to rejected or wrong updates; `scrolling_10` accepts only 2 of 300 frames. Second, weak borders or low texture leave too little reliable coverage; `weak_border_10` also accepts only 2 of 300 frames. Third, difficult viewpoints or occlusion can propagate early geometry errors; `hard_01` accepts only 3 of 300 frames. Figure 8 links visible output defects to acceptance diagnostics.
 
-# 4. Dataset and Annotation Protocol
+![Figure 8. Failure cases: scrolling drift, weak-border long holds, and hard-sample geometry propagation.](figures/figure_08_failures.png)
 
-## 4.1 Planned data collection
+# 6. Discussion
 
-The formal dataset is designed to contain 50 approximately five-second handheld videos, organized into five categories with ten clips each:
+The first-pass results do not support a strong claim that Proposed is better than the baselines on every axis. A more defensible interpretation is that reference anchoring, reliability gates, and trajectory smoothing substantially reduce short-term variation in the estimated trajectory, but the present gates often freeze the trajectory and may freeze the wrong geometry under dynamic content or weak boundaries. Temporal metrics must therefore be interpreted together with annotated geometry, edge preservation, and qualitative audit evidence.
 
-1. **Static:** webpages, PDF pages, or other fixed content;
-2. **Scrolling:** vertically or horizontally moving pages;
-3. **Screen video:** independently moving video content inside the display;
-4. **Weak border:** slides or low-contrast scenes in which the physical boundary is difficult to distinguish; and
-5. **Hard:** glare, high-frequency interference, partial screen loss, or other severe conditions.
+The ablation is the clearest engineering signal. The no-gates variant fits the annotated frames much better but is temporally less stable. The full Proposed method is much smoother but geometrically worse. The next improvement should therefore not be more smoothing; it should improve the evidence used to accept updates. The most direct path is to complete the proposal-level physical-border tracker: use LSD/Hough-style line evidence to estimate screen borders and intersections, and use interior features only for consistency checks rather than allowing screen content features to dominate the homography.
 
-Category is determined by the containing directory and the filename is the clip identifier. Resolution, frame rate, duration, device, illumination, and difficulty labels are not manually curated dataset metadata. Video properties may be read during decoding only as operational values. At the time of this pre-results draft, formal collection is **[TBD-DATASET-STATUS]** complete.
+The experiment has several limitations. The dataset is small and self-collected by the project team, so it cannot establish generalization across devices, display technologies, or capture distances. Geometry annotations are sparse, and several scrolling clips have only initialization-frame annotations, limiting geometry evidence for that category. The temporal metric is derived from the estimated trajectory itself and is not independent physical stabilization evidence. Detail and frequency metrics are diagnostics without paired clean screen recordings, so they do not evaluate demoireing quality. Finally, every perspective warp resamples the image; frontal geometry and stability can come at the cost of blur, ringing, or changed high-frequency structure.
 
-> TODO Figure 2: generate real examples for the five active dataset categories and add corner overlays after annotation.
+# 7. Conclusion
 
-## 4.2 Corner annotations
-
-Selected keyframes are annotated with the four visible screen corners in TL/TR/BR/BL order. The annotation tool loads existing CSV files, supports correction and deletion, validates coordinate bounds and convex non-degenerate geometry, and writes atomically. The final report must state the sampling interval, total number of annotated frames, number of annotators, and any repeated-annotation quality check: **[TBD-ANNOTATION-PROTOCOL]**.
-
-Annotations are used for geometry evaluation and for constructing a same-coordinate, same-scale reference in detail evaluation. No manually defined texture region of interest is required; the normalized image boundary is excluded automatically.
-
-# 5. Experimental Design
-
-## 5.1 Compared methods
-
-The three compared configurations are fixed before the formal run:
-
-- **Frame-wise:** independent detection; no cross-frame trajectory smoothing.
-- **Optical flow:** adjacent-frame feature propagation without reference anchoring, offline recovery, or residual alignment.
-- **Proposed:** reference-anchored tracking, reliability gates, hold/interpolation recovery, median-plus-average trajectory smoothing, and bounded residual alignment.
-
-All methods process the same clips and use the same canvas, encoder, annotated frames, and evaluation functions. Formal parameter values are inserted from `method.json`: **[TBD-PARAMETER-TABLE]**.
-
-## 5.2 Geometry
-
-For a matched annotated frame with predicted corners $\hat{\mathbf q}_i$ and ground truth $\mathbf q_i$, corner RMSE is
-
-$$
-E_c = \sqrt{\frac{1}{4}\sum_{i=1}^{4}\left\|\hat{\mathbf q}_i-\mathbf q_i\right\|_2^2}.
-$$
-
-Quadrilateral intersection over union is $\mathrm{IoU}=|P\cap G|/|P\cup G|$. Aspect ratio is computed from the mean top/bottom width divided by the mean left/right height; absolute and relative errors are reported. Results are aggregated over matched keyframes, by category and overall.
-
-## 5.3 Temporal stability
-
-The implemented metric decomposes the frame-to-frame projective change of the estimated screen quadrilateral into translation magnitude, rotation, and scale change. Per-frame series and mean, median, 95th percentile, and maximum absolute values are stored. This avoids measuring optical flow directly on dynamic screen pixels, but it is not independent of each method's estimated trajectory. Therefore, the main temporal claim must be corroborated by annotated geometry over time, a fixed physical screen structure, or an external residual measure before final submission. The report will use **[TBD-FINAL-TEMPORAL-DEFINITION]** as the primary definition and retain trajectory variation as a diagnostic if independence cannot be established.
-
-## 5.4 Detail preservation
-
-At annotated frames, the original image is warped using ground-truth corners to the exact output coordinate system. The normalized method output and this reference are compared at equal dimensions after excluding the outer boundary. Average Sobel gradient magnitude measures retained local contrast. Canny edge maps are dilated by one pixel to tolerate small registration errors; precision and recall are combined as an edge-preservation F1 score. Frames without a valid aligned reference are skipped rather than compared at inconsistent scale.
-
-## 5.5 Frequency diagnostics
-
-Sampled normalized frames are mean-centered, multiplied by a Hann window, and transformed with a two-dimensional FFT. After suppressing the direct-current neighborhood, high-magnitude frequency points vote in a 180-bin angular histogram. The primary direction and the strongest direction near its orthogonal complement define orthogonality and axis-alignment errors. These values characterize direction regularity after resampling. They do not quantify moiré removal and are interpreted alongside spectra and image crops rather than as a quality score with a universal optimum.
-
-## 5.6 Runtime, subsets, and statistical reporting
-
-Temporal evaluation and method success rate use all formal clips. Geometry uses every annotated keyframe. Any texture-rich detail subset, high-frequency subset, qualitative examples, or ablation subset is fixed before inspecting final results and listed in **[TBD-SUBSET-DEFINITION]**. For each metric, the paper reports sample count, mean and standard deviation or median and interquartile range according to distribution, plus per-clip points. Paired comparisons are used because all methods process the same clips. Statistical tests and confidence intervals, if used, are specified after checking distributional assumptions and are not added solely to decorate small pilot samples.
-
-The formal environment is **[TBD-HARDWARE]**, with Python **[TBD]**, OpenCV **[TBD]**, NumPy **[TBD]**, and FFmpeg **[TBD]**. Processing time excludes manual annotation and includes **[TBD-RUNTIME-BOUNDARY]**.
-
-# 6. Results
-
-> This section is structurally complete but intentionally contains no invented formal result. Replace every bracketed item from one reviewed formal run.
-
-## 6.1 Run completeness and success rate
-
-The formal run processed **[TBD-N-CLIPS]** clips and **[TBD-N-FRAMES]** frames. Frame-wise, Optical flow, and Proposed completed **[TBD-SUCCESS-FW]**, **[TBD-SUCCESS-OF]**, and **[TBD-SUCCESS-PR]** clips, respectively. Failures were defined before aggregation as **[TBD-SUCCESS-CRITERION]**. The distribution across the five categories is shown in **[TABLE/FIGURE TBD]**.
-
-## 6.2 Geometry accuracy
-
-Across **[TBD-N-ANNOTATED]** annotated keyframes, the Proposed method obtained a corner RMSE of **[TBD] px**, quadrilateral IoU of **[TBD]**, and relative aspect-ratio error of **[TBD]%**. The corresponding Frame-wise values were **[TBD]**, **[TBD]**, and **[TBD]**, while Optical flow obtained **[TBD]**, **[TBD]**, and **[TBD]**. The category-level results indicate **[TBD-DIRECTIONAL-FINDING]**. Any claim of improvement will be stated with paired uncertainty and the number of matched frames, not only the aggregate mean.
-
-> TODO Figure 3: generate category-wise geometry comparisons from a reviewed formal run.
-
-## 6.3 Temporal stability
-
-Under the final independent temporal definition, residual translation, rotation, and scale variation were **[TBD]**, **[TBD]**, and **[TBD]** for Proposed, compared with **[TBD]** for Frame-wise and **[TBD]** for Optical flow. Per-frame curves show **[TBD-CURVE-OBSERVATION]**. The largest method difference occurred in **[TBD-CATEGORY]**, whereas **[TBD-CATEGORY]** remained difficult because **[TBD-CAUSE]**. Trajectory-derived values are reported separately to avoid presenting smoothing of the estimator as independent evidence of physical stabilization.
-
-> TODO Figure 4: generate temporal translation, rotation, and scale curves from a formal run.
-
-> TODO Figure 5: export qualitative comparisons from audited frames selected under a fixed protocol.
-
-## 6.4 Detail and frequency behavior
-
-On **[TBD-N-DETAIL]** aligned frames, average gradient ratio and edge-preservation index were **[TBD]** and **[TBD]** for Proposed. Relative to the baselines, this represents **[TBD-NEUTRAL-COMPARISON]**. Local crops show whether the measured difference reflects preserved glyph edges, interpolation blur, or small alignment error.
-
-For the predefined frequency subset, the post-rectification direction and orthogonality statistics were **[TBD]**. Spectrum examples show **[TBD-DIAGNOSTIC-OBSERVATION]**. These measurements are reported as consequences of geometric normalization and resampling; they are not evidence of moiré suppression.
-
-> TODO Figure 6: generate detail-preservation and frequency-diagnostic panels from real outputs.
-
-## 6.5 Ablation and failure cases
-
-Removing consistency/reliability gates changed **[TBD-METRIC]** from **[TBD]** to **[TBD]**; removing trajectory smoothing changed it to **[TBD]**; removing failure recovery changed it to **[TBD]**. Because the current implementation does not contain the proposal's explicit border-versus-content consistency module, the final ablation name must match the code actually run.
-
-> TODO Figure 7: generate the ablation figure from `doc/paper/results/ablation/ablation_table.csv` or a new formal run.
-
-Manual audit identified **[TBD-N-FAILURES]** representative failure modes: **[TBD-FAILURE-1]**, **[TBD-FAILURE-2]**, and **[TBD-FAILURE-3]**. Each case is linked to tracker rejection diagnostics and a visible output defect.
-
-> TODO Figure 8: add real failure evidence for scrolling drift, hard-sample tracker freeze, and one additional limitation.
-
-# 7. Discussion
-
-## 7.1 Interpretation framework
-
-The central question is not whether the corner trajectory can be made numerically smooth; a sufficiently strong filter can always reduce its high-frequency variation. The useful question is whether the stabilized output remains geometrically correct while dynamic screen content, weak evidence, and temporary tracking failures are present. Geometry and detail results therefore constrain the interpretation of temporal gains. A method is preferable only when reduced residual motion does not arise from freezing an incorrect quadrilateral or over-smoothing genuine camera movement.
-
-If the formal results show an advantage over frame-wise detection, the likely mechanism is the use of a persistent reference plane and rejection of isolated detections. If the advantage is primarily over adjacent optical flow in scrolling and screen-video categories, that pattern would support the hypothesis that reference anchoring and mature-track gates reduce contamination by newly appearing content. These mechanisms should be claimed only when category-level results and ablations agree.
-
-Frequency results require a different interpretation. A smaller axis-alignment error can be an expected consequence of rectifying a rectangular display, while high-frequency energy may increase or decrease according to interpolation, scale, and the original sampling pattern. Neither direction alone defines better visual quality. Any visible moiré change belongs in a descriptive failure or diagnostic analysis unless paired clean-screen references and a dedicated restoration metric are introduced.
-
-## 7.2 Limitations
-
-First, the planned dataset is small and collected by the project team. It can test controlled engineering hypotheses but cannot establish broad device or display generalization. Second, automatic initialization is based on a simple appearance-specific contour detector; invisible borders, severe glare, occlusion, and partial screen loss can produce a wrong first plane. Third, current reference tracking still uses interior image features. Dynamic content is mitigated by reference anchoring, point age, RANSAC, and coverage gates, but it is not explicitly separated using independently tracked physical borders as proposed originally.
-
-Fourth, online failure handling holds the last accepted geometry and offline interpolation assumes that neighboring reliable states are informative. Long failures or rapid camera motion violate that assumption. Fifth, the residual-alignment stage can compensate for small errors but may also follow content if its gates are insufficient. Sixth, the present trajectory-based temporal metric shares information with the algorithm being evaluated and must not be the sole evidence of stabilization. Finally, every warp resamples the screen image; stability and frontal geometry may be gained at the cost of blur, ringing, or altered high-frequency patterns.
-
-## 7.3 Future work
-
-The most direct extension is to complete the proposal-level border-guided tracker: detect physical borders with LSD/Hough evidence, estimate their intersections and confidence, and use interior features only to test consistency. A learned screen detector could improve initialization while preserving the transparent geometric tracker. Longer occlusions could be handled by an explicit state model rather than linear interpolation. Evaluation should expand across devices, display technologies, viewing distances, and multiple screens, with a held-out protocol and repeated annotations. Finally, this geometric front end can be connected to a dedicated video demoiréing or restoration model, but the two stages should retain separate metrics.
-
-# 8. Conclusion
-
-This project develops a complete engineering path from a handheld full-scene screen video to a frontal, temporally processed screen-coordinate video. The current implementation combines screen-plane initialization, reference-anchored LK tracking, robust homography gates, failure holding, offline repair, temporal filtering, projective rendering, and auditable experiment outputs. It is evaluated against frame-wise detection and adjacent optical flow using separate geometry, temporal, detail, and frequency protocols. Final claims of superiority are deliberately deferred until the planned dataset, annotations, independent temporal measure, and ablations are complete. The resulting system is best understood as a geometric preprocessing front end for later screen-content restoration, not as a demoiréing method itself.
+This paper completes an end-to-end experimental pass for geometric normalization of real captured-screen videos. The pipeline processed 50 videos and produced rectified outputs, structured metrics, audit reports, manuscript figures, and reproducible documentation. The current Proposed method greatly reduces trajectory-derived translation, rotation, and scale variation, but it does not outperform the baselines in overall geometry or edge preservation. The system is best treated as an auditable geometric preprocessing framework and a baseline for further improvement. The next work should improve reliability gates and physical-border evidence before integrating the front end with demoireing or screen-content restoration models.
 
 # Data Availability
 
-The formal dataset is being collected for this course project and is not yet released. The final version will state which clips, annotations, representative frames, and derived metrics can be shared, together with any privacy restrictions. Pilot videos are development material and are not part of the formal evidence.
+The reported values come from `runs/20260714_full_pipeline_first_pass` and `runs/20260714_full_ablation_first_pass`. Aggregated CSV files, evidence notes, and figures are stored under `doc/paper/results/full_pipeline_first_pass`, `doc/paper/results/full_ablation_first_pass`, `doc/paper/evidence/full_pipeline_first_pass_2026-07-14.md`, and `doc/paper/manuscript/figures`. The raw videos are course-project data and require team review before any public release.
 
 # Code Availability
 
-The implementation is organized as reusable Python modules and `uv`-managed scripts. A formal run produces method outputs, per-frame CSV files, metric JSON files, visual diagnostics, and static HTML audit reports. The final version will provide the repository location, commit identifier, and the reviewed run used for every reported table and figure: **[TBD-CODE-RELEASE]**.
+The code is on branch `experiment/full-pipeline-first-pass`. Experiments are run with `uv`-managed Python scripts. Key evidence commits include `319b335` for refreshed first-pass evidence and `9896cd1` for manuscript figures. This manuscript revision is recorded by a later commit containing the complete paper source and exported files.
 
 # Author Contributions
 
-Project conception, implementation, data collection, annotation, experiment execution, analysis, visualization, and writing contributions will be recorded here after team review: **[TBD-AUTHOR-CONTRIBUTIONS]**.
+All three authors contributed to project framing, data collection, annotation, implementation, experiment execution, and manuscript preparation. The repository history records the concrete code, documentation, and experiment artifacts; individual contributions can be further itemized for the final course submission if required.
 
 # References
 
