@@ -350,6 +350,17 @@ def style_metric_axis(axis: plt.Axes, title: str, ylabel: str) -> None:
     axis.set_axisbelow(True)
 
 
+def label_bars(axis: plt.Axes, bars: Any, fmt: str, *, log_scale: bool = False, fontsize: float = 6.2) -> None:
+    for bar in bars:
+        height = float(bar.get_height())
+        x = bar.get_x() + bar.get_width() / 2
+        if log_scale:
+            y = height * 1.05
+        else:
+            y = height + 0.02 * (axis.get_ylim()[1] - axis.get_ylim()[0])
+        axis.text(x, y, fmt.format(height), ha="center", va="bottom", fontsize=fontsize, color=TEXT)
+
+
 def bar_metric(axis: plt.Axes, rows: list[dict[str, Any]], field: str, title: str, ylabel: str, log_scale: bool = False) -> None:
     medians, q1s, q3s = [], [], []
     for method in METHODS:
@@ -360,22 +371,16 @@ def bar_metric(axis: plt.Axes, rows: list[dict[str, Any]], field: str, title: st
     medians_arr = np.asarray(medians)
     yerr = np.vstack([medians_arr - np.asarray(q1s), np.asarray(q3s) - medians_arr])
     x = np.arange(len(METHODS))
-    axis.bar(x, medians_arr, yerr=yerr, color=[METHOD_COLORS[m] for m in METHODS], edgecolor="#2B2B2B", linewidth=0.7, capsize=3)
+    bars = axis.bar(x, medians_arr, yerr=yerr, color=[METHOD_COLORS[m] for m in METHODS], edgecolor="#2B2B2B", linewidth=0.7, capsize=3)
     axis.set_xticks(x, [METHOD_LABELS[m] for m in METHODS], rotation=18, ha="right")
     if log_scale:
         axis.set_yscale("log")
         axis.yaxis.set_major_formatter(mticker.ScalarFormatter())
         axis.yaxis.set_minor_formatter(mticker.NullFormatter())
     style_metric_axis(axis, title, ylabel)
-    for xpos, value in zip(x, medians_arr):
-        label = f"{value:.3f}" if field == "iou" else f"{value:.2f}"
-        if log_scale:
-            y = value * 1.05
-        elif field == "iou":
-            y = value + 0.0008
-        else:
-            y = value + 0.03 * max(medians_arr)
-        axis.text(xpos, y, label, ha="center", va="bottom", fontsize=7)
+    if field == "iou":
+        axis.set_ylim(0.965, 1.000)
+    label_bars(axis, bars, "{:.3f}" if field == "iou" else "{:.2f}", log_scale=log_scale, fontsize=7)
 
 
 def figure_02(args: argparse.Namespace, rows: list[dict[str, Any]]) -> None:
@@ -383,7 +388,6 @@ def figure_02(args: argparse.Namespace, rows: list[dict[str, Any]]) -> None:
     bar_metric(axes[0], rows, "rmse", "a  Corner accuracy", "RMSE px", log_scale=True)
     bar_metric(axes[1], rows, "iou", "b  Overlap", "IoU")
     bar_metric(axes[2], rows, "translation", "c  Trajectory variation", "px/frame")
-    axes[1].set_ylim(0.965, 1.000)
     save(fig, args.output / "figure_02_overall_results.png", args.dpi)
 
 
@@ -430,11 +434,15 @@ def figure_04(args: argparse.Namespace, rows: list[dict[str, Any]]) -> None:
     colors = [METHOD_COLORS[PROPOSED_METHOD] if row["rmse"] <= 10 else ELEVATED_RMSE_COLOR for row in proposed]
 
     fig, axes = plt.subplots(2, 1, figsize=(7.2, 4.35), sharex=True, constrained_layout=True)
-    axes[0].bar(x, [row["rmse"] for row in proposed], color=colors, edgecolor="#2B2B2B", linewidth=0.6)
+    rmse_bars = axes[0].bar(x, [row["rmse"] for row in proposed], color=colors, edgecolor="#2B2B2B", linewidth=0.6)
     style_metric_axis(axes[0], "a  Proposed geometry by clip", "RMSE px")
     axes[0].axhline(10, color="#B55D5D", linewidth=0.8, linestyle="--")
-    axes[1].bar(x, [row["translation"] for row in proposed], color=METHOD_COLORS[PROPOSED_METHOD], edgecolor="#2B2B2B", linewidth=0.6)
+    axes[0].set_ylim(0, max(row["rmse"] for row in proposed) * 1.18)
+    label_bars(axes[0], rmse_bars, "{:.1f}", fontsize=5.9)
+    translation_bars = axes[1].bar(x, [row["translation"] for row in proposed], color=METHOD_COLORS[PROPOSED_METHOD], edgecolor="#2B2B2B", linewidth=0.6)
     style_metric_axis(axes[1], "b  Proposed trajectory variation by clip", "px/frame")
+    axes[1].set_ylim(0, max(row["translation"] for row in proposed) * 1.20)
+    label_bars(axes[1], translation_bars, "{:.2f}", fontsize=5.9)
     axes[1].set_xticks(x, labels, rotation=35, ha="right")
     save(fig, args.output / "figure_04_proposed_clip_results.png", args.dpi)
 

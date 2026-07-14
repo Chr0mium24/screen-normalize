@@ -122,21 +122,18 @@ This behavior is different from a purely conservative gate that becomes stable b
 
 ## 5.4 Proposed-Method Ablation
 
-A targeted ablation on the representative scrolling clip tests the components added by the proposed method (Table 4). The main comparison baselines remain unchanged in the overall experiment; here they are reused only as no-border diagnostics. Without physical screen-boundary evidence, adjacent-frame optical flow reaches 76.114 px RMSE, and a reference-plane LK/RANSAC tracker reaches 643.949 px RMSE. The full border-guided method reaches 3.253 px RMSE and 0.996038 IoU on the same clip.
+A focused ablation on the representative scrolling clip keeps only the switchable modules that directly support the method claims (Table 4). All variants use the same initialization, output canvas, and metric code. The table tests trajectory filtering, LK consistency diagnostics, physical-border evidence, and the border-observation source.
 
-| Variant | Change tested | Corner RMSE, px ↓ | IoU ↑ | Translation variation, px/frame ↓ |
+| Variant | Module setting | Corner RMSE, px ↓ | IoU ↑ | Translation variation, px/frame ↓ |
 |---|---|---:|---:|---:|
-| Adjacent-frame optical flow | No physical border cue | 76.114 | 0.916022 | 2.205 |
-| Reference-plane LK/RANSAC | No physical border cue | 643.949 | 0.520994 | 4.579 |
-| Proposed, profile border | Full method | 3.253 | 0.996038 | 0.752 |
-| Without trajectory filter | Removes trajectory smoothing | 2.932 | 0.996585 | 1.430 |
-| Without LK consistency diagnostic | Disables internal-motion check | 3.253 | 0.996038 | 0.752 |
-| Without redetection fallback | Disables automatic fallback | 3.253 | 0.996038 | 0.752 |
-| Loose edge gates | Relaxes edge plausibility gates | 3.253 | 0.996038 | 0.752 |
-| LSD border observation | Replaces profile edge observation | 3.604 | 0.995716 | 0.961 |
-| Hough border observation | Replaces profile edge observation | 27.335 | 0.974200 | 0.897 |
+| Proposed, profile border | Current full chain: profile border observation + LK diagnostic | 3.253 | 0.996038 | 0.752 |
+| Without trajectory filtering | Median/trajectory windows set to 1 | 2.932 | 0.996585 | 1.430 |
+| Without LK consistency diagnostic | Border still defines the quadrilateral; internal-motion check disabled | 3.253 | 0.996038 | 0.752 |
+| Without physical border evidence | Adjacent-frame optical flow propagates the previous quadrilateral | 76.114 | 0.916022 | 2.205 |
+| LSD border observation | Replaces profile observation with LSD line segments | 3.604 | 0.995716 | 0.961 |
+| Hough border observation | Replaces profile observation with Hough lines | 27.335 | 0.974200 | 0.897 |
 
-The ablation identifies the physical-border cue as the decisive component. Removing it lets coherent scrolling content dominate the homography. Removing trajectory smoothing slightly lowers sparse annotated-frame RMSE on this clip, but it nearly doubles frame-to-frame translation variation, so the filter is kept for temporal stability. The LK diagnostic, redetection fallback, and edge-gate relaxations do not change this clip because profile border evidence succeeds on every frame; these rows therefore show that the clip is not stabilized by freezing or fallback. The detector rows are one border-observation ablation group: LSD is close but slower, while Hough is much less accurate, supporting the profile-based observation used in the main method.
+The ablation supports three conclusions. First, trajectory filtering mainly improves temporal stability rather than the single-frame median geometry: removing it lowers RMSE from 3.253 px to 2.932 px, but increases frame-to-frame translation variation from 0.752 to 1.430 px/frame. Second, LK/RANSAC is not the primary geometry driver in the proposed method: disabling the LK diagnostic leaves the result unchanged, so the quadrilateral on this clip is determined by border evidence. Third, the physical-border cue is decisive. Without it, adjacent-frame optical flow follows the coherent scrolling content and the corner RMSE rises to 76.114 px. The border-observation variants further support the profile sampler as the default: LSD is close but slightly worse, whereas Hough causes a clear geometry degradation on this clip.
 
 ## 5.5 Qualitative Comparison
 
