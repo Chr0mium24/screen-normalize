@@ -64,6 +64,37 @@ Unchanged Proposed modules:
 
 - `uv run pytest`: 25 passed
 
+## Category Smoke Rerun
+
+After applying the softer dynamic profile, a category smoke rerun was performed
+using 1--2 representative clips per class where outputs were already available
+from the interrupted tuned run, plus two newly completed `weak_border` clips.
+
+| Category | Clip | RMSE old -> tuned | Temporal old -> tuned | Accept old -> tuned | Read |
+|---|---|---:|---:|---:|---|
+| hard | `hard_01` | 191.83 -> 41.56 | 0.026 -> 7.098 | 3/300 -> 298/300 | geometry improved; freeze fixed |
+| hard | `hard_10` | 191.83 -> 41.56 | 0.026 -> 7.098 | 3/300 -> 298/300 | geometry improved; freeze fixed |
+| screen_video | `screen_video_07` | 192.88 -> 233.11 | 0.000 -> 0.400 | 1/300 -> 6/300 | still weak; slight unfreeze only |
+| screen_video | `screen_video_08` | 412.69 -> 344.56 | 0.529 -> 6.407 | 5/299 -> 59/299 | geometry improved; more motion followed |
+| scrolling | `scrolling_05` | 873.67 -> 1027.15 | 4.093 -> 5.175 | 149/299 -> 194/299 | more accepted frames but worse geometry |
+| scrolling | `scrolling_10` | NA -> NA | 0.003 -> 2.309 | 2/300 -> 300/300 | no non-initialization geometry labels |
+| static | `static_02` | 1.91 -> 1.91 | 2.644 -> 2.645 | 300/300 -> 300/300 | neutral |
+| static | `static_03` | 2.62 -> 2.17 | 3.426 -> 3.440 | 300/300 -> 300/300 | slight geometry improvement |
+| weak_border | `weak_border_03` | 188.20 -> 104.78 | 0.010 -> 9.087 | 2/300 -> 138/300 | geometry improved; freeze reduced |
+| weak_border | `weak_border_10` | 188.20 -> 104.78 | 0.010 -> 9.087 | 2/300 -> 138/300 | geometry improved; freeze reduced |
+
+Interpretation:
+
+- The tuning is effective for the original failure mode: tracker acceptance is
+  much higher on hard and weak-border samples.
+- The temporal metric increases because the tracker is no longer freezing stale
+  geometry for nearly the whole clip.
+- Static clips are effectively unchanged.
+- Scrolling remains the weak category. It accepts more updates, but those updates
+  can follow screen content rather than the physical screen, so geometry does not
+  necessarily improve. This points to the still-missing physical-border evidence
+  module rather than another smoothing change.
+
 ## Next Evaluation
 
 Run a full Proposed-only first pass with the tuned profile, then compare against
