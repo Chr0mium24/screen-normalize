@@ -1,0 +1,3342 @@
+{
+  "schema": "template_fill_pptx_library.v1",
+  "source_pptx": "D:\\wechat\\xwechat_files\\wxid_ru5dlpvby1rc12_1472\\msg\\file\\2026-07\\Proposal_13 (2).pptx",
+  "slide_count": 7,
+  "canvas_px": {
+    "width": 1280,
+    "height": 720
+  },
+  "slides": [
+    {
+      "slide_index": 1,
+      "page_type": "cover_candidate",
+      "text_summary": "ECE4512 FINAL PROJECT PROPOSAL · 2026\nScreen Capture Rectification and\nTemporal Stabilization for\nReal-world Captured-screen Videos\nRongshuo Wen  124020369      Bihua Wen  124090670\nMingrui Liu  124090375\nMotivation.  Screen demoiréing and screen-image restoration show captured-screen content is a real image-processing problem — yet most datasets start after the screen is already cropped, aligned, or paired with a clean reference.\nReal phone-captured video is far less controlled: background clut",
+      "slots": [
+        {
+          "slot_id": "s01_sh2",
+          "role": "title_candidate",
+          "text": "ECE4512 FINAL PROJECT PROPOSAL · 2026",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 67,
+            "y": 53,
+            "width": 730,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 19.41,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s01_sh3",
+          "role": "label_candidate",
+          "text": "Screen Capture Rectification and\nTemporal Stabilization for\nReal-world Captured-screen Videos",
+          "paragraph_count": 3,
+          "geometry": {
+            "x": 67,
+            "y": 96,
+            "width": 739,
+            "height": 192
+          },
+          "text_metrics": {
+            "font_size_px": 49.28,
+            "paragraph_count": 3
+          }
+        },
+        {
+          "slot_id": "s01_sh4",
+          "role": "body_candidate",
+          "text": "Rongshuo Wen  124020369      Bihua Wen  124090670\nMingrui Liu  124090375",
+          "paragraph_count": 2,
+          "geometry": {
+            "x": 69,
+            "y": 293,
+            "width": 730,
+            "height": 67
+          },
+          "text_metrics": {
+            "font_size_px": 21.65,
+            "paragraph_count": 2
+          }
+        },
+        {
+          "slot_id": "s01_sh5",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 67,
+            "y": 389,
+            "width": 739,
+            "height": 245
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s01_sh6",
+          "role": "body_candidate",
+          "text": "Motivation.  Screen demoiréing and screen-image restoration show captured-screen content is a real image-processing problem — yet most datasets start after the screen is already cropped, aligned, or paired with a clean reference.\nReal phone-captured video is far less controlled: background clutter, perspective, glare, moiré, and dynamic on-screen content. We tackle this missing geometric preprocessing step.",
+          "paragraph_count": 2,
+          "geometry": {
+            "x": 91,
+            "y": 408,
+            "width": 691,
+            "height": 186
+          },
+          "text_metrics": {
+            "font_size_px": 21.65,
+            "paragraph_count": 2
+          }
+        },
+        {
+          "slot_id": "s01_sh8",
+          "role": "label_candidate",
+          "text": "Our stage:  handheld capture  →  rectified screen",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 830,
+            "y": 300,
+            "width": 408,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 17.17,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s01_sh10",
+          "role": "label_candidate",
+          "text": "Downstream enabled:  video demoiréing on the stable output",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 830,
+            "y": 507,
+            "width": 408,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 17.17,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s01_sh11",
+          "role": "label_candidate",
+          "text": "This project is the geometry stage BEFORE restoration: locate, rectify, and stabilize the screen.",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 830,
+            "y": 543,
+            "width": 408,
+            "height": 96
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s01_sh12",
+          "role": "label_candidate",
+          "text": "ECE4512 Final Project Proposal · 2026",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 678,
+            "width": 768,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s01_sh13",
+          "role": "label_candidate",
+          "text": "1",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1094,
+            "y": 678,
+            "width": 125,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        }
+      ],
+      "tables": [],
+      "charts": [],
+      "diagrams": []
+    },
+    {
+      "slide_index": 2,
+      "page_type": "toc_candidate",
+      "text_summary": "THE GAP WE FILL\nProblem & Goal\nThe gap\n▸  Resent researchs assumes the screen is already cropped & aligned.\n▸  Real handheld video has off-screen background, perspective tilt, and frame-to-frame jitter.\n▸  Weak borders, glare and moiré make a single frame-by-frame detector unstable.\nGoal.  Continuously estimate the screen plane and render its content as a front-facing video that:\n•  suppresses non-screen background & perspective\n•  reduces hand-held jitter while keeping true content motion\n•  pr",
+      "slots": [
+        {
+          "slot_id": "s02_sh2",
+          "role": "title_candidate",
+          "text": "THE GAP WE FILL",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 33,
+            "width": 1162,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s02_sh3",
+          "role": "title_candidate",
+          "text": "Problem & Goal",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 60,
+            "width": 1162,
+            "height": 77
+          },
+          "text_metrics": {
+            "font_size_px": 44.8,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s02_sh4",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 60,
+            "y": 119,
+            "width": 86,
+            "height": 4
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s02_sh5",
+          "role": "title_candidate",
+          "text": "The gap",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 62,
+            "y": 149,
+            "width": 576,
+            "height": 38
+          },
+          "text_metrics": {
+            "font_size_px": 23.89,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s02_sh6",
+          "role": "body_candidate",
+          "text": "▸  Resent researchs assumes the screen is already cropped & aligned.\n▸  Real handheld video has off-screen background, perspective tilt, and frame-to-frame jitter.\n▸  Weak borders, glare and moiré make a single frame-by-frame detector unstable.",
+          "paragraph_count": 3,
+          "geometry": {
+            "x": 62,
+            "y": 190,
+            "width": 642,
+            "height": 165
+          },
+          "text_metrics": {
+            "font_size_px": 20.91,
+            "paragraph_count": 3
+          }
+        },
+        {
+          "slot_id": "s02_sh7",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 62,
+            "y": 418,
+            "width": 576,
+            "height": 226
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s02_sh8",
+          "role": "body_candidate",
+          "text": "Goal.  Continuously estimate the screen plane and render its content as a front-facing video that:\n•  suppresses non-screen background & perspective\n•  reduces hand-held jitter while keeping true content motion\n•  preserves physical aspect ratio  (default 1920×1080)",
+          "paragraph_count": 4,
+          "geometry": {
+            "x": 86,
+            "y": 437,
+            "width": 533,
+            "height": 192
+          },
+          "text_metrics": {
+            "font_size_px": 22.4,
+            "paragraph_count": 4
+          }
+        },
+        {
+          "slot_id": "s02_sh10",
+          "role": "label_candidate",
+          "text": "Same frame: raw handheld input  →  rectified, stable screen output",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 672,
+            "y": 619,
+            "width": 562,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 17.17,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s02_sh11",
+          "role": "label_candidate",
+          "text": "ECE4512 Final Project Proposal · 2026",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 678,
+            "width": 768,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s02_sh12",
+          "role": "label_candidate",
+          "text": "2",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1094,
+            "y": 678,
+            "width": 125,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        }
+      ],
+      "tables": [],
+      "charts": [],
+      "diagrams": []
+    },
+    {
+      "slide_index": 3,
+      "page_type": "content_candidate",
+      "text_summary": "APPROACH OVERVIEW\nMethod — Geometric Pipeline\nINPUT\nHandheld video\nscreen is one region\nin a full scene\nSTAGE 1\nInit plane\ndetect / set four\ncorners at t₀\nSTAGE 2\nTrack features\nLK tracks p₀ → pₜ\non the t₀ plane\nSTAGE 3\nEstimate Hₜ\nRANSAC screen-plane\nhomography\nSTAGE 4\nFilter trajectory\ngate, interpolate\n& smooth Hₜ\nOUTPUT\nRectified screen\nstable 16:9 video\nfor later modules\nDownstream after this stage:    video demoiréing    ·    OCR    ·    archival    ·    manual review\nReal example: tilted ",
+      "slots": [
+        {
+          "slot_id": "s03_sh2",
+          "role": "title_candidate",
+          "text": "APPROACH OVERVIEW",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 33,
+            "width": 1162,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh3",
+          "role": "title_candidate",
+          "text": "Method — Geometric Pipeline",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 60,
+            "width": 1162,
+            "height": 77
+          },
+          "text_metrics": {
+            "font_size_px": 44.8,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh4",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 60,
+            "y": 119,
+            "width": 86,
+            "height": 4
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh5",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 48,
+            "y": 156,
+            "width": 181,
+            "height": 240
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh6",
+          "role": "label_candidate",
+          "text": "INPUT",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 56,
+            "y": 168,
+            "width": 166,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.93,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh7",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 67,
+            "y": 202,
+            "width": 143,
+            "height": 59
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh8",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 67,
+            "y": 260,
+            "width": 143,
+            "height": 39
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh9",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 110,
+            "y": 217,
+            "width": 57,
+            "height": 39
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh10",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 117,
+            "y": 223,
+            "width": 43,
+            "height": 24
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh11",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 134,
+            "y": 256,
+            "width": 9,
+            "height": 10
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh13",
+          "role": "label_candidate",
+          "text": "Handheld video",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 53,
+            "y": 311,
+            "width": 172,
+            "height": 34
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh14",
+          "role": "label_candidate",
+          "text": "screen is one region\nin a full scene",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 53,
+            "y": 348,
+            "width": 172,
+            "height": 48
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh15",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 230,
+            "y": 238,
+            "width": 17,
+            "height": 31
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh16",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 248,
+            "y": 156,
+            "width": 181,
+            "height": 240
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh17",
+          "role": "label_candidate",
+          "text": "STAGE 1",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 256,
+            "y": 168,
+            "width": 166,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.93,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh18",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 268,
+            "y": 202,
+            "width": 143,
+            "height": 98
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh23",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 290,
+            "y": 225,
+            "width": 12,
+            "height": 12
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh24",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 376,
+            "y": 215,
+            "width": 12,
+            "height": 12
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh25",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 385,
+            "y": 268,
+            "width": 12,
+            "height": 12
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh26",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 285,
+            "y": 260,
+            "width": 12,
+            "height": 12
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh27",
+          "role": "label_candidate",
+          "text": "Init plane",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 253,
+            "y": 311,
+            "width": 172,
+            "height": 34
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh28",
+          "role": "label_candidate",
+          "text": "detect / set four\ncorners at t₀",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 253,
+            "y": 348,
+            "width": 172,
+            "height": 48
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh29",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 431,
+            "y": 238,
+            "width": 17,
+            "height": 31
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh30",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 449,
+            "y": 156,
+            "width": 181,
+            "height": 240
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh31",
+          "role": "label_candidate",
+          "text": "STAGE 2",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 457,
+            "y": 168,
+            "width": 166,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.93,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh32",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 474,
+            "y": 214,
+            "width": 37,
+            "height": 57
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh33",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 480,
+            "y": 223,
+            "width": 25,
+            "height": 25
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh34",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 521,
+            "y": 214,
+            "width": 37,
+            "height": 57
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh35",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 527,
+            "y": 223,
+            "width": 25,
+            "height": 25
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh36",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 568,
+            "y": 214,
+            "width": 37,
+            "height": 57
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh37",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 574,
+            "y": 223,
+            "width": 25,
+            "height": 25
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh40",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 488,
+            "y": 233,
+            "width": 9,
+            "height": 9
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh41",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 535,
+            "y": 233,
+            "width": 9,
+            "height": 9
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh42",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 582,
+            "y": 233,
+            "width": 9,
+            "height": 9
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh43",
+          "role": "label_candidate",
+          "text": "Track features",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 454,
+            "y": 311,
+            "width": 172,
+            "height": 34
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh44",
+          "role": "label_candidate",
+          "text": "LK tracks p₀ → pₜ\non the t₀ plane",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 454,
+            "y": 348,
+            "width": 172,
+            "height": 48
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh45",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 631,
+            "y": 238,
+            "width": 17,
+            "height": 31
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh46",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 649,
+            "y": 156,
+            "width": 181,
+            "height": 240
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh47",
+          "role": "label_candidate",
+          "text": "STAGE 3",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 657,
+            "y": 168,
+            "width": 166,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.93,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh48",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 669,
+            "y": 202,
+            "width": 143,
+            "height": 98
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh49",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 686,
+            "y": 210,
+            "width": 108,
+            "height": 78
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh51",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 698,
+            "y": 228,
+            "width": 10,
+            "height": 10
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh52",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 772,
+            "y": 226,
+            "width": 10,
+            "height": 10
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh53",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 735,
+            "y": 251,
+            "width": 10,
+            "height": 10
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh55",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 708,
+            "y": 248,
+            "width": 10,
+            "height": 10
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh57",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 749,
+            "y": 246,
+            "width": 10,
+            "height": 10
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh58",
+          "role": "label_candidate",
+          "text": "Estimate Hₜ",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 654,
+            "y": 311,
+            "width": 172,
+            "height": 34
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh59",
+          "role": "label_candidate",
+          "text": "RANSAC screen-plane\nhomography",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 654,
+            "y": 348,
+            "width": 172,
+            "height": 48
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh60",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 832,
+            "y": 238,
+            "width": 17,
+            "height": 31
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh61",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 850,
+            "y": 156,
+            "width": 181,
+            "height": 240
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh62",
+          "role": "label_candidate",
+          "text": "STAGE 4",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 858,
+            "y": 168,
+            "width": 166,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.93,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh75",
+          "role": "label_candidate",
+          "text": "Filter trajectory",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 855,
+            "y": 311,
+            "width": 172,
+            "height": 34
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh76",
+          "role": "label_candidate",
+          "text": "gate, interpolate\n& smooth Hₜ",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 855,
+            "y": 348,
+            "width": 172,
+            "height": 48
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh77",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 1032,
+            "y": 238,
+            "width": 17,
+            "height": 31
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh78",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 1050,
+            "y": 156,
+            "width": 181,
+            "height": 240
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh79",
+          "role": "label_candidate",
+          "text": "OUTPUT",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1058,
+            "y": 168,
+            "width": 166,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.93,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh80",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 1092,
+            "y": 211,
+            "width": 97,
+            "height": 49
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh81",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 1102,
+            "y": 222,
+            "width": 60,
+            "height": 6
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh82",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 1102,
+            "y": 235,
+            "width": 41,
+            "height": 6
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh87",
+          "role": "label_candidate",
+          "text": "Rectified screen",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1055,
+            "y": 311,
+            "width": 172,
+            "height": 34
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh88",
+          "role": "label_candidate",
+          "text": "stable 16:9 video\nfor later modules",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1055,
+            "y": 348,
+            "width": 172,
+            "height": 48
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh89",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 58,
+            "y": 417,
+            "width": 1164,
+            "height": 58
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s03_sh90",
+          "role": "label_candidate",
+          "text": "Downstream after this stage:    video demoiréing    ·    OCR    ·    archival    ·    manual review",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 430,
+            "width": 1164,
+            "height": 31
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh92",
+          "role": "label_candidate",
+          "text": "Real example: tilted frames → corners + homography → upright, plane-locked frames",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 355,
+            "y": 651,
+            "width": 566,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 17.17,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh93",
+          "role": "label_candidate",
+          "text": "ECE4512 Final Project Proposal · 2026",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 678,
+            "width": 768,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s03_sh94",
+          "role": "label_candidate",
+          "text": "3",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1094,
+            "y": 678,
+            "width": 125,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        }
+      ],
+      "tables": [],
+      "charts": [],
+      "diagrams": []
+    },
+    {
+      "slide_index": 4,
+      "page_type": "toc_candidate",
+      "text_summary": "WHY IT STAYS STABLE\nMethod — Screen Motion vs. Content Motion\nCore distinction:  estimate the homography from the physical screen border, and treat motion inside the screen as content — not camera — motion.\n1 · Border drives geometry\n•  Edge filtering + LSD / Hough locate the four screen borders.\n•  The main homography is anchored to this physical boundary\n2 · Inner points = check only\n•  Inner Lucas–Kanade points serve as a consistency signal.\n•  labelled screen-content motion and excluded from",
+      "slots": [
+        {
+          "slot_id": "s04_sh2",
+          "role": "title_candidate",
+          "text": "WHY IT STAYS STABLE",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 33,
+            "width": 1162,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s04_sh3",
+          "role": "title_candidate",
+          "text": "Method — Screen Motion vs. Content Motion",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 60,
+            "width": 1162,
+            "height": 77
+          },
+          "text_metrics": {
+            "font_size_px": 44.8,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s04_sh4",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 60,
+            "y": 119,
+            "width": 86,
+            "height": 4
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s04_sh5",
+          "role": "body_candidate",
+          "text": "Core distinction:  estimate the homography from the physical screen border, and treat motion inside the screen as content — not camera — motion.",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 62,
+            "y": 144,
+            "width": 1152,
+            "height": 48
+          },
+          "text_metrics": {
+            "font_size_px": 22.4,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s04_sh6",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 62,
+            "y": 226,
+            "width": 379,
+            "height": 214
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s04_sh7",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 62,
+            "y": 226,
+            "width": 379,
+            "height": 7
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s04_sh8",
+          "role": "label_candidate",
+          "text": "1 · Border drives geometry",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 86,
+            "y": 252,
+            "width": 331,
+            "height": 58
+          },
+          "text_metrics": {
+            "font_size_px": 21.65,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s04_sh9",
+          "role": "body_candidate",
+          "text": "•  Edge filtering + LSD / Hough locate the four screen borders.\n•  The main homography is anchored to this physical boundary",
+          "paragraph_count": 2,
+          "geometry": {
+            "x": 86,
+            "y": 305,
+            "width": 331,
+            "height": 118
+          },
+          "text_metrics": {
+            "font_size_px": 19.41,
+            "paragraph_count": 2
+          }
+        },
+        {
+          "slot_id": "s04_sh10",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 468,
+            "y": 226,
+            "width": 379,
+            "height": 216
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s04_sh11",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 468,
+            "y": 226,
+            "width": 379,
+            "height": 7
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s04_sh12",
+          "role": "label_candidate",
+          "text": "2 · Inner points = check only",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 492,
+            "y": 252,
+            "width": 331,
+            "height": 58
+          },
+          "text_metrics": {
+            "font_size_px": 21.65,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s04_sh13",
+          "role": "body_candidate",
+          "text": "•  Inner Lucas–Kanade points serve as a consistency signal.\n•  labelled screen-content motion and excluded from H estimation if conflicts",
+          "paragraph_count": 2,
+          "geometry": {
+            "x": 492,
+            "y": 305,
+            "width": 331,
+            "height": 118
+          },
+          "text_metrics": {
+            "font_size_px": 19.41,
+            "paragraph_count": 2
+          }
+        },
+        {
+          "slot_id": "s04_sh14",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 873,
+            "y": 226,
+            "width": 379,
+            "height": 216
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s04_sh15",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 873,
+            "y": 226,
+            "width": 379,
+            "height": 7
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s04_sh16",
+          "role": "label_candidate",
+          "text": "3 · Robust fallback",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 897,
+            "y": 252,
+            "width": 331,
+            "height": 58
+          },
+          "text_metrics": {
+            "font_size_px": 21.65,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s04_sh17",
+          "role": "body_candidate",
+          "text": "•  Low border confidence or an invalid quadrilateral triggers re-detection.\n•  If recovery fails, freeze the last valid Hₜ and flag invalid regions.",
+          "paragraph_count": 2,
+          "geometry": {
+            "x": 897,
+            "y": 305,
+            "width": 331,
+            "height": 118
+          },
+          "text_metrics": {
+            "font_size_px": 19.41,
+            "paragraph_count": 2
+          }
+        },
+        {
+          "slot_id": "s04_sh18",
+          "role": "label_candidate",
+          "text": "Normalized output over time  (content moves, frame stays aligned)",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 62,
+            "y": 449,
+            "width": 595,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 17.17,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s04_sh20",
+          "role": "body_candidate",
+          "text": "Result:  in-screen content changes over time, yet each frame stays rectified and plane-aligned — screen motion removed, content motion preserved.",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 887,
+            "y": 505,
+            "width": 341,
+            "height": 113
+          },
+          "text_metrics": {
+            "font_size_px": 20.16,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s04_sh21",
+          "role": "label_candidate",
+          "text": "ECE4512 Final Project Proposal · 2026",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 678,
+            "width": 768,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s04_sh22",
+          "role": "label_candidate",
+          "text": "4",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1094,
+            "y": 678,
+            "width": 125,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        }
+      ],
+      "tables": [],
+      "charts": [],
+      "diagrams": []
+    },
+    {
+      "slide_index": 5,
+      "page_type": "toc_candidate",
+      "text_summary": "SELF-COLLECTED EVALUATION SET\nDataset & Experiment\n5 scenario classes × 10 clips × ~5 s  =  50 real captured-screen clips.  Classes are designed around failure modes.\nCLASS 1\nStatic page\ndocuments, browser UI,\nmostly fixed content\nCLASS 2\nScrolling page\npage motion, cursor,\nlocal UI changes\nCLASS 3\nIn-screen video\nlarge dynamic regions\ninside the display\nCLASS 4\nPPT / weak border\nlow texture, pale UI,\nunclear screen edges\nCLASS 5\n4K / moiré / glare\nhard cases linking to\nthe restoration pipeline\n",
+      "slots": [
+        {
+          "slot_id": "s05_sh2",
+          "role": "title_candidate",
+          "text": "SELF-COLLECTED EVALUATION SET",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 33,
+            "width": 1162,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh3",
+          "role": "title_candidate",
+          "text": "Dataset & Experiment",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 60,
+            "width": 1162,
+            "height": 77
+          },
+          "text_metrics": {
+            "font_size_px": 44.8,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh4",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 60,
+            "y": 119,
+            "width": 86,
+            "height": 4
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh5",
+          "role": "label_candidate",
+          "text": "5 scenario classes × 10 clips × ~5 s  =  50 real captured-screen clips.  Classes are designed around failure modes.",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 62,
+            "y": 144,
+            "width": 1152,
+            "height": 38
+          },
+          "text_metrics": {
+            "font_size_px": 22.4,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh6",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 62,
+            "y": 216,
+            "width": 214,
+            "height": 226
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh7",
+          "role": "label_candidate",
+          "text": "CLASS 1",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 67,
+            "y": 233,
+            "width": 205,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 15.68,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh8",
+          "role": "label_candidate",
+          "text": "Static page",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 67,
+            "y": 274,
+            "width": 205,
+            "height": 58
+          },
+          "text_metrics": {
+            "font_size_px": 20.16,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh9",
+          "role": "label_candidate",
+          "text": "documents, browser UI,\nmostly fixed content",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 67,
+            "y": 386,
+            "width": 205,
+            "height": 67
+          },
+          "text_metrics": {
+            "font_size_px": 14.93,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh11",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 298,
+            "y": 216,
+            "width": 214,
+            "height": 226
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh12",
+          "role": "label_candidate",
+          "text": "CLASS 2",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 303,
+            "y": 233,
+            "width": 205,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 15.68,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh13",
+          "role": "label_candidate",
+          "text": "Scrolling page",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 303,
+            "y": 274,
+            "width": 205,
+            "height": 58
+          },
+          "text_metrics": {
+            "font_size_px": 20.16,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh14",
+          "role": "label_candidate",
+          "text": "page motion, cursor,\nlocal UI changes",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 303,
+            "y": 380,
+            "width": 205,
+            "height": 67
+          },
+          "text_metrics": {
+            "font_size_px": 14.93,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh16",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 534,
+            "y": 216,
+            "width": 214,
+            "height": 226
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh17",
+          "role": "label_candidate",
+          "text": "CLASS 3",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 538,
+            "y": 233,
+            "width": 205,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 15.68,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh18",
+          "role": "label_candidate",
+          "text": "In-screen video",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 538,
+            "y": 274,
+            "width": 205,
+            "height": 58
+          },
+          "text_metrics": {
+            "font_size_px": 20.16,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh19",
+          "role": "label_candidate",
+          "text": "large dynamic regions\ninside the display",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 536,
+            "y": 382,
+            "width": 205,
+            "height": 67
+          },
+          "text_metrics": {
+            "font_size_px": 14.93,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh21",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 769,
+            "y": 216,
+            "width": 214,
+            "height": 226
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh22",
+          "role": "label_candidate",
+          "text": "CLASS 4",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 774,
+            "y": 233,
+            "width": 205,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 15.68,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh23",
+          "role": "label_candidate",
+          "text": "PPT / weak border",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 774,
+            "y": 274,
+            "width": 205,
+            "height": 58
+          },
+          "text_metrics": {
+            "font_size_px": 20.16,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh24",
+          "role": "label_candidate",
+          "text": "low texture, pale UI,\nunclear screen edges",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 774,
+            "y": 383,
+            "width": 205,
+            "height": 67
+          },
+          "text_metrics": {
+            "font_size_px": 14.93,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh26",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 1005,
+            "y": 216,
+            "width": 214,
+            "height": 226
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh27",
+          "role": "label_candidate",
+          "text": "CLASS 5",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1010,
+            "y": 233,
+            "width": 205,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 15.68,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh28",
+          "role": "label_candidate",
+          "text": "4K / moiré / glare",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1010,
+            "y": 274,
+            "width": 205,
+            "height": 58
+          },
+          "text_metrics": {
+            "font_size_px": 20.16,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh29",
+          "role": "label_candidate",
+          "text": "hard cases linking to\nthe restoration pipeline",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1010,
+            "y": 381,
+            "width": 205,
+            "height": 67
+          },
+          "text_metrics": {
+            "font_size_px": 14.93,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh31",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 62,
+            "y": 485,
+            "width": 1157,
+            "height": 149
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh32",
+          "role": "body_candidate",
+          "text": "Annotation.  Selected key frames from each class are manually labelled with the four screen corners — connecting quantitative metrics to visual comparison, without requiring any downstream demoiréing model.",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 91,
+            "y": 504,
+            "width": 1104,
+            "height": 115
+          },
+          "text_metrics": {
+            "font_size_px": 21.65,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh33",
+          "role": "label_candidate",
+          "text": "ECE4512 Final Project Proposal · 2026",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 678,
+            "width": 768,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh34",
+          "role": "label_candidate",
+          "text": "5",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1094,
+            "y": 678,
+            "width": 125,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s05_sh36",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 110,
+            "y": 308,
+            "width": 116,
+            "height": 65
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh38",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 127,
+            "y": 322,
+            "width": 84,
+            "height": 11
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh40",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 349,
+            "y": 307,
+            "width": 116,
+            "height": 65
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh42",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 449,
+            "y": 315,
+            "width": 9,
+            "height": 48
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh44",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 395,
+            "y": 318,
+            "width": 16,
+            "height": 13
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh46",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 395,
+            "y": 347,
+            "width": 16,
+            "height": 13
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh48",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 580,
+            "y": 307,
+            "width": 116,
+            "height": 65
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh49",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 628,
+            "y": 325,
+            "width": 33,
+            "height": 27
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh51",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 820,
+            "y": 307,
+            "width": 116,
+            "height": 65
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh55",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 1063,
+            "y": 307,
+            "width": 116,
+            "height": 65
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh69",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 1099,
+            "y": 327,
+            "width": 43,
+            "height": 40
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh71",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 1069,
+            "y": 328,
+            "width": 43,
+            "height": 40
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh73",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 1128,
+            "y": 325,
+            "width": 43,
+            "height": 40
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh74",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 834,
+            "y": 317,
+            "width": 28,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s05_sh78",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 880,
+            "y": 345,
+            "width": 43,
+            "height": 18
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        }
+      ],
+      "tables": [],
+      "charts": [],
+      "diagrams": []
+    },
+    {
+      "slide_index": 6,
+      "page_type": "content_candidate",
+      "text_summary": "WHAT WE MEASURE\nEvaluation Metrics\n1\nGeometric accuracy\n•  Corner error on annotated key frames\n•  Quadrilateral IoU\n•  Aspect-ratio error\nIs the screen located & rectified correctly?\n2\nTemporal stability\n•  Residual adjacent-frame translation (px)\n•  Residual rotation (deg) & scale change\n•  Reported as p95 of the normalized video\nHow much jitter remains after normalization?\n3\nSignal preservation\n•  Mean gradient magnitude on texture patches\n•  Edge-preservation index (same screen scale)\n•  2D ",
+      "slots": [
+        {
+          "slot_id": "s06_sh2",
+          "role": "title_candidate",
+          "text": "WHAT WE MEASURE",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 33,
+            "width": 1162,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s06_sh3",
+          "role": "title_candidate",
+          "text": "Evaluation Metrics",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 60,
+            "width": 1162,
+            "height": 77
+          },
+          "text_metrics": {
+            "font_size_px": 44.8,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s06_sh4",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 60,
+            "y": 119,
+            "width": 86,
+            "height": 4
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s06_sh5",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 62,
+            "y": 158,
+            "width": 379,
+            "height": 389
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s06_sh6",
+          "role": "label_candidate",
+          "text": "1",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 86,
+            "y": 185,
+            "width": 48,
+            "height": 48
+          },
+          "text_metrics": {
+            "font_size_px": 26.88,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s06_sh7",
+          "role": "label_candidate",
+          "text": "Geometric accuracy",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 149,
+            "y": 189,
+            "width": 278,
+            "height": 67
+          },
+          "text_metrics": {
+            "font_size_px": 22.4,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s06_sh8",
+          "role": "body_candidate",
+          "text": "•  Corner error on annotated key frames\n•  Quadrilateral IoU\n•  Aspect-ratio error",
+          "paragraph_count": 3,
+          "geometry": {
+            "x": 88,
+            "y": 283,
+            "width": 331,
+            "height": 182
+          },
+          "text_metrics": {
+            "font_size_px": 19.41,
+            "paragraph_count": 3
+          }
+        },
+        {
+          "slot_id": "s06_sh9",
+          "role": "label_candidate",
+          "text": "Is the screen located & rectified correctly?",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 88,
+            "y": 480,
+            "width": 331,
+            "height": 58
+          },
+          "text_metrics": {
+            "font_size_px": 17.17,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s06_sh10",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 468,
+            "y": 158,
+            "width": 379,
+            "height": 389
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s06_sh11",
+          "role": "label_candidate",
+          "text": "2",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 492,
+            "y": 185,
+            "width": 48,
+            "height": 48
+          },
+          "text_metrics": {
+            "font_size_px": 26.88,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s06_sh12",
+          "role": "label_candidate",
+          "text": "Temporal stability",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 554,
+            "y": 189,
+            "width": 278,
+            "height": 67
+          },
+          "text_metrics": {
+            "font_size_px": 22.4,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s06_sh13",
+          "role": "body_candidate",
+          "text": "•  Residual adjacent-frame translation (px)\n•  Residual rotation (deg) & scale change\n•  Reported as p95 of the normalized video",
+          "paragraph_count": 3,
+          "geometry": {
+            "x": 493,
+            "y": 283,
+            "width": 331,
+            "height": 182
+          },
+          "text_metrics": {
+            "font_size_px": 19.41,
+            "paragraph_count": 3
+          }
+        },
+        {
+          "slot_id": "s06_sh14",
+          "role": "label_candidate",
+          "text": "How much jitter remains after normalization?",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 493,
+            "y": 480,
+            "width": 331,
+            "height": 58
+          },
+          "text_metrics": {
+            "font_size_px": 17.17,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s06_sh15",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 873,
+            "y": 158,
+            "width": 379,
+            "height": 389
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s06_sh16",
+          "role": "label_candidate",
+          "text": "3",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 897,
+            "y": 185,
+            "width": 48,
+            "height": 48
+          },
+          "text_metrics": {
+            "font_size_px": 26.88,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s06_sh17",
+          "role": "label_candidate",
+          "text": "Signal preservation",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 959,
+            "y": 189,
+            "width": 278,
+            "height": 67
+          },
+          "text_metrics": {
+            "font_size_px": 22.4,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s06_sh18",
+          "role": "body_candidate",
+          "text": "•  Mean gradient magnitude on texture patches\n•  Edge-preservation index (same screen scale)\n•  2D FFT grid orthogonality for moiré cases",
+          "paragraph_count": 3,
+          "geometry": {
+            "x": 899,
+            "y": 283,
+            "width": 331,
+            "height": 182
+          },
+          "text_metrics": {
+            "font_size_px": 19.41,
+            "paragraph_count": 3
+          }
+        },
+        {
+          "slot_id": "s06_sh19",
+          "role": "label_candidate",
+          "text": "Does rectification keep high-frequency detail?",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 899,
+            "y": 480,
+            "width": 331,
+            "height": 58
+          },
+          "text_metrics": {
+            "font_size_px": 17.17,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s06_sh20",
+          "role": "body_candidate",
+          "text": "These measures tie geometric correctness, video stability and signal preservation together — with no dependence on a downstream restoration model.",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 62,
+            "y": 571,
+            "width": 1152,
+            "height": 48
+          },
+          "text_metrics": {
+            "font_size_px": 19.41,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s06_sh21",
+          "role": "label_candidate",
+          "text": "ECE4512 Final Project Proposal · 2026",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 678,
+            "width": 768,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s06_sh22",
+          "role": "label_candidate",
+          "text": "6",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1094,
+            "y": 678,
+            "width": 125,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        }
+      ],
+      "tables": [],
+      "charts": [],
+      "diagrams": []
+    },
+    {
+      "slide_index": 7,
+      "page_type": "ending_candidate",
+      "text_summary": "BORDER-GUIDED TRACKING WINS\nInitial Results & Timeline\nSame input video · residual translation p95 over the last 2 s (lower = steadier)\n0.118 px  residual jitter\nReference-plane (border-guided) tracking cuts residual motion ~16× vs. per-frame detection (1.927) and optical-flow tracking (1.929).\nFinal report will compare three strategies:\nPer-frame detection — re-detects each frame — jittery\nOptical-flow tracking — drifts with on-screen content\nBorder-guided (ours) — stable, content-aware\nTimelin",
+      "slots": [
+        {
+          "slot_id": "s07_sh2",
+          "role": "title_candidate",
+          "text": "BORDER-GUIDED TRACKING WINS",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 33,
+            "width": 1162,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh3",
+          "role": "title_candidate",
+          "text": "Initial Results & Timeline",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 60,
+            "width": 1162,
+            "height": 77
+          },
+          "text_metrics": {
+            "font_size_px": 44.8,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh4",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 60,
+            "y": 119,
+            "width": 86,
+            "height": 4
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s07_sh6",
+          "role": "label_candidate",
+          "text": "Same input video · residual translation p95 over the last 2 s (lower = steadier)",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 53,
+            "y": 492,
+            "width": 672,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 17.17,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh7",
+          "role": "title_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 754,
+            "y": 149,
+            "width": 475,
+            "height": 197
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s07_sh8",
+          "role": "body_candidate",
+          "text": "0.118 px  residual jitter\nReference-plane (border-guided) tracking cuts residual motion ~16× vs. per-frame detection (1.927) and optical-flow tracking (1.929).",
+          "paragraph_count": 2,
+          "geometry": {
+            "x": 778,
+            "y": 165,
+            "width": 432,
+            "height": 173
+          },
+          "text_metrics": {
+            "font_size_px": 44.8,
+            "paragraph_count": 2
+          }
+        },
+        {
+          "slot_id": "s07_sh9",
+          "role": "label_candidate",
+          "text": "Final report will compare three strategies:",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 754,
+            "y": 360,
+            "width": 480,
+            "height": 34
+          },
+          "text_metrics": {
+            "font_size_px": 19.41,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh10",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 758,
+            "y": 404,
+            "width": 15,
+            "height": 15
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s07_sh11",
+          "role": "label_candidate",
+          "text": "Per-frame detection — re-detects each frame — jittery",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 787,
+            "y": 398,
+            "width": 442,
+            "height": 43
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh12",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 758,
+            "y": 452,
+            "width": 15,
+            "height": 15
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s07_sh13",
+          "role": "label_candidate",
+          "text": "Optical-flow tracking — drifts with on-screen content",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 787,
+            "y": 446,
+            "width": 442,
+            "height": 43
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh14",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 758,
+            "y": 500,
+            "width": 15,
+            "height": 15
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s07_sh15",
+          "role": "label_candidate",
+          "text": "Border-guided (ours) — stable, content-aware",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 787,
+            "y": 494,
+            "width": 442,
+            "height": 43
+          },
+          "text_metrics": {
+            "font_size_px": 18.67,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh16",
+          "role": "label_candidate",
+          "text": "Timeline",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 552,
+            "width": 576,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 20.91,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh17",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 58,
+            "y": 590,
+            "width": 221,
+            "height": 79
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s07_sh18",
+          "role": "label_candidate",
+          "text": "Jun 22–24",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 67,
+            "y": 598,
+            "width": 202,
+            "height": 27
+          },
+          "text_metrics": {
+            "font_size_px": 16.43,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh19",
+          "role": "label_candidate",
+          "text": "Proposal & presentation",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 65,
+            "y": 625,
+            "width": 206,
+            "height": 40
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh20",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 294,
+            "y": 590,
+            "width": 221,
+            "height": 79
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s07_sh21",
+          "role": "label_candidate",
+          "text": "Jun 25–30",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 304,
+            "y": 598,
+            "width": 202,
+            "height": 27
+          },
+          "text_metrics": {
+            "font_size_px": 16.43,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh22",
+          "role": "label_candidate",
+          "text": "50-clip set + key-frame labels",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 302,
+            "y": 625,
+            "width": 206,
+            "height": 40
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh23",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 530,
+            "y": 590,
+            "width": 221,
+            "height": 79
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s07_sh24",
+          "role": "label_candidate",
+          "text": "Jul 1–7",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 540,
+            "y": 598,
+            "width": 202,
+            "height": 27
+          },
+          "text_metrics": {
+            "font_size_px": 16.43,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh25",
+          "role": "label_candidate",
+          "text": "Method ablation & metrics",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 538,
+            "y": 625,
+            "width": 206,
+            "height": 40
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh26",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 767,
+            "y": 590,
+            "width": 221,
+            "height": 79
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s07_sh27",
+          "role": "label_candidate",
+          "text": "Jul 8–12",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 776,
+            "y": 598,
+            "width": 202,
+            "height": 27
+          },
+          "text_metrics": {
+            "font_size_px": 16.43,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh28",
+          "role": "label_candidate",
+          "text": "Visual comparison & report",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 774,
+            "y": 625,
+            "width": 206,
+            "height": 40
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh29",
+          "role": "label_candidate",
+          "text": "",
+          "paragraph_count": 0,
+          "geometry": {
+            "x": 1003,
+            "y": 590,
+            "width": 221,
+            "height": 79
+          },
+          "text_metrics": {
+            "font_size_px": null,
+            "paragraph_count": 0
+          }
+        },
+        {
+          "slot_id": "s07_sh30",
+          "role": "label_candidate",
+          "text": "Jul 13–15",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1013,
+            "y": 598,
+            "width": 202,
+            "height": 27
+          },
+          "text_metrics": {
+            "font_size_px": 16.43,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh31",
+          "role": "label_candidate",
+          "text": "Code, samples, final talk",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1011,
+            "y": 625,
+            "width": 206,
+            "height": 40
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh32",
+          "role": "label_candidate",
+          "text": "ECE4512 Final Project Proposal · 2026",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 58,
+            "y": 678,
+            "width": 768,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        },
+        {
+          "slot_id": "s07_sh33",
+          "role": "label_candidate",
+          "text": "7",
+          "paragraph_count": 1,
+          "geometry": {
+            "x": 1094,
+            "y": 678,
+            "width": 125,
+            "height": 29
+          },
+          "text_metrics": {
+            "font_size_px": 14.19,
+            "paragraph_count": 1
+          }
+        }
+      ],
+      "tables": [],
+      "charts": [],
+      "diagrams": []
+    }
+  ],
+  "plan_contract": {
+    "schema": "template_fill_pptx_plan.v1",
+    "slides": [
+      {
+        "source_slide": 1,
+        "purpose": "封面 / 章节 / 内容 / 结尾",
+        "replacements": [
+          {
+            "slot_id": "s01_sh2",
+            "text": "替换后的文字"
+          }
+        ],
+        "table_edits": [
+          {
+            "table_id": "s01_tbl3",
+            "cells": [
+              {
+                "row": 0,
+                "col": 0,
+                "text": "替换后的单元格"
+              }
+            ]
+          }
+        ],
+        "chart_edits": [
+          {
+            "chart_id": "s01_ch4",
+            "categories": [
+              "A",
+              "B"
+            ],
+            "series": [
+              {
+                "name": "系列1",
+                "values": [
+                  1,
+                  2
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
