@@ -38,7 +38,7 @@
 
 ## Slide 10. 消融
 
-重点读三组：去掉 LK 诊断结果不变，说明 LK 不是几何主驱动；去掉物理边框后 RMSE 大幅上升；profile、LSD、Hough 对比说明 profile 是更稳妥的边框观测方式。
+重点读四组：去掉轨迹滤波后 RMSE 略低但帧间变化变大，说明滤波主要服务稳定性；去掉 LK 诊断结果不变，说明 LK 不是几何主驱动；去掉物理边框后 RMSE 大幅上升；profile、LSD、Hough 对比说明 profile 是更稳妥的边框观测方式。
 
 ## Slide 11. 定性对比
 

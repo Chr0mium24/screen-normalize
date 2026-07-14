@@ -295,7 +295,7 @@ figcaption {
 <figure><img src="figures/figure_04_proposed_clip_results.png" alt="Figure 4. Proposed-method per-clip results. The dashed line marks 10 px corner RMSE; all evaluated clips remain below 15 px."><figcaption>Figure 4. Proposed-method per-clip results. The dashed line marks 10 px corner RMSE; all evaluated clips remain below 15 px.</figcaption></figure>
 <p>This behavior is different from a purely conservative gate that becomes stable by refusing updates. The accepted trajectory changes when the physical border moves, and LK/RANSAC disagreement is recorded mainly when internal content motion conflicts with that boundary estimate.</p>
 <h2>5.4 Proposed-Method Ablation</h2>
-<p>A focused ablation on the representative scrolling clip keeps only the modules that are directly switchable in the current implementation (Table 4). All variants use the same initialization, output canvas, and metric code. The table first removes LK consistency checking and physical-border evidence in turn, then holds the remaining settings fixed while replacing the border-observation source.</p>
+<p>A focused ablation on the representative scrolling clip keeps only the switchable modules that directly support the method claims (Table 4). All variants use the same initialization, output canvas, and metric code. The table tests trajectory filtering, LK consistency diagnostics, physical-border evidence, and the border-observation source.</p>
 <table>
 <thead><tr>
 <th>Variant</th>
@@ -311,6 +311,13 @@ figcaption {
 <td>3.253</td>
 <td>0.996038</td>
 <td>0.752</td>
+</tr>
+<tr>
+<td>Without trajectory filtering</td>
+<td>Median/trajectory windows set to 1</td>
+<td>2.932</td>
+<td>0.996585</td>
+<td>1.430</td>
 </tr>
 <tr>
 <td>Without LK consistency diagnostic</td>
@@ -341,7 +348,7 @@ figcaption {
 <td>0.897</td>
 </tr>
 </tbody></table>
-<p>The ablation supports two conclusions. First, LK/RANSAC is not the primary geometry driver in the proposed method: disabling the LK diagnostic leaves the result unchanged, so the quadrilateral on this clip is determined by border evidence. Second, the physical-border cue is decisive. Without it, adjacent-frame optical flow follows the coherent scrolling content and the corner RMSE rises to 76.114 px. The border-observation variants further support the profile sampler as the default: LSD is close but slightly worse, whereas Hough causes a clear geometry degradation on this clip.</p>
+<p>The ablation supports three conclusions. First, trajectory filtering mainly improves temporal stability rather than the single-frame median geometry: removing it lowers RMSE from 3.253 px to 2.932 px, but increases frame-to-frame translation variation from 0.752 to 1.430 px/frame. Second, LK/RANSAC is not the primary geometry driver in the proposed method: disabling the LK diagnostic leaves the result unchanged, so the quadrilateral on this clip is determined by border evidence. Third, the physical-border cue is decisive. Without it, adjacent-frame optical flow follows the coherent scrolling content and the corner RMSE rises to 76.114 px. The border-observation variants further support the profile sampler as the default: LSD is close but slightly worse, whereas Hough causes a clear geometry degradation on this clip.</p>
 <h2>5.5 Qualitative Comparison</h2>
 <p>Qualitative outputs match the quantitative results (Figure 5). The proposed method preserves the screen extent on scrolling and weak-border examples where content-driven tracking or frame-wise detection can shift the crop. On static and screen-video examples, all methods produce readable rectifications, but the proposed method keeps the physical frame alignment more consistently.</p>
 <figure><img src="figures/figure_05_qualitative.png" alt="Figure 5. Representative input frames and normalized outputs. Each row shows one capture condition; columns compare the input annotation, frame-wise output, adjacent-frame optical-flow output, and proposed output."><figcaption>Figure 5. Representative input frames and normalized outputs. Each row shows one capture condition; columns compare the input annotation, frame-wise output, adjacent-frame optical-flow output, and proposed output.</figcaption></figure>

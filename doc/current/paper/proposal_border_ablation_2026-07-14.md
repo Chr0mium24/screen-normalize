@@ -34,11 +34,12 @@ No-border diagnostic rows use the already completed run:
 
 ## Results
 
-Manuscript-facing Table 4 keeps only the current switchable module story:
+Manuscript-facing Table 4 keeps the current switchable modules that directly support the method claims:
 
 | Variant | Module setting | Corner RMSE p50 (px) ↓ | IoU p50 ↑ | Translation p50 (px/frame) ↓ |
 |---|---|---:|---:|---:|
 | Proposed, profile border | Full current chain | 3.253 | 0.996038 | 0.752 |
+| No trajectory filter | Median/trajectory windows set to 1 | 2.932 | 0.996585 | 1.430 |
 | No LK diagnostic | Border still defines the quadrilateral | 3.253 | 0.996038 | 0.752 |
 | No physical border: adjacent optical flow | Optical flow propagates the previous quadrilateral | 76.114 | 0.916022 | 2.205 |
 | LSD border detector | Replaces profile border observation | 3.604 | 0.995716 | 0.961 |
@@ -48,7 +49,6 @@ Additional diagnostic rows are retained here for traceability but are not part o
 
 | Variant | Corner RMSE p50 (px) ↓ | IoU p50 ↑ | Translation p50 (px/frame) ↓ | Runtime (s) | Held frames |
 |---|---:|---:|---:|---:|---:|
-| No trajectory filter | 2.932 | 0.996585 | 1.430 | 53.13 | 0 |
 | No redetect fallback | 3.253 | 0.996038 | 0.752 | 55.09 | 0 |
 | Loose edge gates | 3.253 | 0.996038 | 0.752 | 52.95 | 0 |
 | No physical border: reference LK/RANSAC | 643.949 | 0.520994 | 4.579 | n/a | n/a |
@@ -68,6 +68,8 @@ Reason counts for the rerun variants:
 ## Interpretation
 
 The decisive ablation is the physical-border cue. Without physical border evidence, adjacent-frame optical flow has 76.114 px RMSE on `scrolling_01`, while the full profile-border method is 3.253 px. This supports the current paper's central claim that screen-boundary evidence is necessary when internal page motion is coherent but not equal to physical screen motion.
+
+The trajectory-filter ablation shows a geometry/stability tradeoff rather than a one-sided improvement. Removing the filter gives a slightly lower RMSE median, 2.932 px versus 3.253 px, but increases translation variation from 0.752 to 1.430 px/frame. In the manuscript this should be described as a temporal-stability component, not as a single-frame geometry enhancer.
 
 The border-observation variants show why profile observations are the default. LSD is close geometrically but much slower. Hough is smoother than flow-only but much less accurate than profile or LSD.
 
