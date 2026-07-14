@@ -118,7 +118,19 @@ The proposed method is consistent across the ten evaluated clips (Figure 4). Sev
 
 This behavior is different from a purely conservative gate that becomes stable by refusing updates. The accepted trajectory changes when the physical border moves, and LK/RANSAC disagreement is recorded mainly when internal content motion conflicts with that boundary estimate.
 
-## 5.4 Qualitative Comparison
+## 5.4 Border Detector Ablation
+
+A targeted detector ablation on the representative scrolling clip supports the profile-based border observation used in the proposed method (Table 4). Profile sampling gives the lowest corner RMSE, 3.253 px, and the lowest translation variation, 0.752 px/frame. LSD line segments are close geometrically but take substantially longer on this clip. Hough line segments keep the trajectory smooth but increase corner RMSE to 27.335 px, indicating that sparse segment detections are not precise enough for the screen boundary in this case.
+
+| Border observation | Corner RMSE, px ↓ | IoU ↑ | Translation variation, px/frame ↓ | Runtime, s |
+|---|---:|---:|---:|---:|
+| Profile sampling | 3.253 | 0.996038 | 0.752 | 59.21 |
+| LSD segments | 3.604 | 0.995716 | 0.961 | 285.49 |
+| Hough segments | 27.335 | 0.974200 | 0.897 | 159.25 |
+
+All three variants accepted every frame, so the difference is not caused by freezing. The ablation therefore supports using local profile evidence as the default physical-border cue in the main method.
+
+## 5.5 Qualitative Comparison
 
 Qualitative outputs match the quantitative results (Figure 5). The proposed method preserves the screen extent on scrolling and weak-border examples where content-driven tracking or frame-wise detection can shift the crop. On static and screen-video examples, all methods produce readable rectifications, but the proposed method keeps the physical frame alignment more consistently.
 

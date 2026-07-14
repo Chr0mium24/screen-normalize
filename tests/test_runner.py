@@ -19,6 +19,8 @@ def test_method_configs_are_distinct() -> None:
     assert proposal_border.trajectory_window == 9
     assert not proposal_border.interpolate
     assert not proposal_border.reference_align
+    assert method_config("proposal_border_lsd").proposal_edge_detector == "lsd"
+    assert method_config("proposal_border_hough").proposal_edge_detector == "hough"
 
 
 def test_unknown_method() -> None:
@@ -48,6 +50,15 @@ def test_ablation_configs_disable_only_the_target_module() -> None:
         "trajectory_window",
     }
     assert _functional_differences("proposed", "no_offline_repair") == {"interpolate"}
+
+
+def test_border_detector_ablation_changes_only_detector() -> None:
+    assert _functional_differences("proposal_border", "proposal_border_lsd") == {
+        "proposal_edge_detector"
+    }
+    assert _functional_differences("proposal_border", "proposal_border_hough") == {
+        "proposal_edge_detector"
+    }
 
 
 def test_no_reliability_gates_makes_optional_thresholds_permissive() -> None:

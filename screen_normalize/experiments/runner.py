@@ -34,6 +34,7 @@ class MethodConfig:
     geometry_gate: bool
     reference_align: bool
     reference_reliability_gates: bool = True
+    proposal_edge_detector: str = "profile"
     ablation_of: str | None = None
     disabled_module: str | None = None
 
@@ -51,6 +52,32 @@ METHOD_CONFIGS = {
         False,
         False,
         False,
+    ),
+    "proposal_border_lsd": MethodConfig(
+        "proposal_border_lsd",
+        "proposal_border",
+        0.0,
+        5,
+        9,
+        False,
+        False,
+        False,
+        proposal_edge_detector="lsd",
+        ablation_of="proposal_border",
+        disabled_module="profile_edge_detector",
+    ),
+    "proposal_border_hough": MethodConfig(
+        "proposal_border_hough",
+        "proposal_border",
+        0.0,
+        5,
+        9,
+        False,
+        False,
+        False,
+        proposal_edge_detector="hough",
+        ablation_of="proposal_border",
+        disabled_module="profile_edge_detector",
     ),
     "point_edge": MethodConfig("point_edge", "boundary", 0.0, 3, 5, True, True, False),
     "no_reliability_gates": MethodConfig(
@@ -197,7 +224,7 @@ def run_method(source: Path, output_dir: Path, method: str) -> RunResult:
         trajectory = estimate_proposal_border_trajectory(
             capture=capture,
             initial_corners=proposal_initial,
-            config=ProposalDemoConfig(),
+            config=ProposalDemoConfig(edge_detector=config.proposal_edge_detector),
             debug_rows=tracker_rows,
         )
         if trajectory:
