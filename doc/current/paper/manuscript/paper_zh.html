@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>参考帧锚定屏幕平面归一化揭示拍屏视频中的稳定性-精度取舍</title>
+  <title>参考帧锚定屏幕平面归一化用于拍屏视频</title>
   <style>
 @page {
   size: A4;
@@ -136,198 +136,190 @@ figcaption {
   </style>
 </head>
 <body>
-  <h1 class="paper-title">参考帧锚定屏幕平面归一化揭示拍屏视频中的稳定性-精度取舍</h1>
+  <h1 class="paper-title">参考帧锚定屏幕平面归一化用于拍屏视频</h1>
   <div class="author">温荣硕（124020369）</div>
 <div class="author">温必华（124090670）</div>
 <div class="author">刘明睿（124090375）</div>
   <div class="date">ECE4512 课程项目，2026</div>
   <h1>摘要</h1>
-<p>手持拍摄显示器可以在无法直接录屏时保留屏幕内容，但此类视频同时包含透视畸变、相机抖动、背景干扰、弱显示器边框，以及可能独立滚动或播放的屏幕内容。本文实现一套可审计的屏幕平面归一化前端：初始化屏幕四边形，利用金字塔 Lucas--Kanade 特征和 RANSAC 单应矩阵跟踪固定参考平面，通过显式可靠性门控拒绝异常更新，对角点轨迹进行修复和平滑，最后渲染正面屏幕坐标视频。在 50 个真实拍屏视频、14985 帧上的 first-pass benchmark 表明，该方法呈现明确的稳定性-精度取舍。Proposed 的轨迹派生平移变化中位数为 0.254 px/frame，低于 Frame-wise 的 4.886 和 Optical flow 的 12.311；但它没有提升总体标注几何精度，角点 RMSE 中位数为 191.83 px，而两个基线分别为 32.56 px 和 34.88 px，边缘保持指数也更低。分类和消融结果说明主要原因是当前可靠性门控过于保守：它能抑制短时抖动，但在屏幕内部动态内容、弱边界或困难视角主导证据时，会冻结过期或错误几何。一次小样本 post-run tuning smoke test 减轻了 hard 和 weak_border 样本中的过度冻结，但 scrolling 仍需要物理边框证据。本文贡献因此不是完整去摩尔纹系统或全指标最优方法，而是一个可复现、已 benchmark 的几何前端，用于暴露拍屏视频归一化的工程边界。</p>
+<p>当直接录屏不可用时，拍屏视频可以保留屏幕内容，但同时引入透视畸变、相机抖动、背景干扰、弱显示器边框，以及屏幕内部独立滚动或播放的内容。本文研究这一场景下的几何屏幕平面归一化。我们实现了一套参考帧锚定流程：初始化屏幕四边形，用金字塔 Lucas-Kanade 光流跟踪参考屏幕平面上的稀疏特征，估计 RANSAC 单应矩阵，应用显式可靠性门控，修复并平滑角点轨迹，最后将每帧变换到正面屏幕坐标系。在一个平衡的 10 个真实拍屏视频标注子集上，参考帧锚定方法比逐帧检测和相邻帧跟踪产生更平滑的估计轨迹，平移变化中位数为 2.94 px/frame，低于另外两种方法的 4.29 和 4.91 px/frame。但这种稳定性没有转化为更好的标注几何精度：角点 RMSE 中位数为 158.94 px，而两种较简单方法分别为 30.29 和 32.43 px。消融结果显示，可靠性门控是这一取舍的主要来源：移除门控后，RMSE 中位数降至 35.63 px，但平移变化升至 5.20 px/frame。结果表明，拍屏视频归一化中平滑的屏幕轨迹可能是过期或错误几何，因此必须将时间稳定性和几何正确性分开评估。</p>
 <p><strong>关键词：</strong> 屏幕矫正；视频稳定；单应矩阵；光流；拍屏视频；投影几何</p>
 <h1>1. 引言</h1>
-<p>拍屏视频归一化是后续屏幕内容恢复的几何前提。当直接录屏不可用时，手持相机可以记录演示、软件流程或设备输出，但所得视频并不是干净屏幕录像。它包含周围场景、透视畸变、镜头采样伪影、手持运动、眩光、曝光变化和局部遮挡。若要进一步进行 OCR、内容恢复或去摩尔纹，前端必须先恢复屏幕平面，并把内容表达在稳定的正面屏幕坐标系中。</p>
-<p>核心困难在于屏幕内容和物理屏幕并不共享同一个运动模型。屏幕内部纹理可能滚动、动画或播放视频，而物理显示器的运动只来自相机。相邻帧跟踪器可能跟随内部内容而不是屏幕边界；逐帧检测可以避免一部分漂移，但检测噪声会在透视变换后变成输出抖动。本文直接研究这一取舍，而不是用单一视觉质量分数掩盖它。</p>
-<p>我们实现一套经典的参考帧锚定屏幕平面归一化流程，并把它作为工程 benchmark 评估。Proposed 方法跟踪固定参考平面，估计鲁棒单应矩阵，只接受可靠更新，修复缺失轨迹段，平滑角点路径，并渲染正面视频。正式实验在 50 个真实拍屏视频上，将该方法与 Frame-wise 和 Optical flow 比较，覆盖 static、screen_video、scrolling、weak_border 和 hard 五类场景。</p>
-<p>本文有四个有边界的贡献。第一，建立从完整场景视频和稀疏四角标注到矫正输出、CSV/JSON 指标和逐 clip 审核报告的可复现实验流程。第二，实现带显式更新接受诊断的参考帧锚定跟踪器。第三，在 14985 帧和更新后的 199 个非初始化标注帧上报告受控 first-pass 对比。第四，将标注几何、轨迹派生变化、局部细节保持和 FFT 方向诊断拆开报告，避免把平滑误读为正确。</p>
-<p>贡献边界同样重要。本文只执行几何归一化和重采样，不是学习式去摩尔纹系统。频域指标描述矫正后的方向规则性，而不是摩尔纹抑制效果。当前实现也没有完成最初 proposal 中最关键的一点：物理显示器边框尚未成为每帧估计的主证据。以下结论只针对已经运行的代码和实验。</p>
+<p>拍屏视频常用于课堂、演示、会议和设备输出记录，是无法直接录屏时的实用替代。但与干净录屏不同，手持相机视角包含背景、透视畸变、手部运动、眩光、曝光变化、采样伪影和局部遮挡。后续 OCR、内容恢复或去摩尔纹任务首先需要稳定估计物理显示屏平面。</p>
+<p>核心困难在于，显示内容和物理屏幕不服从同一个运动模型。文本、网页和视频可以在屏幕内部运动，而物理显示器的运动只来自相机运动。相邻帧跟踪器可能跟随屏幕内容，而不是屏幕边界；逐帧检测可以避免一部分长期内容漂移，却可能在矫正结果中引入抖动。本文直接评估这一取舍。</p>
+<p>我们实现参考帧锚定屏幕平面归一化流程，并与两种简单替代方法比较：逐帧独立检测和相邻帧光流传播。该方法从固定参考屏幕区域跟踪稀疏特征，估计鲁棒单应矩阵，只接受可靠的屏幕平面更新，修复短缺口，平滑轨迹，并渲染正面视频。本文评估范围只包含几何归一化；内容恢复和学习式去摩尔纹不在实验范围内。</p>
+<p>本文有三点贡献。第一，定义一个从拍屏视频和四角标注到几何、轨迹指标的可复现实验流程。第二，评估参考帧锚定是否能提升时间稳定性，同时避免把稳定性等同于正确性。第三，通过消融和场景压力分析说明，可靠性门控可以抑制抖动，也可能冻结过期几何。</p>
 <h1>2. 相关工作</h1>
-<p>拍屏内容恢复和视频去摩尔纹工作通常假设屏幕区域已经较好裁剪或对齐。Dai 等人构建空间和时间对齐的拍屏/干净视频，并学习关系式时间一致性 [16]；Xu 等人结合方向感知频域处理、对齐、颜色校正和细节恢复 [17]；Yue 等人研究 raw 域屏幕重拍和调制恢复 [18]。这些工作关注内容恢复，本文则处理其前端：从完整手持场景中得到可供恢复模型使用的正面屏幕坐标视频。</p>
-<p>平面文档和屏幕矫正依赖同一投影几何基础：透视相机观测到的平面可由单应矩阵映射到正面坐标。文档分析中常使用页面边界、直线、版面和消失点恢复正面文档图像 [1--4]。显示器-相机标定同样把屏幕作为投影平面，但受控投影图案提供了普通手持视频中不存在的强证据 [4]。这些方法支持本文的几何模型，但单图像矫正直接逐帧应用时并不能保证视频连续性。</p>
-<p>本文使用的特征跟踪和鲁棒模型估计来自经典视觉方法。Lucas-Kanade 配准 [7] 及其金字塔实现 [8] 支持较大位移下的局部特征跟踪，Shi-Tomasi 特征 [9] 提供可跟踪角点。RANSAC 及其鲁棒估计变体 [10] 用于在错误对应存在时估计单应矩阵。视频稳定研究则表明，应将相机路径平滑、几何畸变和裁剪代价分别评估 [11--14]。本文目标更窄：只稳定物理屏幕平面，目标画布即屏幕矩形，因此没有背景裁剪权衡，但必须处理相机运动和屏幕内容运动之间的歧义。</p>
+<p>拍屏内容恢复和视频去摩尔纹方法通常假设屏幕区域已经被裁剪、对齐，或具有干净参考数据。关系式时间一致性视频去摩尔纹、方向感知视频去摩尔纹和 raw 域重拍屏幕恢复主要关注屏幕区域可用之后的内容恢复 [13-15]。本文处理其前置几何环节：在完整手持场景中估计并稳定显示屏平面。</p>
+<p>平面文档和屏幕矫正依赖透视相机和平面之间的投影关系。相机文档分析常利用页面边界、版面线索和投影几何恢复正面文档视图 [1-3]。屏幕-相机标定同样将显示屏建模为平面单应矩阵，但受控标定图案提供了普通手持视频中没有的强证据 [4]。将这类矫正逐帧独立应用，并不能自动获得时间连续性。</p>
+<p>本文实现的跟踪器使用经典特征跟踪和鲁棒模型估计。Lucas-Kanade 配准及其金字塔实现支持中等运动下的稀疏特征跟踪 [5,6]，Shi-Tomasi 特征提供可跟踪点 [7]。存在错误对应时，RANSAC 风格鲁棒估计常用于估计几何模型 [8]。视频稳定研究也强调，应分别评估相机路径平滑性和几何畸变 [9-12]。拍屏归一化继承了这种区分，并额外面临移动屏幕内容污染物理屏幕估计的问题。</p>
 <h1>3. 方法</h1>
-<h2>3.1 任务定义与流程</h2>
-<p>任务是在每个视频帧中估计四角屏幕四边形，并将屏幕内容透视变换到固定正面画布。角点顺序固定为左上、右上、右下、左下。系统优先使用人工第 0 帧角点初始化；若没有人工角点，则使用自动轮廓检测。第 0 帧作为初始化证据，不进入几何评分。</p>
-<p>Proposed 流程采用参考帧锚定（图 1）。系统在参考屏幕区域内选择 Shi-Tomasi 特征，用金字塔 Lucas-Kanade 光流把这些特征跟踪到新帧，通过前后向误差过滤不一致轨迹，并用剩余对应点估计 RANSAC 单应矩阵。该单应矩阵将参考四边形投影到当前帧，得到候选四边形。</p>
-<p>可靠性门控决定候选四边形是否被接受。门控检查匹配点数量、RANSAC 内点数量和比例、中位重投影误差、屏幕平面空间覆盖、面积变化、边长比例和凸性。若候选失败，在线阶段保持上一有效四边形。整段视频处理完成后，系统再用插值、中值滤波和指数平滑修复轨迹。最后，每帧被变换到固定屏幕画布；可选残余对齐只允许主单应之后的小幅仿射校正。</p>
-<figure><img src="figures/figure_01_pipeline.png" alt="图 1. 参考帧锚定屏幕平面归一化。当前实现初始化屏幕平面，用 LK 特征跟踪固定参考，估计 RANSAC 单应矩阵，应用可靠性门控，修复和平滑轨迹，并输出正面屏幕视频。"><figcaption>图 1. 参考帧锚定屏幕平面归一化。当前实现初始化屏幕平面，用 LK 特征跟踪固定参考，估计 RANSAC 单应矩阵，应用可靠性门控，修复和平滑轨迹，并输出正面屏幕视频。</figcaption></figure>
-<h2>3.2 对比方法</h2>
-<p>三种方法使用相同输入视频、相同第 0 帧初始化角点、相同输出画布、相同编码器、相同标注和相同指标代码。<code>Frame-wise</code> 每帧独立估计屏幕四边形，不做时域平滑；<code>Optical flow</code> 从上一帧向当前帧传播几何，不使用固定参考锚定；<code>Proposed</code> 使用固定参考跟踪、可靠性门控、失败保持、离线插值、中值滤波、指数平滑和残余对齐。</p>
-<p>正式 Proposed 配置为 <code>smooth=0.85</code>、<code>median_window=5</code>、<code>trajectory_window=9</code>、<code>interpolate=true</code>、<code>geometry_gate=true</code>、<code>reference_align=true</code>、<code>reference_reliability_gates=true</code>。该设置尽量把差异归因于轨迹估计和时域处理，而不是数据、编码或指标实现差异。由于当前系统不做内容恢复，本文不与学习式恢复模型直接比较。</p>
-<h1>4. 数据集与评估协议</h1>
-<h2>4.1 数据集</h2>
-<p>实验使用项目组采集的 50 个视频，共 14985 帧。五类场景各 10 个视频：<code>hard</code> 表示困难视角或复杂背景，<code>screen_video</code> 表示屏幕内部播放视频，<code>scrolling</code> 表示内容滚动，<code>static</code> 表示相对静态内容，<code>weak_border</code> 表示屏幕边界弱或对比度低。类别和 clip ID 在指标聚合前确定。</p>
-<figure><img src="figures/figure_02_dataset.png" alt="图 2. 50 个正式视频的类别分布、帧数分布和代表帧。"><figcaption>图 2. 50 个正式视频的类别分布、帧数分布和代表帧。</figcaption></figure>
-<p>每个视频的第 0 帧角点用于初始化，因此不进入几何误差统计。人工标注包含可见屏幕四角，顺序为左上、右上、右下、左下。当前 50 个视频共有 248 个标注帧；排除初始化帧后，全部 50 个视频都有非初始化几何标注，共 199 个可评分标注帧。补齐标注后，本文新增每类 2 个 clip 的轻量重算，用于更新几何和时域证据；细节和频域诊断仍作为 first-pass 辅助证据。</p>
+<h2>3.1 任务与坐标表示</h2>
+<p>输入是包含一个可见显示屏的手持视频，输出是变换到固定正面屏幕画布的视频。每帧屏幕由四边形表示，角点顺序为左上、右上、右下、左下。第一帧优先使用人工四角标注初始化，缺失时使用自动轮廓检测回退。由于第 0 帧提供初始化证据，它不参与几何误差评分。</p>
+<h2>3.2 参考帧锚定跟踪</h2>
+<p>该流程从固定参考跟踪物理屏幕平面，而不是把每一帧估计都串接到上一帧（图 1）。系统在初始屏幕区域内选择 Shi-Tomasi 特征，并用金字塔 Lucas-Kanade 光流将其跟踪到后续帧。前后向一致性检查剔除不稳定轨迹。剩余对应点用于 RANSAC 单应矩阵估计，该单应矩阵再把参考四边形投影到当前帧。</p>
+<figure><img src="figures/figure_01_pipeline.png" alt="图 1. 参考帧锚定屏幕平面归一化。流程初始化屏幕平面，用 LK 光流跟踪稀疏参考特征，估计 RANSAC 单应矩阵，应用可靠性门控，修复并平滑轨迹，最后渲染正面输出。"><figcaption>图 1. 参考帧锚定屏幕平面归一化。流程初始化屏幕平面，用 LK 光流跟踪稀疏参考特征，估计 RANSAC 单应矩阵，应用可靠性门控，修复并平滑轨迹，最后渲染正面输出。</figcaption></figure>
+<h2>3.3 可靠性门控与轨迹渲染</h2>
+<p>只有当候选四边形的支持证据内部一致时，跟踪器才接受更新。门控检查匹配点数量、RANSAC 内点数量和比例、重投影误差、屏幕平面空间覆盖、四边形面积变化、边长比例和凸性。候选失败时，在线轨迹保持上一帧已接受四边形。整段视频处理完成后，轨迹再经过插值修复、中值滤波和指数平滑。最后，每帧被变换到固定屏幕画布，主单应变换后只允许小幅残余仿射对齐。</p>
+<h2>3.4 对比方法</h2>
+<p>所有对比方法使用相同输入视频、初始化角点、输出画布、标注、编码器和指标代码。第一种替代方法逐帧独立估计屏幕四边形。第二种方法用相邻帧光流传播几何。参考帧锚定方法使用固定参考跟踪、可靠性门控、失败保持、轨迹修复、平滑和残余对齐。具体实现参数保留在可复现材料中，正文只讨论方法机制。</p>
+<h1>4. 数据集与评估</h1>
+<h2>4.1 数据集与标注</h2>
+<p>项目数据集包含 50 个拍屏视频，共 14985 帧。五种拍摄条件各包含十个片段：静态页面、滚动页面、屏幕内播放视频、弱边框场景，以及视角或背景困难的挑战场景。图 2 展示代表性标注帧和用于评估的屏幕角点目标。</p>
+<figure><img src="figures/figure_02_dataset.png" alt="图 2. 五种拍摄条件中的代表性拍屏帧和角点标注。"><figcaption>图 2. 五种拍摄条件中的代表性拍屏帧和角点标注。</figcaption></figure>
+<p>人工标注记录可见屏幕四角。当前 50 个视频共有 248 个标注帧；排除初始化帧后，全部 50 个视频都保留非初始化几何标注，共 199 个可评分标注帧。本文更新后的定量比较使用一个平衡的 10 个视频子集，每种拍摄条件选两个片段，共 40 个非初始化标注帧。该子集在滚动页面标注补齐后重新计算主对比和消融的几何、时域指标。</p>
 <table>
 <thead><tr>
-<th>类别</th>
-<th>视频数</th>
-<th>帧数</th>
+<th>拍摄条件</th>
+<th>数据集片段数</th>
+<th>正文子集片段数</th>
+<th>数据集帧数</th>
 </tr></thead>
 <tbody>
 <tr>
-<td>hard</td>
+<td>静态页面</td>
 <td>10</td>
-<td>3000</td>
-</tr>
-<tr>
-<td>screen_video</td>
-<td>10</td>
-<td>2996</td>
-</tr>
-<tr>
-<td>scrolling</td>
-<td>10</td>
-<td>2995</td>
-</tr>
-<tr>
-<td>static</td>
-<td>10</td>
+<td>2</td>
 <td>2994</td>
 </tr>
 <tr>
-<td>weak_border</td>
+<td>滚动页面</td>
 <td>10</td>
+<td>2</td>
+<td>2995</td>
+</tr>
+<tr>
+<td>屏幕内播放视频</td>
+<td>10</td>
+<td>2</td>
+<td>2996</td>
+</tr>
+<tr>
+<td>弱边框场景</td>
+<td>10</td>
+<td>2</td>
+<td>3000</td>
+</tr>
+<tr>
+<td>挑战场景</td>
+<td>10</td>
+<td>2</td>
 <td>3000</td>
 </tr>
 <tr>
 <td>合计</td>
 <td>50</td>
+<td>10</td>
 <td>14985</td>
 </tr>
 </tbody></table>
 <h2>4.2 指标</h2>
-<p>几何精度在非初始化标注帧上计算，包括四角 RMSE、四边形 IoU 和相对宽高比误差。时域稳定性使用估计屏幕四边形的相邻帧投影变化，并分解为平移、旋转和尺度变化。该指标是轨迹派生诊断量，不能单独证明物理稳定性，因为它与方法自身的估计轨迹共享信息。</p>
-<p>细节保持在每个视频采样帧上计算梯度幅值比和边缘保持指数，用于描述重采样和对齐对局部结构的影响。频域诊断在固定采样帧上分析 FFT 方向和正交性；该指标只描述几何归一化后的方向规则性，不是去摩尔纹质量分数。所有结果按 clip 聚合后报告中位数和四分位范围，并保留 per-clip CSV 和 JSON 供复核。</p>
-<p>运行环境为 Windows 11，Python 3.12.13，OpenCV 5.0.0，NumPy 2.5.1，FFmpeg 8.1。批处理耗时包含算法处理和指标生成，不包含人工标注。</p>
+<p>几何精度在非初始化标注帧上评估，包括角点均方根误差（RMSE）、四边形交并比（IoU）和相对宽高比误差。时间稳定性由估计屏幕四边形的相邻帧投影变化计算，并总结为平移、旋转和尺度变化。这些时域值是轨迹派生诊断量，不是独立的物理稳定真值。</p>
+<p>正文聚焦几何精度和时间稳定性，因为它们直接检验本文的核心取舍。早期细节保持和频域方向诊断继续作为工程记录归档，但不作为本文主要证据。</p>
 <h1>5. 结果</h1>
-<h2>5.1 端到端运行完成情况</h2>
-<p>正式 first-pass 实验中，50 个视频全部处理成功；三种方法共产生 150 个矫正视频、600 个指标 JSON 和 50 个 HTML 审核报告。三种方法的总处理时间分别约为 Frame-wise 1111.2 s、Optical flow 1647.9 s、Proposed 1800.3 s；单 clip 中位耗时分别为 22.3 s、32.9 s 和 36.1 s。这说明 first-pass 流程可以端到端跑通，但运行完成本身并不等于输出正确。</p>
-<h2>5.2 主结果是稳定性-精度取舍</h2>
-<p>总体指标显示的不是 Proposed 全面胜出，而是一个明确取舍（图 3 和表 2）。Proposed 的轨迹派生平移、旋转和尺度变化最低，但在标注几何和边缘保持上低于两个基线。Proposed 的平移变化中位数为 0.254 px/frame，低于 Frame-wise 的 4.886 和 Optical flow 的 12.311；但角点 RMSE 中位数为 191.83 px，高于两个基线的 32.56 px 和 34.88 px。</p>
-<figure><img src="figures/figure_03_core_tradeoff.png" alt="图 3. First-pass 核心取舍。a，横轴为标注几何误差，纵轴为轨迹派生平移变化，气泡面积表示边缘保持。b-e，几何、轨迹变化、边缘保持和 FFT 正交误差的中位数及四分位范围。"><figcaption>图 3. First-pass 核心取舍。a，横轴为标注几何误差，纵轴为轨迹派生平移变化，气泡面积表示边缘保持。b-e，几何、轨迹变化、边缘保持和 FFT 正交误差的中位数及四分位范围。</figcaption></figure>
-<p>较低的几何、时域和频域误差更好；边缘保持指数越高越好。因此表 2 支持的是一个窄结论：参考锚定和门控让估计轨迹更平滑，但正式运行不支持总体几何更优的说法。</p>
+<h2>5.1 参考帧锚定提升估计平滑性，但没有提升标注几何</h2>
+<p>主要结果是稳定性-精度取舍。在更新后的 10 个视频子集上，参考帧锚定方法的平移变化中位数最低，但标注几何中位数最差（图 3、表 2）。其平移变化中位数为 2.94 px/frame，低于逐帧检测的 4.29 px/frame 和相邻帧跟踪的 4.91 px/frame。相反，其角点 RMSE 中位数为 158.94 px，高于另外两种方法的 30.29 px 和 32.43 px。</p>
+<figure><img src="figures/figure_03_geometry_comparison.svg" alt="图 3. 标注 10 个视频子集上的几何和时域对比。参考帧锚定方法降低了估计帧间运动，但提高了标注角点误差中位数。"><figcaption>图 3. 标注 10 个视频子集上的几何和时域对比。参考帧锚定方法降低了估计帧间运动，但提高了标注角点误差中位数。</figcaption></figure>
 <table>
 <thead><tr>
 <th>指标</th>
-<th>Frame-wise</th>
-<th>Optical flow</th>
-<th>Proposed</th>
+<th>逐帧检测</th>
+<th>相邻帧跟踪</th>
+<th>参考帧锚定</th>
 </tr></thead>
 <tbody>
 <tr>
 <td>角点 RMSE，px ↓</td>
-<td>32.56 [8.98, 205.83]</td>
-<td>34.88 [27.79, 167.78]</td>
-<td>191.83 [3.56, 206.27]</td>
+<td>30.29 [14.07, 33.40]</td>
+<td>32.43 [29.17, 63.39]</td>
+<td>158.94 [3.47, 202.66]</td>
 </tr>
 <tr>
 <td>四边形 IoU ↑</td>
-<td>0.979 [0.855, 0.991]</td>
-<td>0.973 [0.892, 0.978]</td>
-<td>0.849 [0.810, 0.996]</td>
-</tr>
-<tr>
-<td>相对宽高比误差 ↓</td>
-<td>2.0% [0.3%, 6.2%]</td>
-<td>2.1% [0.8%, 5.6%]</td>
-<td>0.8% [0.1%, 3.2%]</td>
+<td>0.980 [0.979, 0.988]</td>
+<td>0.978 [0.935, 0.979]</td>
+<td>0.871 [0.826, 0.996]</td>
 </tr>
 <tr>
 <td>平移变化，px/frame ↓</td>
-<td>4.886 [3.641, 8.354]</td>
-<td>12.311 [4.136, 13.648]</td>
-<td>0.254 [0.026, 3.411]</td>
-</tr>
-<tr>
-<td>旋转变化，deg/frame ↓</td>
-<td>0.037</td>
-<td>0.048</td>
-<td>0.0005</td>
-</tr>
-<tr>
-<td>尺度变化，relative/frame ↓</td>
-<td>0.0028</td>
-<td>0.0048</td>
-<td>0.0001</td>
-</tr>
-<tr>
-<td>梯度幅值比</td>
-<td>0.974</td>
-<td>0.984</td>
-<td>0.985</td>
-</tr>
-<tr>
-<td>边缘保持指数 ↑</td>
-<td>0.494 [0.409, 0.656]</td>
-<td>0.482 [0.459, 0.640]</td>
-<td>0.347 [0.192, 0.795]</td>
-</tr>
-<tr>
-<td>FFT 正交误差，deg ↓</td>
-<td>0.944 [0.000, 2.278]</td>
-<td>0.556 [0.000, 1.000]</td>
-<td>0.556 [0.000, 1.333]</td>
+<td>4.29 [3.41, 5.62]</td>
+<td>4.91 [2.91, 12.31]</td>
+<td>2.94 [0.03, 3.80]</td>
 </tr>
 </tbody></table>
-<h2>5.3 分类压力揭示取舍出现的位置</h2>
-<p>分类分析解释了为什么总体结果是混合的（图 4）。Proposed 在 <code>static</code> 中表现最好，角点 RMSE 中位数为 2.63 px，低于 Frame-wise 的 274.43 px 和 Optical flow 的 65.41 px。在内容变化较小的场景中，参考锚定能抑制检测抖动，同时不容易被内部内容运动干扰。</p>
-<p>同一机制在压力场景中失效。在 <code>scrolling</code> 中，Proposed 的 RMSE 中位数达到 801.48 px，而 Frame-wise 和 Optical flow 分别为 31.36 px 和 86.92 px。在 <code>hard</code> 和 <code>weak_border</code> 中，Proposed 很平滑，但接受更新很少：两个类别的 Proposed 接受帧比例中位数约为 0.01。这说明这些类别中的低时域变化可能来自长期冻结，而不一定是正确跟踪物理屏幕。</p>
-<figure><img src="figures/figure_04_category_stress.png" alt="图 4. 分类压力矩阵。几何和轨迹面板报告三种方法的分类中位数；接受更新面板报告 Proposed 在每类中的接受比例中位数，显示哪些场景的平滑来自频繁保持旧几何。"><figcaption>图 4. 分类压力矩阵。几何和轨迹面板报告三种方法的分类中位数；接受更新面板报告 Proposed 在每类中的接受比例中位数，显示哪些场景的平滑来自频繁保持旧几何。</figcaption></figure>
-<h2>5.4 定性输出和局部结构诊断</h2>
-<p>定性输出与指标取舍一致（图 5）。在静态或边界清楚样本中，Proposed 往往能产生稳定正面视图；在滚动、弱边界和困难样本中，它可能裁切屏幕、移动画布，或过长时间保持早期几何。即使轨迹派生变化较低，这些失败仍然可以直接观察到。</p>
-<figure><img src="figures/figure_05_qualitative.png" alt="图 5. 代表视频的输入帧和三种方法矫正输出。"><figcaption>图 5. 代表视频的输入帧和三种方法矫正输出。</figcaption></figure>
-<p>细节指标提供了另一个独立检查（图 6）。Proposed 的梯度幅值比中位数为 0.985，接近两个基线；但边缘保持指数中位数只有 0.347，低于 Frame-wise 的 0.494 和 Optical flow 的 0.482。这说明轨迹更平滑并不会自动带来更好的局部边缘一致性，损失可能来自几何误差、冻结后的错位、额外重采样或残余对齐。频域上，Proposed 和 Optical flow 的 FFT 正交误差中位数均为 0.556 deg，低于 Frame-wise 的 0.944 deg；这只说明矫正后主方向更规则，不能解释为去摩尔纹。</p>
-<figure><img src="figures/figure_06_detail_frequency.png" alt="图 6. 边缘保持、梯度幅值比和频域方向诊断。"><figcaption>图 6. 边缘保持、梯度幅值比和频域方向诊断。</figcaption></figure>
-<h2>5.5 消融实验定位可靠性门控</h2>
-<p>完整消融实验对 50 个视频重复运行。去掉可靠性门控后，几何 RMSE 中位数从 191.83 px 降为 35.63 px，IoU 从 0.849 升至 0.968，但轨迹平移变化从 0.254 px/frame 增至 6.165 px/frame，边缘保持指数也从 0.347 升至 0.552。该结果表明，当前门控过于保守：它显著降低轨迹变化，却牺牲了很多几何贴合和边缘一致性。去掉轨迹平滑后，几何指标基本不变，平移变化增至 0.617 px/frame，说明平滑主要改变时域诊断而非标注帧几何。去掉离线修复在本次主指标中几乎没有变化，说明该模块在 first-pass 实验中未显著触发。</p>
-<figure><img src="figures/figure_07_ablation.png" alt="图 7. Proposed 及三个消融变体的几何、时域和细节指标。"><figcaption>图 7. Proposed 及三个消融变体的几何、时域和细节指标。</figcaption></figure>
-<h2>5.6 失败模式和 post-run tuning smoke test</h2>
-<p>人工审核识别出三类代表失败（图 8）。第一，困难视角或遮挡会让早期几何误差被传播；<code>hard_01</code> 在正式运行中只接受 3/300 帧。第二，弱边界或低纹理场景导致可靠覆盖不足；<code>weak_border_10</code> 只接受 2/300 帧。第三，滚动内容会产生与物理屏幕无关的参考特征，因此即使已有非初始化几何标注，更新接受率仍可能偏低。</p>
-<p>一次小样本 post-run tuning smoke test 放松了 dynamic reference gates，并在每类选择 1-2 个样本重跑。该结果不纳入正式 aggregate，但可作为工程诊断。<code>hard_01</code> 的接受帧从 3/300 增至 298/300，RMSE 从 191.83 px 降至 41.56 px；<code>weak_border_10</code> 的接受帧从 2/300 增至 138/300，RMSE 从 188.20 px 降至 104.78 px。但是 scrolling 仍未解决：<code>scrolling_05</code> 虽接受更多更新，但 RMSE 从 873.67 px 恶化到 1027.15 px。这说明放松门控可以减轻过度冻结，但动态内容仍需要物理边框证据，而不是只增加平滑或放松阈值。</p>
-<figure><img src="figures/figure_08_failures.png" alt="图 8. 失败模式和 tuning 信号。前三列展示原始 Proposed 失败和接受帧时间线；最右列展示诊断性 smoke rerun 中旧门控与 tuned 门控的接受比例。"><figcaption>图 8. 失败模式和 tuning 信号。前三列展示原始 Proposed 失败和接受帧时间线；最右列展示诊断性 smoke rerun 中旧门控与 tuned 门控的接受比例。</figcaption></figure>
+<p>这一模式说明，更平滑的估计轨迹不一定是更正确的屏幕平面轨迹。当证据较弱或具有误导性时，参考帧锚定方法可能保持一个稳定四边形。保持操作会降低短时变化，也可能保留旧的或错误的几何估计。</p>
+<h2>5.2 取舍依赖场景条件</h2>
+<p>分类结果显示了取舍的来源（图 4）。在静态页面和屏幕内播放视频场景中，参考帧锚定方法较准确，RMSE 中位数分别为 2.68 px 和 3.12 px。在这些片段中，参考平面相对可靠，内部内容运动没有主导估计。滚动页面则暴露了失败模式，参考帧锚定方法的 RMSE 中位数达到 689.91 px，符合内部内容运动污染参考平面证据的解释。挑战场景同样产生高误差，RMSE 中位数为 191.83 px。</p>
+<figure><img src="figures/figure_04_temporal_stability.svg" alt="图 4. 按场景划分的几何和时间稳定性压力测试。当参考平面可靠时，参考帧锚定较准确；滚动页面和挑战场景会暴露过期或错误的屏幕几何。"><figcaption>图 4. 按场景划分的几何和时间稳定性压力测试。当参考平面可靠时，参考帧锚定较准确；滚动页面和挑战场景会暴露过期或错误的屏幕几何。</figcaption></figure>
+<p>弱边框和挑战场景体现了方法的另一面。在这些条件下，参考帧锚定方法产生了很低的平移变化，中位数分别为 0.017 和 0.026 px/frame。因此，低变化本身不足以证明成功：它可能反映门控拒绝更新后的长期保持。</p>
+<h2>5.3 可靠性门控是主要杠杆</h2>
+<p>消融实验表明，可靠性门控是观察到的取舍背后的主要机制。移除门控后，角点 RMSE 中位数从 158.94 px 降至 35.63 px，IoU 中位数从 0.871 升至 0.968（表 3）。同时，平移变化中位数从 2.94 px/frame 升至 5.20 px/frame。若门控抑制短时抖动但也阻止跟踪器纠正过期几何，这正是预期方向。</p>
+<table>
+<thead><tr>
+<th>变体</th>
+<th>角点 RMSE，px ↓</th>
+<th>IoU ↑</th>
+<th>平移变化，px/frame ↓</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>完整参考帧锚定方法</td>
+<td>158.94 [3.47, 202.66]</td>
+<td>0.871 [0.826, 0.996]</td>
+<td>2.94 [0.03, 3.80]</td>
+</tr>
+<tr>
+<td>移除可靠性门控</td>
+<td>35.63 [3.51, 47.85]</td>
+<td>0.968 [0.962, 0.996]</td>
+<td>5.20 [3.55, 6.16]</td>
+</tr>
+<tr>
+<td>移除轨迹平滑</td>
+<td>158.94 [2.82, 202.66]</td>
+<td>0.871 [0.826, 0.997]</td>
+<td>3.07 [0.09, 3.96]</td>
+</tr>
+<tr>
+<td>移除离线修复</td>
+<td>158.94 [3.47, 202.66]</td>
+<td>0.871 [0.826, 0.996]</td>
+<td>2.94 [0.03, 3.80]</td>
+</tr>
+</tbody></table>
+<p>在这个子集上，轨迹平滑和离线修复消融与完整方法接近。这不证明这些模块在所有条件下都不重要；它只说明，在当前采样片段和指标下，门控决策主导了几何-时域取舍。</p>
+<h2>5.4 可视化样例解释失败模式</h2>
+<p>定性输出与定量模式一致（图 5）。当被跟踪参考平面与物理屏幕保持一致时，参考帧锚定输出视觉上更稳定。当内部滚动、弱屏幕边界或困难视角主导被跟踪证据时，该方法可能保持偏移或裁切后的屏幕区域。这类结果视觉上稳定，但几何上错误。</p>
+<figure><img src="figures/figure_05_qualitative.png" alt="图 5. 代表性输入帧和归一化输出。定性样例显示，稳定的正面视图仍可能裁切或偏移真实显示屏平面。"><figcaption>图 5. 代表性输入帧和归一化输出。定性样例显示，稳定的正面视图仍可能裁切或偏移真实显示屏平面。</figcaption></figure>
 <h1>6. 讨论</h1>
-<p>本次 first-pass 支持的是 failure-aware 的解释。参考帧锚定、可靠性门控和轨迹平滑能降低估计四边形的短时变化，这在屏幕平面正确时有用；同一设计也可能在 tracker 保持过期几何时产生误导性的稳定。因此，本文把轨迹派生变化、标注几何、边缘保持和定性审核作为分开的证据，而不是合成单一分数。</p>
-<p>消融和 tuning smoke test 指向同一改进方向。关闭门控几乎恢复到基线级几何，但损失时域稳定；放松门控可以减轻 hard 和 weak_border 样本中过度冻结，但仍解决不了 scrolling 内容。因此下一步不应只增加平滑，而应改进接受更新的证据来源。最直接路径是完成项目最初提出的物理边框跟踪器：检测屏幕边框线段，估计交点，并把内部特征作为一致性检查，而不是让移动屏幕内容主导单应矩阵。</p>
-<p>本实验仍有局限。数据集规模较小且由项目组自采集，不能证明跨设备、显示技术、拍摄距离或光照条件的泛化。几何标注仍是稀疏关键帧，而不是逐帧密集标注，尽管当前每个 clip 都已有非初始化几何标注。当前时域指标来自估计轨迹本身，不是独立物理稳定性证据。细节和频域指标没有配对干净录屏，因此不能评估去摩尔纹质量。最后，每次透视变换都会重采样屏幕内容，正面几何和较低抖动可能以模糊、振铃或高频结构变化为代价。</p>
+<p>实验显示，参考帧锚定对拍屏归一化有用，但并不充分。它通过避免纯相邻帧漂移降低轨迹变化；同一机制也会在已接受四边形过期时产生误导性稳定。这解释了为什么必须分开报告几何精度和时间稳定性。</p>
+<p>消融结果表明，更新接受准则是关键设计选择。保守门控有助于抑制抖动，尤其是在弱边框和挑战场景中；但它也可能阻止必要修正。移除门控能恢复相当一部分标注几何精度，代价是更高的时间变化。因此，更强的系统应改进接受更新时使用的证据，例如加入物理屏幕边界线索，使移动屏幕内容不能主导单应矩阵。</p>
+<p>本评估有几项边界。数据集规模较小且由项目组自采集，不能证明跨设备、显示技术、拍摄距离或光照条件的泛化。更新后的几何和时域结果来自平衡的 10 个视频子集，还不是完成标注状态下的 50 个视频完整重跑。几何标注是稀疏关键帧，而不是逐帧密集真值。最后，时间指标来自估计四边形本身，因此可以诊断输出平滑性，但不能独立证明物理屏幕平面正确。</p>
 <h1>7. 结论</h1>
-<p>本文完成了真实拍屏视频几何归一化项目的一次端到端实验闭环：50 个视频全部跑通，生成三种方法的矫正视频、结构化指标、审核报告、论文图和可复现文档。Proposed 参考帧锚定方法显著降低了轨迹派生变化，但正式 first-pass 运行没有提升总体标注几何或边缘保持。核心发现是保守可靠性门控带来的稳定性-精度取舍。该系统目前最适合作为可审计的几何预处理 benchmark 和后续改进基线。未来应先加入物理边框证据并重跑完整 benchmark，再讨论与去摩尔纹或屏幕内容恢复模型集成。</p>
+<p>本文评估了真实拍屏视频的参考帧锚定几何归一化。在更新后的标注子集上，该方法降低了估计轨迹变化，但没有提升标注屏幕几何。消融显示，可靠性门控驱动了这一稳定性-精度取舍：它能抑制抖动，也可能冻结过期几何。主要启示是，拍屏预处理不能把平滑性当作正确性。未来工作应加入更强的物理屏幕平面证据，并在完成标注状态下重跑完整 benchmark。</p>
 <h1>数据可用性</h1>
-<p>本次论文数值来自正式 first-pass 实验和匹配的完整消融实验。汇总指标表、证据记录和图表源文件随项目提交归档。原始视频为课程项目采集数据，公开发布前需要团队确认隐私和授权边界。</p>
+<p>项目包含本地 50 个拍屏视频和配套四角标注。原始视频属于课程项目数据，公开发布前需要团队确认隐私和授权边界。本文使用的汇总指标和证据记录已归档在仓库文档中。</p>
 <h1>代码可用性</h1>
-<p>代码随项目仓库提供。实验由 <code>uv</code> 管理的 Python 脚本运行，提交归档包含论文源文件、导出论文、汇总指标和图表资产。</p>
+<p>代码随项目仓库提供，并通过 <code>uv</code> 管理的 Python 脚本运行。仓库包含论文源文件、评估脚本和归档汇总指标，可从可用本地数据复现正文表格。</p>
 <h1>作者贡献</h1>
-<p>三位作者共同完成项目构思、数据采集、标注、代码实现、实验运行和论文整理。当前仓库记录用于追踪具体代码、文档和实验产物；最终提交版本可根据课程要求进一步细分个人贡献。</p>
+<p>三位作者共同完成项目构思、数据采集、标注、实现、实验运行和论文撰写。</p>
 <h1>参考文献</h1>
 <ol>
-<li>L. Jagannathan and C. V. Jawahar, “Perspective Correction Methods for Camera-Based Document Analysis,” 2005.</li>
-<li>X.-C. Yin, J. Sun, S. Naoi, Y. Fujii, and K. Fujimoto, “Perspective Rectification for Mobile Phone Camera-Based Documents Using a Hybrid Approach to Vanishing Point Detection,” 2007.</li>
-<li>Williem, C. Simon, S. Cho, and I. K. Park, “Fast and Robust Perspective Rectification of Document Images on a Smartphone,” <em>CVPR Workshops</em>, 2014.</li>
-<li>T. Okatani and K. Deguchi, “Autocalibration of a Projector-Screen-Camera System: Theory and Algorithm for Screen-to-Camera Homography Estimation,” <em>ICCV</em>, 2003.</li>
-<li>R. Grompone von Gioi, J. Jakubowicz, J.-M. Morel, and G. Randall, “LSD: A Line Segment Detector,” <em>Image Processing On Line</em>, 2012.</li>
-<li>J. Lezama, G. Randall, and R. Grompone von Gioi, “Vanishing Point Detection in Urban Scenes Using Point Alignments,” <em>Image Processing On Line</em>, 2017.</li>
-<li>B. D. Lucas and T. Kanade, “An Iterative Image Registration Technique with an Application to Stereo Vision,” 1981.</li>
-<li>J.-Y. Bouguet, “Pyramidal Implementation of the Lucas Kanade Feature Tracker,” Intel Corporation, 2000.</li>
-<li>J. Shi and C. Tomasi, “Good Features to Track,” <em>CVPR</em>, 1994.</li>
-<li>P. H. S. Torr and A. Zisserman, “MLESAC: A New Robust Estimator with Application to Estimating Image Geometry,” <em>Computer Vision and Image Understanding</em>, 2000.</li>
-<li>M. Grundmann, V. Kwatra, and I. Essa, “Auto-Directed Video Stabilization with Robust L1 Optimal Camera Paths,” <em>CVPR</em>, 2011.</li>
-<li>J. Sánchez, “Comparison of Motion Smoothing Strategies for Video Stabilization Using Parametric Models,” <em>Image Processing On Line</em>, 2017.</li>
-<li>A. Bradley, J. Klivington, J. Triscari, and R. van der Merwe, “Cinematic-L1 Video Stabilization with a Log-Homography Model,” <em>WACV</em>, 2021.</li>
-<li>W. Guilluy, A. Beghdadi, and L. Oudre, “A Performance Evaluation Framework for Video Stabilization Methods,” <em>EUVIP</em>, 2018.</li>
-<li>B. S. Reddy and B. N. Chatterji, “An FFT-Based Technique for Translation, Rotation, and Scale-Invariant Image Registration,” <em>IEEE Transactions on Image Processing</em>, vol. 5, no. 8, 1996.</li>
-<li>P. Dai, X. Yu, L. Ma, B. Zhang, J. Li, W. Li, J. Shen, and X. Qi, “Video Demoireing with Relation-Based Temporal Consistency,” <em>CVPR</em>, 2022.</li>
-<li>S. Xu, B. Song, X. Chen, and J. Zhou, “Direction-Aware Video Demoireing with Temporal-Guided Bilateral Learning,” <em>AAAI</em>, 2024.</li>
-<li>H. Yue, Y. Cheng, X. Liu, and J. Yang, “Recaptured Raw Screen Image and Video Demoiréing via Channel and Spatial Modulations,” <em>NeurIPS</em>, 2023.</li>
+<li>L. Jagannathan and C. V. Jawahar, &quot;Perspective Correction Methods for Camera-Based Document Analysis,&quot; 2005.</li>
+<li>X.-C. Yin, J. Sun, S. Naoi, Y. Fujii, and K. Fujimoto, &quot;Perspective Rectification for Mobile Phone Camera-Based Documents Using a Hybrid Approach to Vanishing Point Detection,&quot; 2007.</li>
+<li>Williem, C. Simon, S. Cho, and I. K. Park, &quot;Fast and Robust Perspective Rectification of Document Images on a Smartphone,&quot; <em>CVPR Workshops</em>, 2014.</li>
+<li>T. Okatani and K. Deguchi, &quot;Autocalibration of a Projector-Screen-Camera System: Theory and Algorithm for Screen-to-Camera Homography Estimation,&quot; <em>ICCV</em>, 2003.</li>
+<li>B. D. Lucas and T. Kanade, &quot;An Iterative Image Registration Technique with an Application to Stereo Vision,&quot; 1981.</li>
+<li>J.-Y. Bouguet, &quot;Pyramidal Implementation of the Lucas Kanade Feature Tracker,&quot; Intel Corporation, 2000.</li>
+<li>J. Shi and C. Tomasi, &quot;Good Features to Track,&quot; <em>CVPR</em>, 1994.</li>
+<li>P. H. S. Torr and A. Zisserman, &quot;MLESAC: A New Robust Estimator with Application to Estimating Image Geometry,&quot; <em>Computer Vision and Image Understanding</em>, 2000.</li>
+<li>M. Grundmann, V. Kwatra, and I. Essa, &quot;Auto-Directed Video Stabilization with Robust L1 Optimal Camera Paths,&quot; <em>CVPR</em>, 2011.</li>
+<li>J. Sanchez, &quot;Comparison of Motion Smoothing Strategies for Video Stabilization Using Parametric Models,&quot; <em>Image Processing On Line</em>, 2017.</li>
+<li>A. Bradley, J. Klivington, J. Triscari, and R. van der Merwe, &quot;Cinematic-L1 Video Stabilization with a Log-Homography Model,&quot; <em>WACV</em>, 2021.</li>
+<li>W. Guilluy, A. Beghdadi, and L. Oudre, &quot;A Performance Evaluation Framework for Video Stabilization Methods,&quot; <em>EUVIP</em>, 2018.</li>
+<li>P. Dai, X. Yu, L. Ma, B. Zhang, J. Li, W. Li, J. Shen, and X. Qi, &quot;Video Demoireing with Relation-Based Temporal Consistency,&quot; <em>CVPR</em>, 2022.</li>
+<li>S. Xu, B. Song, X. Chen, and J. Zhou, &quot;Direction-Aware Video Demoireing with Temporal-Guided Bilateral Learning,&quot; <em>AAAI</em>, 2024.</li>
+<li>H. Yue, Y. Cheng, X. Liu, and J. Yang, &quot;Recaptured Raw Screen Image and Video Demoireing via Channel and Spatial Modulations,&quot; <em>NeurIPS</em>, 2023.</li>
 </ol>
 </body>
 </html>
