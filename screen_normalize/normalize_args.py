@@ -469,7 +469,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def apply_reference_profile(args: argparse.Namespace) -> None:
     if args.reference_profile == "dynamic":
-        args.reference_min_point_age = 15
+        args.reference_min_inliers = 24
+        args.reference_min_inlier_ratio = 0.15
+        args.reference_max_reprojection_error = 4.5
+        args.reference_max_scale_step = 0.08
+        args.reference_max_area_step = 0.18
+        args.reference_min_point_age = 1
+        args.reference_min_coverage_x = 0.08
+        args.reference_min_coverage_y = 0.05
         args.median_window = 5
         args.trajectory_window = 31
     elif args.reference_profile == "low-latency":
