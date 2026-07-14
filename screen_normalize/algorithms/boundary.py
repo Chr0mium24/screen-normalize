@@ -95,6 +95,160 @@ def robust_fit_line(points: np.ndarray, strengths: np.ndarray, threshold: float 
     return line, inliers
 
 
+def line_from_points(start: np.ndarray, end: np.ndarray) -> np.ndarray | None:
+    start = np.asarray(start, dtype=np.float32)
+    end = np.asarray(end, dtype=np.float32)
+    direction = end - start
+    length = float(np.linalg.norm(direction))
+    if length < 1.0:
+        return None
+    vx, vy = direction / length
+    line = np.array([vy, -vx, -(vy * start[0] - vx * start[1])], dtype=np.float64)
+    line /= max(np.linalg.norm(line[:2]), 1e-12)
+    return line
+
+
+def detect_hough_segments(gray: np.ndarray) -> np.ndarray:
+    blurred = cv2.GaussianBlur(gray, (3, 3), 0)
+    edges = cv2.Canny(blurred, 60, 160)
+    min_length = max(50, min(gray.shape[:2]) // 28)
+    lines = cv2.HoughLinesP(
+        edges,
+        1,
+        np.pi / 180.0,
+        threshold=80,
+        minLineLength=min_length,
+        maxLineGap=28,
+    )
+    if lines is None:
+        return np.empty((0, 4), dtype=np.float32)
+    return lines.reshape(-1, 4).astype(np.float32)
+
+
+def detect_lsd_segments(gray: np.ndarray) -> np.ndarray:
+    detector = cv2.createLineSegmentDetector()
+    lines = detector.detect(gray)[0]
+    if lines is None:
+        return np.empty((0, 4), dtype=np.float32)
+    return lines.reshape(-1, 4).astype(np.float32)
+
+
+def detect_line_segments(gray: np.ndarray, detector: str) -> np.ndarray:
+    if detector == "hough":
+        return detect_hough_segments(gray)
+    if detector == "lsd":
+        return detect_lsd_segments(gray)
+    raise ValueError(f"unsupported line detector: {detector}")
+
+
+def angle_delta_degrees(first: np.ndarray, second: np.ndarray) -> float:
+    first = np.asarray(first, dtype=np.float32)
+    second = np.asarray(second, dtype=np.float32)
+    first_norm = float(np.linalg.norm(first))
+    second_norm = float(np.linalg.norm(second))
+    if first_norm < 1e-6 or second_norm < 1e-6:
+        return 180.0
+    cosine = abs(float(np.dot(first / first_norm, second / second_norm)))
+    return float(np.degrees(np.arccos(np.clip(cosine, -1.0, 1.0))))
+
+
+def sample_segment_points(segment: np.ndarray, step: float = 12.0) -> np.ndarray:
+    start = segment[:2]
+    end = segment[2:]
+    length = float(np.linalg.norm(end - start))
+    count = max(2, min(80, int(length / step) + 1))
+    positions = np.linspace(0.0, 1.0, count, dtype=np.float32)
+    return start[None, :] + positions[:, None] * (end - start)[None, :]
+
+
+def line_segment_edge_observation(
+    segments: np.ndarray,
+    predicted_corners: np.ndarray,
+    edge: int,
+    radius: int,
+    angle_tolerance_deg: float = 12.0,
+) -> EdgeObservation:
+    start = np.asarray(predicted_corners[edge], dtype=np.float32)
+    end = np.asarray(predicted_corners[(edge + 1) % 4], dtype=np.float32)
+    edge_vector = end - start
+    edge_length = float(np.linalg.norm(edge_vector))
+    if edge_length < 1.0:
+        return EdgeObservation(
+            np.empty((0, 2), np.float32),
+            np.empty(0, np.float32),
+            None,
+            np.zeros(0, dtype=bool),
+            0.0,
+        )
+    tangent = edge_vector / edge_length
+    predicted_line = line_from_points(start, end)
+    if predicted_line is None:
+        return EdgeObservation(
+            np.empty((0, 2), np.float32),
+            np.empty(0, np.float32),
+            None,
+            np.zeros(0, dtype=bool),
+            0.0,
+        )
+
+    selected_points: list[np.ndarray] = []
+    selected_strengths: list[np.ndarray] = []
+    covered_length = 0.0
+    min_segment_length = max(30.0, edge_length * 0.015)
+    for segment in segments:
+        first = segment[:2]
+        second = segment[2:]
+        segment_vector = second - first
+        segment_length = float(np.linalg.norm(segment_vector))
+        if segment_length < min_segment_length:
+            continue
+        if angle_delta_degrees(segment_vector, tangent) > angle_tolerance_deg:
+            continue
+        midpoint = (first + second) * 0.5
+        distance = abs(float(midpoint @ predicted_line[:2] + predicted_line[2]))
+        if distance > radius:
+            continue
+        projections = np.array(
+            [float((first - start) @ tangent), float((second - start) @ tangent)]
+        )
+        overlap = max(0.0, min(float(projections.max()), edge_length) - max(float(projections.min()), 0.0))
+        if overlap < max(10.0, segment_length * 0.15):
+            continue
+        points = sample_segment_points(segment)
+        selected_points.append(points)
+        selected_strengths.append(np.full((len(points),), segment_length, dtype=np.float32))
+        covered_length += min(overlap, segment_length)
+
+    if not selected_points:
+        return EdgeObservation(
+            np.empty((0, 2), np.float32),
+            np.empty(0, np.float32),
+            None,
+            np.zeros(0, dtype=bool),
+            0.0,
+        )
+
+    points = np.concatenate(selected_points).astype(np.float32)
+    strengths = np.concatenate(selected_strengths).astype(np.float32)
+    line, inliers = robust_fit_line(points, strengths, threshold=max(3.0, radius * 0.08))
+    confidence = min(1.0, covered_length / max(1.0, edge_length)) if line is not None else 0.0
+    return EdgeObservation(points, strengths, line, inliers, confidence)
+
+
+def observe_quad_edges_by_line_detector(
+    gray: np.ndarray,
+    predicted_corners: np.ndarray,
+    radius: int,
+    detector: str,
+) -> tuple[list[EdgeObservation], np.ndarray]:
+    segments = detect_line_segments(gray, detector)
+    observations = [
+        line_segment_edge_observation(segments, predicted_corners, edge, radius)
+        for edge in range(4)
+    ]
+    return observations, np.zeros(4, dtype=np.float32)
+
+
 def intersect_lines(first: np.ndarray, second: np.ndarray) -> np.ndarray | None:
     matrix = np.asarray([first[:2], second[:2]], dtype=np.float64)
     determinant = float(np.linalg.det(matrix))

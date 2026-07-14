@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 from pathlib import Path
 from typing import Any
 
@@ -19,60 +20,78 @@ from screen_normalize.experiments.annotations import load_annotations
 from screen_normalize.experiments.paper_style import apply_paper_style
 
 
-CATEGORIES = ("static", "screen_video", "scrolling", "weak_border", "hard")
-METHODS = ("frame_wise", "optical_flow", "proposed")
+CATEGORIES = ("static", "scrolling", "screen_video", "weak_border", "hard")
+EVAL_CLIPS = {
+    "static": ("static_01", "static_02"),
+    "scrolling": ("scrolling_01", "scrolling_02"),
+    "screen_video": ("screen_video_01", "screen_video_02"),
+    "weak_border": ("weak_border_01", "weak_border_02"),
+    "hard": ("hard_01", "hard_02"),
+}
+METHODS = ("frame_wise", "optical_flow", "proposal_border")
+PROPOSED_METHOD = "proposal_border"
 METHOD_LABELS = {
     "frame_wise": "Frame-wise",
     "optical_flow": "Optical flow",
-    "proposed": "Proposed",
-    "no_reliability_gates": "w/o gates",
-    "no_trajectory_smoothing": "w/o smoothing",
-    "no_offline_repair": "w/o repair",
+    "proposal_border": "Proposed",
 }
 METHOD_COLORS = {
     "frame_wise": "#5B6470",
     "optical_flow": "#7C8FB8",
-    "proposed": "#0F4D92",
-    "no_reliability_gates": "#B8842D",
-    "no_trajectory_smoothing": "#7C8FB8",
-    "no_offline_repair": "#806491",
+    "proposal_border": "#2F7F73",
 }
 METHOD_MARKERS = {
     "frame_wise": "o",
     "optical_flow": "s",
-    "proposed": "D",
-    "no_reliability_gates": "^",
-    "no_trajectory_smoothing": "v",
-    "no_offline_repair": "P",
+    "proposal_border": "P",
 }
 CATEGORY_LABELS = {
     "static": "Static",
-    "screen_video": "Screen video",
     "scrolling": "Scrolling",
+    "screen_video": "Screen video",
     "weak_border": "Weak border",
     "hard": "Hard",
 }
 GRID = "#D9DDDF"
 TEXT = "#242729"
 
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build manuscript figures from first-pass outputs.")
+    parser = argparse.ArgumentParser(description="Build manuscript figures from the proposal-border evaluation run.")
     parser.add_argument("--input", type=Path, default=Path("inputs"))
-    parser.add_argument("--main-run", type=Path, default=Path("runs/20260714_full_pipeline_first_pass"))
-    parser.add_argument("--results", type=Path, default=Path("doc/archive/paper_results/2026-07-14-first-pass/results"))
+    parser.add_argument("--main-run", type=Path, default=Path("runs/20260714_small_sample_with_proposal_border"))
     parser.add_argument("--output", type=Path, default=Path("doc/current/paper/manuscript/figures"))
     parser.add_argument("--dpi", type=int, default=300)
     return parser.parse_args()
 
+
 def read_csv(path: Path) -> list[dict[str, str]]:
     with path.open(newline="", encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
+
+
+def read_json(path: Path) -> dict[str, Any]:
+    with path.open(encoding="utf-8") as handle:
+        data = json.load(handle)
+    if not isinstance(data, dict):
+        raise ValueError(f"expected JSON object in {path}")
+    return data
+
 
 def frame_count(video: Path) -> int:
     capture = cv2.VideoCapture(str(video))
     count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     capture.release()
     return count
+
+
+def video_size(video: Path) -> tuple[int, int]:
+    capture = cv2.VideoCapture(str(video))
+    width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
+    height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
+    capture.release()
+    return width, height
+
 
 def read_frame(video: Path, frame: int) -> np.ndarray:
     capture = cv2.VideoCapture(str(video))
@@ -85,12 +104,6 @@ def read_frame(video: Path, frame: int) -> np.ndarray:
         raise RuntimeError(f"could not read frame {frame} from {video}")
     return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-def video_size(video: Path) -> tuple[int, int]:
-    capture = cv2.VideoCapture(str(video))
-    width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
-    height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
-    capture.release()
-    return width, height
 
 def annotation_frame(video: Path, prefer_nonzero: bool = True) -> tuple[int, np.ndarray | None]:
     csv_path = video.with_suffix(".csv")
@@ -105,6 +118,7 @@ def annotation_frame(video: Path, prefer_nonzero: bool = True) -> tuple[int, np.
         frames = [frame for frame in frames if frame != 0] or sorted(annotations)
     frame = frames[len(frames) // 2]
     return frame, annotations[frame]
+
 
 def corners_at(csv_path: Path, frame: int) -> np.ndarray | None:
     if not csv_path.exists():
@@ -129,7 +143,8 @@ def corners_at(csv_path: Path, frame: int) -> np.ndarray | None:
             best = (distance, corners)
     return best[1] if best else None
 
-def overlay_corners(image: np.ndarray, corners: np.ndarray | None, color: tuple[int, int, int] = (15, 77, 146)) -> np.ndarray:
+
+def overlay_corners(image: np.ndarray, corners: np.ndarray | None, color: tuple[int, int, int] = (47, 127, 115)) -> np.ndarray:
     if corners is None:
         return image
     canvas = cv2.cvtColor(image.copy(), cv2.COLOR_RGB2BGR)
@@ -140,10 +155,20 @@ def overlay_corners(image: np.ndarray, corners: np.ndarray | None, color: tuple[
         cv2.circle(canvas, tuple(point), 10, color, 3, cv2.LINE_AA)
     return cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB)
 
+
+def normalized_frame(run: Path, category: str, clip: str, method: str, frame: int) -> np.ndarray:
+    return read_frame(run / category / clip / method / "normalized.mp4", frame)
+
+
 def show_image(axis: plt.Axes, image: np.ndarray, title: str) -> None:
     axis.imshow(image)
     axis.set_title(title, fontsize=7.8, pad=3)
     axis.axis("off")
+
+
+def add_panel_label(axis: plt.Axes, label: str, color: str = TEXT) -> None:
+    axis.text(-0.035, 1.035, label, transform=axis.transAxes, ha="left", va="bottom", fontsize=9, fontweight="bold", color=color)
+
 
 def save(fig: plt.Figure, output: Path, dpi: int) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -153,76 +178,92 @@ def save(fig: plt.Figure, output: Path, dpi: int) -> None:
     fig.savefig(base.with_suffix(".png"), dpi=dpi, bbox_inches="tight")
     plt.close(fig)
 
-def normalized_frame(run: Path, category: str, clip: str, method: str, frame: int) -> np.ndarray:
-    return read_frame(run / category / clip / method / "normalized.mp4", frame)
 
-def add_panel_label(axis: plt.Axes, label: str, color: str = TEXT) -> None:
-    axis.text(-0.04, 1.04, label, transform=axis.transAxes, ha="left", va="bottom", fontsize=9, fontweight="bold", color=color)
+def collect_metrics(run: Path) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for category in CATEGORIES:
+        for clip in EVAL_CLIPS[category]:
+            for method in METHODS:
+                method_dir = run / category / clip / method
+                geometry = read_json(method_dir / "geometry.json")
+                temporal = read_json(method_dir / "temporal.json")
+                if geometry.get("status") != "ok" or temporal.get("status") != "ok":
+                    continue
+                rows.append(
+                    {
+                        "category": category,
+                        "clip": clip,
+                        "method": method,
+                        "rmse": float(geometry["corner_rmse_px_p50"]),
+                        "iou": float(geometry["quad_iou_p50"]),
+                        "translation": float(temporal["translation_px_p50"]),
+                    }
+                )
+    return rows
 
-def median_value(rows: list[dict[str, str]], field: str, **filters: str) -> float:
-    values = []
-    for row in rows:
-        if any(row.get(key) != value for key, value in filters.items()):
-            continue
-        try:
-            values.append(float(row[field]))
-        except (KeyError, TypeError, ValueError):
-            continue
-    return float(np.median(values)) if values else float("nan")
 
-def style_metric_axis(axis: plt.Axes, title: str, ylabel: str = "") -> None:
-    axis.set_title(title, loc="left", fontsize=8.5, fontweight="bold")
-    if ylabel:
-        axis.set_ylabel(ylabel)
-    axis.grid(axis="y", color=GRID, linewidth=0.55)
-    axis.spines[["top", "right"]].set_visible(False)
-    axis.set_axisbelow(True)
+def values(rows: list[dict[str, Any]], method: str, field: str, category: str | None = None) -> np.ndarray:
+    selected = [row[field] for row in rows if row["method"] == method and (category is None or row["category"] == category)]
+    return np.asarray(selected, dtype=float)
+
+
+def median_iqr(rows: list[dict[str, Any]], method: str, field: str, category: str | None = None) -> tuple[float, float, float]:
+    sample = values(rows, method, field, category)
+    if sample.size == 0:
+        return float("nan"), float("nan"), float("nan")
+    return float(np.median(sample)), float(np.percentile(sample, 25)), float(np.percentile(sample, 75))
+
+
+def metric_matrix(rows: list[dict[str, Any]], field: str) -> np.ndarray:
+    return np.asarray([[median_iqr(rows, method, field, category)[0] for method in METHODS] for category in CATEGORIES], dtype=float)
+
 
 def draw_pipeline(axis: plt.Axes) -> None:
     axis.set_axis_off()
     labels = [
-        "Frame-0\ncorners",
-        "Reference\nLK tracks",
-        "RANSAC\nhomography",
-        "Reliability\ngates",
-        "Repair and\nsmoothing",
-        "Frontal\nrendering",
+        "Initial\ncorners",
+        "Border search\nbands",
+        "Physical edge\nevidence",
+        "Line fit and\nintersections",
+        "LK consistency\ncheck",
+        "Smooth and\nwarp",
     ]
     x0, width, gap = 0.02, 0.135, 0.032
     for index, label in enumerate(labels):
         x = x0 + index * (width + gap)
-        color = "#E8EEF6" if index != 3 else "#F7E7C6"
+        color = "#DDEEEA" if index in (2, 3) else "#E9EDF2"
         box = patches.FancyBboxPatch(
-            (x, 0.28),
+            (x, 0.30),
             width,
-            0.44,
-            boxstyle="round,pad=0.012,rounding_size=0.018",
-            linewidth=0.9,
+            0.42,
+            boxstyle="round,pad=0.012,rounding_size=0.010",
+            linewidth=0.85,
             edgecolor="#65717C",
             facecolor=color,
         )
         axis.add_patch(box)
-        axis.text(x + width / 2, 0.50, label, ha="center", va="center", fontsize=8, color=TEXT)
+        axis.text(x + width / 2, 0.51, label, ha="center", va="center", fontsize=8, color=TEXT)
         if index < len(labels) - 1:
-            axis.annotate("", xy=(x + width + gap * 0.70, 0.50), xytext=(x + width, 0.50), arrowprops={"arrowstyle": "->", "lw": 1.0, "color": "#65717C"})
-    axis.text(0.02, 0.94, "Reference-anchored screen-plane normalization", ha="left", va="top", fontsize=9.5, fontweight="bold", color=TEXT)
-    axis.text(0.02, 0.10, "The implemented system favors explicit update acceptance over unconstrained frame-to-frame motion.", ha="left", va="bottom", fontsize=7.8, color="#5B6470")
+            axis.annotate("", xy=(x + width + gap * 0.70, 0.51), xytext=(x + width, 0.51), arrowprops={"arrowstyle": "->", "lw": 1.0, "color": "#65717C"})
+    axis.text(0.02, 0.94, "Border-guided screen-plane normalization", ha="left", va="top", fontsize=9.5, fontweight="bold", color=TEXT)
+    axis.text(0.02, 0.12, "The screen boundary drives the homography; LK tracks are used as a consistency signal for content-motion conflicts.", ha="left", va="bottom", fontsize=7.8, color="#5B6470")
+
 
 def figure_01(args: argparse.Namespace) -> None:
-    category, clip = "static", "static_01"
+    category, clip = "scrolling", "scrolling_02"
     video = args.input / category / f"{clip}.mp4"
-    frame, gt = annotation_frame(video, prefer_nonzero=True)
+    frame, ground_truth = annotation_frame(video)
     input_frame = read_frame(video, frame)
-    estimate = corners_at(args.main_run / category / clip / "proposed" / "estimated_corners.csv", frame)
-    proposed = normalized_frame(args.main_run, category, clip, "proposed", frame)
+    estimate = corners_at(args.main_run / category / clip / PROPOSED_METHOD / "estimated_corners.csv", frame)
+    proposed = normalized_frame(args.main_run, category, clip, PROPOSED_METHOD, frame)
     optical = normalized_frame(args.main_run, category, clip, "optical_flow", frame)
-    fig = plt.figure(figsize=(7.2, 2.85), constrained_layout=True)
+
+    fig = plt.figure(figsize=(7.2, 2.9), constrained_layout=True)
     grid = fig.add_gridspec(2, 4, height_ratios=[0.58, 1.25])
-    ax_flow = fig.add_subplot(grid[0, :])
-    draw_pipeline(ax_flow)
+    draw_pipeline(fig.add_subplot(grid[0, :]))
     panels = [
-        (input_frame, "Input frame"),
-        (overlay_corners(input_frame, estimate), "Estimated screen plane"),
+        (overlay_corners(input_frame, ground_truth, color=(90, 90, 90)), "Input + annotation"),
+        (overlay_corners(input_frame, estimate), "Border estimate"),
         (optical, "Optical-flow output"),
         (proposed, "Proposed output"),
     ]
@@ -230,93 +271,67 @@ def figure_01(args: argparse.Namespace) -> None:
         axis = fig.add_subplot(grid[1, index])
         show_image(axis, image, title)
         add_panel_label(axis, chr(ord("a") + index))
-    if gt is None:
-        ax_flow.text(0.98, 0.10, "No non-initialization annotation for selected frame", ha="right", va="bottom", fontsize=7)
     save(fig, args.output / "figure_01_pipeline.png", args.dpi)
 
-def figure_02(args: argparse.Namespace) -> None:
-    order = ("static", "scrolling", "screen_video", "weak_border", "hard")
-    fig, axes = plt.subplots(len(order), 3, figsize=(7.2, 7.55), constrained_layout=True)
-    for row, category in enumerate(order):
-        for col in range(3):
-            clip = f"{category}_{col + 1:02d}"
-            video = args.input / category / f"{clip}.mp4"
-            frame, corners = annotation_frame(video, prefer_nonzero=True)
-            title = CATEGORY_LABELS[category] if col == 0 else ""
-            label = f"{clip}  frame {frame}"
-            image = overlay_corners(read_frame(video, frame), corners)
-            show_image(axes[row, col], image, title or label)
-            axes[row, col].text(0.02, 0.96, label, transform=axes[row, col].transAxes, ha="left", va="top", fontsize=6.8, color="white", bbox={"facecolor": "#111111", "alpha": 0.68, "pad": 1.8, "edgecolor": "none"})
-            if col == 0:
-                add_panel_label(axes[row, col], chr(ord("a") + row))
-    save(fig, args.output / "figure_02_dataset.png", args.dpi)
+
+def style_metric_axis(axis: plt.Axes, title: str, ylabel: str) -> None:
+    axis.set_title(title, loc="left", fontsize=8.5, fontweight="bold")
+    axis.set_ylabel(ylabel)
+    axis.grid(axis="y", color=GRID, linewidth=0.55)
+    axis.spines[["top", "right"]].set_visible(False)
+    axis.set_axisbelow(True)
 
 
-def aggregate_metric(rows: list[dict[str, str]], metric: str, method: str, field: str = "median") -> float:
-    for row in rows:
-        if row["metric"] == metric and row["method"] == method:
-            return float(row[field])
-    return float("nan")
-
-
-def iqr_bar(axis: plt.Axes, rows: list[dict[str, str]], metric: str, title: str, ylabel: str) -> None:
-    values = np.asarray([aggregate_metric(rows, metric, method, "median") for method in METHODS])
-    q1 = np.asarray([aggregate_metric(rows, metric, method, "q1") for method in METHODS])
-    q3 = np.asarray([aggregate_metric(rows, metric, method, "q3") for method in METHODS])
-    yerr = np.vstack([values - q1, q3 - values])
-    x = np.arange(len(METHODS))
-    axis.bar(x, values, yerr=yerr, color=[METHOD_COLORS[m] for m in METHODS], edgecolor="#2B2B2B", linewidth=0.7, capsize=3)
-    axis.set_xticks(x, [METHOD_LABELS[m] for m in METHODS], rotation=18, ha="right")
-    style_metric_axis(axis, title, ylabel)
-
-
-def figure_03(args: argparse.Namespace) -> None:
-    rows = read_csv(args.results / "full_pipeline_first_pass" / "aggregate_metrics.csv")
-    fig = plt.figure(figsize=(7.2, 5.0), constrained_layout=True)
-    grid = fig.add_gridspec(2, 3, width_ratios=[1.35, 1.0, 1.0])
-    ax = fig.add_subplot(grid[:, 0])
-    offsets = {"frame_wise": (10, 4), "optical_flow": (8, -12), "proposed": (-66, 10)}
+def bar_metric(axis: plt.Axes, rows: list[dict[str, Any]], field: str, title: str, ylabel: str, log_scale: bool = False) -> None:
+    medians, q1s, q3s = [], [], []
     for method in METHODS:
-        rmse = aggregate_metric(rows, "geometry", method)
-        temporal = aggregate_metric(rows, "temporal", method)
-        edge = aggregate_metric(rows, "detail", method)
-        size = 380 + 780 * max(edge, 0)
-        ax.scatter(rmse, temporal, s=size, marker=METHOD_MARKERS[method], color=METHOD_COLORS[method], edgecolor="white", linewidth=1.2, zorder=3)
-        ax.annotate(METHOD_LABELS[method], (rmse, temporal), xytext=offsets[method], textcoords="offset points", fontsize=8, color=TEXT)
-    ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.set_xlabel("Median corner RMSE (px, lower is better)")
-    ax.set_ylabel("Median translation variation (px/frame, lower is better)")
-    ax.set_xlim(25, 250)
-    ax.set_ylim(0.16, 20)
-    ax.xaxis.set_major_locator(mticker.FixedLocator([30, 50, 100, 200]))
-    ax.xaxis.set_major_formatter(mticker.FixedFormatter(["30", "50", "100", "200"]))
-    ax.xaxis.set_minor_formatter(mticker.NullFormatter())
-    ax.set_title("a  Main trade-off", loc="left", fontsize=9, fontweight="bold")
-    ax.grid(color=GRID, linewidth=0.55, which="both")
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.text(0.04, 0.03, "Bubble area encodes edge preservation", transform=ax.transAxes, fontsize=7.4, color="#5B6470")
-    iqr_bar(fig.add_subplot(grid[0, 1]), rows, "geometry", "b  Geometry", "RMSE px")
-    iqr_bar(fig.add_subplot(grid[0, 2]), rows, "temporal", "c  Trajectory", "px/frame")
-    iqr_bar(fig.add_subplot(grid[1, 1]), rows, "detail", "d  Edge preservation", "F1")
-    iqr_bar(fig.add_subplot(grid[1, 2]), rows, "frequency", "e  FFT orthogonality", "deg")
-    save(fig, args.output / "figure_03_core_tradeoff.png", args.dpi)
+        median, q1, q3 = median_iqr(rows, method, field)
+        medians.append(median)
+        q1s.append(q1)
+        q3s.append(q3)
+    medians_arr = np.asarray(medians)
+    yerr = np.vstack([medians_arr - np.asarray(q1s), np.asarray(q3s) - medians_arr])
+    x = np.arange(len(METHODS))
+    axis.bar(x, medians_arr, yerr=yerr, color=[METHOD_COLORS[m] for m in METHODS], edgecolor="#2B2B2B", linewidth=0.7, capsize=3)
+    axis.set_xticks(x, [METHOD_LABELS[m] for m in METHODS], rotation=18, ha="right")
+    if log_scale:
+        axis.set_yscale("log")
+        axis.yaxis.set_major_formatter(mticker.ScalarFormatter())
+        axis.yaxis.set_minor_formatter(mticker.NullFormatter())
+    style_metric_axis(axis, title, ylabel)
+    for xpos, value in zip(x, medians_arr):
+        label = f"{value:.3f}" if field == "iou" else f"{value:.2f}"
+        if log_scale:
+            y = value * 1.05
+        elif field == "iou":
+            y = value + 0.0008
+        else:
+            y = value + 0.03 * max(medians_arr)
+        axis.text(xpos, y, label, ha="center", va="bottom", fontsize=7)
 
 
-def heatmap(axis: plt.Axes, data: np.ndarray, row_labels: list[str], col_labels: list[str], title: str, cbar_label: str, fmt: str, log_color: bool = False) -> None:
+def figure_02(args: argparse.Namespace, rows: list[dict[str, Any]]) -> None:
+    fig, axes = plt.subplots(1, 3, figsize=(7.2, 2.75), constrained_layout=True)
+    bar_metric(axes[0], rows, "rmse", "a  Corner accuracy", "RMSE px", log_scale=True)
+    bar_metric(axes[1], rows, "iou", "b  Overlap", "IoU")
+    bar_metric(axes[2], rows, "translation", "c  Trajectory variation", "px/frame")
+    axes[1].set_ylim(0.965, 1.000)
+    save(fig, args.output / "figure_02_overall_results.png", args.dpi)
+
+
+def heatmap(axis: plt.Axes, data: np.ndarray, title: str, cbar_label: str, fmt: str, log_color: bool = False) -> None:
     color_data = np.log10(np.maximum(data, 1e-6)) if log_color else data
     image = axis.imshow(color_data, aspect="auto", cmap="YlGnBu_r")
-    axis.set_xticks(np.arange(len(col_labels)), col_labels, rotation=20, ha="right")
-    axis.set_yticks(np.arange(len(row_labels)), row_labels)
+    axis.set_xticks(np.arange(len(METHODS)), [METHOD_LABELS[m] for m in METHODS], rotation=20, ha="right")
+    axis.set_yticks(np.arange(len(CATEGORIES)), [CATEGORY_LABELS[c] for c in CATEGORIES])
     axis.set_title(title, loc="left", fontsize=8.5, fontweight="bold")
     for row in range(data.shape[0]):
         for col in range(data.shape[1]):
             value = data[row, col]
-            text = "NA" if np.isnan(value) else fmt.format(value)
             rgba = image.cmap(image.norm(color_data[row, col]))
             luminance = 0.299 * rgba[0] + 0.587 * rgba[1] + 0.114 * rgba[2]
             color = "white" if luminance < 0.46 else "#1F1F1F"
-            axis.text(col, row, text, ha="center", va="center", fontsize=7, color=color)
+            axis.text(col, row, fmt.format(value), ha="center", va="center", fontsize=7, color=color)
     axis.tick_params(length=0)
     for spine in axis.spines.values():
         spine.set_visible(False)
@@ -324,170 +339,66 @@ def heatmap(axis: plt.Axes, data: np.ndarray, row_labels: list[str], col_labels:
     cbar.set_label(cbar_label, fontsize=7.5)
 
 
-def debug_acceptance(run: Path, category: str, clip: str) -> tuple[np.ndarray, str]:
-    rows = read_csv(run / category / clip / "proposed" / "debug.csv")
-    accepted = np.asarray([1.0 if row.get("accepted") == "True" else 0.0 for row in rows], dtype=float)
-    label = f"{int(accepted.sum())}/{len(accepted)} accepted"
-    return accepted, label
+def figure_03(args: argparse.Namespace, rows: list[dict[str, Any]]) -> None:
+    fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.35), constrained_layout=True)
+    heatmap(axes[0], metric_matrix(rows, "rmse"), "a  Geometry by capture condition", "log10 px", "{:.1f}", log_color=True)
+    heatmap(axes[1], metric_matrix(rows, "translation"), "b  Trajectory variation by capture condition", "log10 px/frame", "{:.2f}", log_color=True)
+    save(fig, args.output / "figure_03_category_results.png", args.dpi)
 
 
-def acceptance_ratio(run: Path, category: str, clip: str) -> float:
-    accepted, _ = debug_acceptance(run, category, clip)
-    return float(np.mean(accepted)) if accepted.size else float("nan")
+def clip_label(row: dict[str, Any]) -> str:
+    return row["clip"].replace("_", " ")
 
 
-def figure_04(args: argparse.Namespace) -> None:
-    geom = read_csv(args.results / "full_pipeline_first_pass" / "geometry_table.csv")
-    temporal = read_csv(args.results / "full_pipeline_first_pass" / "temporal_table.csv")
-    rmse = np.asarray([[median_value(geom, "corner_rmse_px_mean", category=cat, method=method, status="ok") for method in METHODS] for cat in CATEGORIES])
-    trans = np.asarray([[median_value(temporal, "translation_px_mean", category=cat, method=method, status="ok") for method in METHODS] for cat in CATEGORIES])
-    accept = np.asarray([[acceptance_ratio(args.main_run, cat, f"{cat}_{index:02d}") for index in range(1, 11)] for cat in CATEGORIES])
-    accept = np.asarray([[np.nanmedian(row)] for row in accept])
-    labels = [CATEGORY_LABELS[c] for c in CATEGORIES]
-    fig, axes = plt.subplots(1, 3, figsize=(7.2, 3.7), constrained_layout=True)
-    heatmap(axes[0], rmse, labels, [METHOD_LABELS[m] for m in METHODS], "a  Geometry stress", "log10 px", "{:.0f}", log_color=True)
-    heatmap(axes[1], trans, labels, [METHOD_LABELS[m] for m in METHODS], "b  Trajectory stress", "log10 px/frame", "{:.2f}", log_color=True)
-    heatmap(axes[2], accept, labels, ["Proposed"], "c  Accepted updates", "ratio", "{:.2f}")
-    save(fig, args.output / "figure_04_category_stress.png", args.dpi)
+def figure_04(args: argparse.Namespace, rows: list[dict[str, Any]]) -> None:
+    proposed = [row for row in rows if row["method"] == PROPOSED_METHOD]
+    proposed.sort(key=lambda row: (CATEGORIES.index(row["category"]), row["clip"]))
+    labels = [clip_label(row) for row in proposed]
+    x = np.arange(len(proposed))
+    colors = [METHOD_COLORS[PROPOSED_METHOD] if row["rmse"] <= 10 else "#B8842D" for row in proposed]
+
+    fig, axes = plt.subplots(2, 1, figsize=(7.2, 4.35), sharex=True, constrained_layout=True)
+    axes[0].bar(x, [row["rmse"] for row in proposed], color=colors, edgecolor="#2B2B2B", linewidth=0.6)
+    style_metric_axis(axes[0], "a  Proposed geometry by clip", "RMSE px")
+    axes[0].axhline(10, color="#B55D5D", linewidth=0.8, linestyle="--")
+    axes[1].bar(x, [row["translation"] for row in proposed], color=METHOD_COLORS[PROPOSED_METHOD], edgecolor="#2B2B2B", linewidth=0.6)
+    style_metric_axis(axes[1], "b  Proposed trajectory variation by clip", "px/frame")
+    axes[1].set_xticks(x, labels, rotation=35, ha="right")
+    save(fig, args.output / "figure_04_proposed_clip_results.png", args.dpi)
 
 
 def figure_05(args: argparse.Namespace) -> None:
     cases = [
         ("static", "static_02"),
-        ("screen_video", "screen_video_08"),
-        ("scrolling", "scrolling_05"),
-        ("weak_border", "weak_border_03"),
+        ("scrolling", "scrolling_02"),
+        ("screen_video", "screen_video_02"),
+        ("weak_border", "weak_border_02"),
         ("hard", "hard_01"),
     ]
-    fig, axes = plt.subplots(len(cases), 4, figsize=(7.2, 8.2), constrained_layout=True)
+    fig, axes = plt.subplots(len(cases), 4, figsize=(7.2, 8.1), constrained_layout=True)
     for row, (category, clip) in enumerate(cases):
         video = args.input / category / f"{clip}.mp4"
-        frame, corners = annotation_frame(video, prefer_nonzero=True)
-        show_image(axes[row, 0], overlay_corners(read_frame(video, frame), corners), CATEGORY_LABELS[category])
+        frame, corners = annotation_frame(video)
+        show_image(axes[row, 0], overlay_corners(read_frame(video, frame), corners, color=(90, 90, 90)), CATEGORY_LABELS[category])
         for col, method in enumerate(METHODS, start=1):
-            show_image(axes[row, col], normalized_frame(args.main_run, category, clip, method, frame), METHOD_LABELS[method] if row == 0 else "")
+            title = METHOD_LABELS[method] if row == 0 else ""
+            show_image(axes[row, col], normalized_frame(args.main_run, category, clip, method, frame), title)
     axes[0, 0].set_title("Input + annotation", fontsize=7.8, pad=3)
     save(fig, args.output / "figure_05_qualitative.png", args.dpi)
-
-
-def box_panel(axis: plt.Axes, rows: list[dict[str, str]], metric: str, field: str, title: str, ylabel: str) -> None:
-    samples: list[list[float]] = []
-    for method in METHODS:
-        samples.append([float(row[field]) for row in rows if row["metric"] == metric and row["method"] == method and row["status"] == "ok" and row.get(field)])
-    plot = axis.boxplot(samples, patch_artist=True, tick_labels=[METHOD_LABELS[m] for m in METHODS], showmeans=True, widths=0.55)
-    for patch, method in zip(plot["boxes"], METHODS):
-        patch.set_facecolor(METHOD_COLORS[method])
-        patch.set_alpha(0.78)
-    axis.tick_params(axis="x", rotation=16)
-    style_metric_axis(axis, title, ylabel)
-
-
-def figure_06(args: argparse.Namespace) -> None:
-    rows = read_csv(args.results / "full_pipeline_first_pass" / "all_metrics.csv")
-    fig, axes = plt.subplots(1, 3, figsize=(7.2, 3.1), constrained_layout=True)
-    box_panel(axes[0], rows, "detail", "edge_preservation_index_mean", "a  Edge preservation", "F1")
-    box_panel(axes[1], rows, "detail", "gradient_magnitude_ratio_mean", "b  Gradient ratio", "ratio")
-    box_panel(axes[2], rows, "frequency", "fft_orthogonality_error_deg_mean", "c  FFT orthogonality", "deg")
-    save(fig, args.output / "figure_06_detail_frequency.png", args.dpi)
-
-
-def ablation_value(rows: list[dict[str, str]], method: str, field: str) -> float:
-    for row in rows:
-        if row["method"] == method and row["field"] == field:
-            return float(row["median"])
-    return float("nan")
-
-
-def figure_07(args: argparse.Namespace) -> None:
-    rows = read_csv(args.results / "full_ablation_first_pass" / "ablation_aggregate_metrics.csv")
-    methods = ("proposed", "no_reliability_gates", "no_trajectory_smoothing", "no_offline_repair")
-    fig = plt.figure(figsize=(7.2, 3.9), constrained_layout=True)
-    grid = fig.add_gridspec(1, 3, width_ratios=[1.25, 1.0, 1.0])
-    ax = fig.add_subplot(grid[0, 0])
-    offsets = {
-        "proposed": (8, 8),
-        "no_reliability_gates": (8, 8),
-        "no_trajectory_smoothing": (8, -2),
-        "no_offline_repair": (8, -14),
-    }
-    for method in methods:
-        rmse = ablation_value(rows, method, "corner_rmse_px")
-        trans = ablation_value(rows, method, "translation_px")
-        edge = ablation_value(rows, method, "edge_preservation_index")
-        ax.scatter(rmse, trans, s=260 + 650 * max(edge, 0), marker=METHOD_MARKERS[method], color=METHOD_COLORS[method], edgecolor="white", linewidth=1.0)
-        ax.annotate(METHOD_LABELS[method], (rmse, trans), xytext=offsets[method], textcoords="offset points", fontsize=7.5)
-    ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.set_xlabel("Median RMSE (px)")
-    ax.set_ylabel("Median translation variation")
-    ax.set_xlim(30, 260)
-    ax.set_ylim(0.18, 8.5)
-    ax.xaxis.set_major_locator(mticker.FixedLocator([40, 100, 200]))
-    ax.xaxis.set_major_formatter(mticker.FixedFormatter(["40", "100", "200"]))
-    ax.xaxis.set_minor_formatter(mticker.NullFormatter())
-    ax.set_title("a  Gate-driven trade-off", loc="left", fontsize=8.5, fontweight="bold")
-    ax.grid(color=GRID, linewidth=0.55, which="both")
-    ax.spines[["top", "right"]].set_visible(False)
-    for col, (field, title, ylabel) in enumerate([("quad_iou", "b  Geometry fit", "IoU"), ("edge_preservation_index", "c  Local structure", "F1")], start=1):
-        axis = fig.add_subplot(grid[0, col])
-        values = [ablation_value(rows, method, field) for method in methods]
-        axis.barh(np.arange(len(methods)), values, color=[METHOD_COLORS[m] for m in methods], edgecolor="#2B2B2B", linewidth=0.6)
-        axis.set_yticks(np.arange(len(methods)), [METHOD_LABELS[m] for m in methods])
-        axis.invert_yaxis()
-        style_metric_axis(axis, title, ylabel)
-    save(fig, args.output / "figure_07_ablation.png", args.dpi)
-
-
-def parse_ratio(text: str) -> float:
-    left, right = text.split("/")
-    return float(left) / float(right)
-
-
-def tuning_lookup(path: Path) -> dict[str, dict[str, str]]:
-    if not path.exists():
-        return {}
-    return {row["clip"]: row for row in read_csv(path)}
-
-
-def figure_08(args: argparse.Namespace) -> None:
-    cases = [
-        ("hard", "hard_01", "Hard sample"),
-        ("weak_border", "weak_border_10", "Weak-border sample"),
-        ("scrolling", "scrolling_10", "Scrolling sample"),
-    ]
-    tuned = tuning_lookup(args.results / "proposed_tuning_smoke.csv")
-    fig, axes = plt.subplots(len(cases), 4, figsize=(7.2, 6.1), constrained_layout=True)
-    for row, (category, clip, title) in enumerate(cases):
-        video = args.input / category / f"{clip}.mp4"
-        frame = min(150, frame_count(video) - 1)
-        image = read_frame(video, frame)
-        estimate = corners_at(args.main_run / category / clip / "proposed" / "estimated_corners.csv", frame)
-        show_image(axes[row, 0], overlay_corners(image, estimate, color=(182, 67, 66)), title)
-        show_image(axes[row, 1], normalized_frame(args.main_run, category, clip, "proposed", frame), "Original Proposed output" if row == 0 else "")
-        accepted, label = debug_acceptance(args.main_run, category, clip)
-        axes[row, 2].plot(np.arange(len(accepted)), accepted, color=METHOD_COLORS["proposed"], linewidth=1.0)
-        axes[row, 2].set_ylim(-0.08, 1.08)
-        axes[row, 2].set_title(label, fontsize=7.8, pad=3)
-        axes[row, 2].set_xlabel("Frame")
-        axes[row, 2].set_ylabel("Accepted")
-        axes[row, 2].grid(color=GRID, linewidth=0.55)
-        axes[row, 2].spines[["top", "right"]].set_visible(False)
-        smoke = tuned.get(clip)
-        values = [parse_ratio(smoke["accept_old"]), parse_ratio(smoke["accept_tuned"])] if smoke else [float(np.mean(accepted)), float("nan")]
-        axes[row, 3].bar([0, 1], values, color=["#CFCECE", "#0F4D92"], edgecolor="#2B2B2B", linewidth=0.6)
-        axes[row, 3].set_xticks([0, 1], ["Old", "Tuned"])
-        axes[row, 3].set_ylim(0, 1.05)
-        style_metric_axis(axes[row, 3], "Smoke acceptance" if row == 0 else "", "ratio")
-    save(fig, args.output / "figure_08_failures.png", args.dpi)
 
 
 def main() -> int:
     args = parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     apply_paper_style()
-    builders = (figure_01, figure_02, figure_03, figure_04, figure_05, figure_06, figure_07, figure_08)
-    for builder in builders:
-        builder(args)
+    rows = collect_metrics(args.main_run)
+    if len(rows) != len(CATEGORIES) * 2 * len(METHODS):
+        raise RuntimeError(f"expected 30 method/clip metric rows, found {len(rows)}")
+    figure_01(args)
+    figure_02(args, rows)
+    figure_03(args, rows)
+    figure_04(args, rows)
+    figure_05(args)
     print(f"wrote manuscript figures to {args.output}")
     return 0
 

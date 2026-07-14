@@ -14,6 +14,6 @@ Old PDFs, layout SVGs, and writing scaffold notes were archived under `doc/archi
 
 Current manuscript state:
 
-- The Markdown drafts use the annotated two-per-category geometry/temporal rerun archived under `doc/archive/paper_results/2026-07-14-annotated-two-per-category/`.
+- The Markdown drafts use `runs/20260714_small_sample_with_proposal_border`, with `proposal_border` reported as the manuscript Proposed method.
 - Manuscript figures are generated under `doc/current/paper/manuscript/figures`.
-- The text keeps temporal-stability claims tied to trajectory-derived diagnostics, separates smoothness from annotated geometry, and does not claim demoireing quality.
+- The text reports geometric screen-plane normalization only, with physical-border evidence as the main method cue and LK/RANSAC as a consistency diagnostic.

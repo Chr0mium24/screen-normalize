@@ -10,11 +10,13 @@ from ..common import clean_path_component, create_run_directory, project_root
 from .evaluation import as_jsonable
 
 
-METHOD_IDS = ("frame_wise", "optical_flow", "proposed", "point_edge")
+METHOD_IDS = ("frame_wise", "optical_flow", "proposed", "proposal_border", "point_edge")
 ABLATION_METHOD_IDS = (
     "no_reliability_gates",
     "no_trajectory_smoothing",
     "no_offline_repair",
+    "proposal_border_lsd",
+    "proposal_border_hough",
 )
 RUNNABLE_METHOD_IDS = METHOD_IDS + ABLATION_METHOD_IDS
 METRIC_IDS = ("geometry", "temporal", "detail", "frequency")

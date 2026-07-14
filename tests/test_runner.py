@@ -10,9 +10,17 @@ def test_method_configs_are_distinct() -> None:
     frame_wise = method_config("frame_wise")
     flow = method_config("optical_flow")
     proposed = method_config("proposed")
+    proposal_border = method_config("proposal_border")
     assert frame_wise.tracker == "detect" and not frame_wise.interpolate
     assert flow.tracker == "flow" and not flow.geometry_gate
     assert proposed.tracker == "reference" and proposed.interpolate and proposed.reference_align
+    assert proposal_border.tracker == "proposal_border"
+    assert proposal_border.median_window == 5
+    assert proposal_border.trajectory_window == 9
+    assert not proposal_border.interpolate
+    assert not proposal_border.reference_align
+    assert method_config("proposal_border_lsd").proposal_edge_detector == "lsd"
+    assert method_config("proposal_border_hough").proposal_edge_detector == "hough"
 
 
 def test_unknown_method() -> None:
@@ -42,6 +50,15 @@ def test_ablation_configs_disable_only_the_target_module() -> None:
         "trajectory_window",
     }
     assert _functional_differences("proposed", "no_offline_repair") == {"interpolate"}
+
+
+def test_border_detector_ablation_changes_only_detector() -> None:
+    assert _functional_differences("proposal_border", "proposal_border_lsd") == {
+        "proposal_edge_detector"
+    }
+    assert _functional_differences("proposal_border", "proposal_border_hough") == {
+        "proposal_edge_detector"
+    }
 
 
 def test_no_reliability_gates_makes_optional_thresholds_permissive() -> None:
