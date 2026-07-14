@@ -361,6 +361,194 @@ Practical cleanup:
 3. If a citation is only decorative, remove the citation and the entry.
 4. If a claim needs support but has no citation, add one targeted citation rather than several broad ones.
 
+## Current manuscript second-pass audit
+
+The points below are concrete problems still present in the current manuscript, not just general writing principles.
+
+### A. Abstract still reads like a project report
+
+Current problem:
+
+- The abstract still contains `first-pass benchmark`, internal comparison labels, tuning smoke-test discussion, and a negative self-description of what the project did not complete.
+- This makes the abstract sound like a project status summary rather than a paper abstract.
+
+Required change:
+
+- Rewrite the abstract around problem, method, benchmark, main trade-off, and implication.
+- Remove smoke-test results from the abstract.
+- Remove "not a completed demoireing method" style phrasing.
+- Avoid raw method labels such as `Proposed`, `Frame-wise`, and `Optical flow` in the abstract.
+
+### B. Remove original-proposal debt from the paper body
+
+Current problem:
+
+- The manuscript still says the current implementation falls short of the original proposal.
+- This is project-internal history and weakens the paper unnecessarily.
+
+Required change:
+
+- Delete proposal-debt language.
+- Replace it with positive scope control: the paper evaluates reference-anchored geometric screen-plane normalization.
+
+Preferred framing:
+
+> This study evaluates geometric normalization only; content restoration and learned demoireing are outside the evaluated scope.
+
+### C. Synchronize scrolling annotations before changing claims
+
+Current problem:
+
+- The manuscript and `paper_status.md` still state that five scrolling clips only have frame-0 annotations and are skipped for geometry.
+- The user reports that the scrolling annotations have now been completed.
+
+Required change:
+
+- Update `paper_status.md` to reflect the new annotation state.
+- Regenerate metrics before changing result numbers.
+- Update all affected counts and claims after rerun:
+  - total annotated frames;
+  - number of clips contributing geometry metrics;
+  - aggregate RMSE / IoU / aspect-ratio metrics;
+  - category-level scrolling results;
+  - figures derived from geometry metrics.
+
+Do not patch manuscript numbers manually without regenerating or verifying the summaries.
+
+### D. Remove run-completion bookkeeping from Results
+
+Current problem:
+
+- The Results section still reports production counts such as rectified videos, JSON files, and HTML audit reports.
+- This is repository bookkeeping, not a result.
+
+Required change:
+
+- Delete the run-completion subsection or collapse it into one sentence in the evaluation setup.
+- Keep only facts that matter for evidence: 50 clips were processed under the same protocol, and the compared methods produced valid outputs for aggregate analysis.
+
+### E. Remove raw configuration flags from Methods
+
+Current problem:
+
+- The Methods section still lists `smooth=0.85`, `median_window=5`, `trajectory_window=9`, and other implementation flags.
+
+Required change:
+
+- Replace the flag dump with prose explaining the configuration family.
+- Move exact parameters to a reproducibility table, appendix, or run record if necessary.
+
+### F. Replace code-style dataset labels in manuscript prose and tables
+
+Current problem:
+
+- The manuscript still uses labels such as `hard`, `screen_video`, `scrolling`, `static`, and `weak_border` in prose and tables.
+
+Required change:
+
+- Use reader-facing category names in the paper body:
+  - static pages;
+  - scrolling pages;
+  - videos playing on the screen;
+  - weak-border scenes;
+  - challenging scenes.
+- Keep raw directory labels only in reproducibility documentation.
+
+### G. Re-evaluate Figures 2, 6, and 8
+
+Current problem:
+
+- Figure 2 appears to be a low-information dataset inventory.
+- Figure 6 mixes secondary detail and frequency diagnostics without a clear main claim.
+- Figure 8 appears to show internal acceptance/tuning signals rather than visible failure evidence.
+
+Required change:
+
+- Figure 2 should show visual difficulty and annotation targets, not just categories.
+- Figure 6 should stay only if it clarifies visible alignment or resampling failure beyond the main geometry metrics.
+- Figure 8 should be replaced with visible failure cases, moved to supplementary material, or removed.
+
+### H. Results paragraphs still report numbers before explaining figures
+
+Current problem:
+
+- Several Results paragraphs cite a figure and immediately list medians.
+- The text often does not tell the reader what visual pattern to inspect or why the figure matters.
+
+Required change:
+
+- Each Results paragraph should follow this order:
+  1. state the claim;
+  2. read the figure;
+  3. give only the necessary numbers;
+  4. explain the implication.
+- If a paragraph cannot name one claim, split it or delete the secondary material.
+
+### I. Secondary diagnostics still distract from the main argument
+
+Current problem:
+
+- FFT orthogonality, gradient-magnitude ratio, and edge preservation still receive too much narrative weight.
+- The main paper should not be organized around diagnostics that require long caveats.
+
+Required change:
+
+- Center the main Results on annotated geometry and temporal stability.
+- Keep secondary diagnostics only as support for visible failure analysis.
+- Move FFT-heavy discussion to supplementary material unless it is essential.
+
+### J. Discussion still contains project-retrospective language
+
+Current problem:
+
+- The Discussion still refers to completing the physical-border tracker proposed at project start.
+- This again sounds like project retrospection rather than a paper discussion.
+
+Required change:
+
+- Reframe future work as a technical next step:
+
+> Future work should incorporate stronger physical screen-boundary evidence so that update acceptance is driven by the display plane rather than by moving screen content.
+
+### K. Outline and figure plan still describe the old paper
+
+Current problem:
+
+- `paper_outline_zh.md` and `figure_plan.md` still describe border-guided homography and older figure assumptions.
+- They can mislead the rewrite.
+
+Required change:
+
+- Update both documents before rewriting the manuscript.
+- Align them with the actual method: reference-anchored LK tracking, RANSAC homography, reliability gates, trajectory repair, and temporal smoothing.
+
+### L. Reference list contains likely unused entries
+
+Current problem:
+
+- The current bibliography includes entries that are not directly cited in the manuscript body, such as line detection, vanishing-point detection, and FFT registration references.
+
+Required change:
+
+- Build the bibliography from body citations only.
+- Remove references that are merely present in the local reference folder.
+- Add targeted citations only when a claim needs support.
+
+### M. Data and code availability still have course-project/archive tone
+
+Current problem:
+
+- The availability sections emphasize archived metric tables, figure source files, and repository package contents.
+- This reads like a course submission inventory.
+
+Required change:
+
+- Make availability concise:
+  - what data are included;
+  - what cannot be publicly released and why;
+  - where code and reproducibility instructions live.
+- Remove archive-management phrasing unless required by the course.
+
 ## Suggested edit order
 
 1. Update `paper_status.md` for the new scrolling annotation status.
