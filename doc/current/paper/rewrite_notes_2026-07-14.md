@@ -65,6 +65,13 @@ Current Proposed ablation added after the rewrite:
 - LSD segments: RMSE 3.604 px, IoU 0.995716, translation 0.961 px/frame
 - Hough segments: RMSE 27.335 px, IoU 0.974200, translation 0.897 px/frame
 
+Reference-based frequency preservation demo:
+
+- `doc/current/paper/frequency_preservation_demo_2026-07-14.md`
+- Representative clip: `scrolling_01`
+- The input already contains camera-screen interference patterns, so the diagnostic is signal preservation after geometric normalization, not moire removal.
+- Proposal-border output has higher log-FFT similarity and orientation-histogram similarity than the two baselines on the four annotated non-initialization frames.
+
 ## Removed From Main Narrative
 
 - Old reference-anchored Proposed result that had smooth but incorrect geometry.
