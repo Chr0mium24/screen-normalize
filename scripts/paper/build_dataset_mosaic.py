@@ -28,12 +28,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("doc/paper/results/dataset/annotated_dataset_mosaic.jpg"),
+        default=Path("doc/archive/paper_results/2026-07-14-first-pass/results/dataset/annotated_dataset_mosaic.jpg"),
     )
     parser.add_argument(
         "--manifest",
         type=Path,
-        default=Path("doc/paper/results/dataset/annotated_dataset_mosaic_manifest.csv"),
+        default=Path("doc/archive/paper_results/2026-07-14-first-pass/results/dataset/annotated_dataset_mosaic_manifest.csv"),
     )
     parser.add_argument("--jpeg-quality", type=int, default=92)
     return parser.parse_args()

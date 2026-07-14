@@ -18,7 +18,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-MANUSCRIPT_DIR = ROOT / "doc" / "paper" / "manuscript"
+MANUSCRIPT_DIR = ROOT / "doc" / "current" / "paper" / "manuscript"
 SOURCES = ("paper_zh.md", "paper_en.md")
 
 

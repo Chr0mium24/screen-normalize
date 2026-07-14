@@ -206,7 +206,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Build full first-pass ablation tables and Figure 7.")
     parser.add_argument("main_run", type=Path)
     parser.add_argument("ablation_run", type=Path)
-    parser.add_argument("--output-dir", type=Path, default=Path("doc/paper/results/full_ablation_first_pass"))
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("doc/archive/paper_results/2026-07-14-first-pass/results/full_ablation_first_pass"),
+    )
     args = parser.parse_args()
 
     output_dir = args.output_dir.resolve()

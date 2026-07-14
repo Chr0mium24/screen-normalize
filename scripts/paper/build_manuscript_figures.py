@@ -59,8 +59,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build manuscript figures from first-pass outputs.")
     parser.add_argument("--input", type=Path, default=Path("inputs"))
     parser.add_argument("--main-run", type=Path, default=Path("runs/20260714_full_pipeline_first_pass"))
-    parser.add_argument("--results", type=Path, default=Path("doc/paper/results"))
-    parser.add_argument("--output", type=Path, default=Path("doc/paper/manuscript/figures"))
+    parser.add_argument("--results", type=Path, default=Path("doc/archive/paper_results/2026-07-14-first-pass/results"))
+    parser.add_argument("--output", type=Path, default=Path("doc/current/paper/manuscript/figures"))
     parser.add_argument("--dpi", type=int, default=300)
     return parser.parse_args()
 

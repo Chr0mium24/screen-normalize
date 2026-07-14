@@ -1,6 +1,6 @@
 # 最终论文大纲
 
-> 本大纲是最终论文的验收规格，不是当前完成状态的摘要。当前完成状态、证据边界和下一步缺口见 `current_status.md`。详细图表规格见 `figure_plan.md`。
+> 本大纲是最终论文的验收规格，不是当前完成状态的摘要。当前完成状态、证据边界和下一步缺口见 `paper_status.md`。详细图表规格见 `figure_plan.md`。
 
 **Title:** Screen Capture Rectification and Temporal Stabilization for Real-world Captured-screen Videos
 

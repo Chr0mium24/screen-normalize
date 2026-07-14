@@ -329,8 +329,8 @@ def manuscript_gaps(paper_dir: Path) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Summarize a four-variant ablation run.")
     parser.add_argument("run_dir", type=Path)
-    parser.add_argument("--output-dir", type=Path, default=Path("doc/paper/results/ablation"))
-    parser.add_argument("--paper-dir", type=Path, default=Path("doc/paper"))
+    parser.add_argument("--output-dir", type=Path, default=Path("doc/archive/paper_results/2026-07-14-first-pass/results/ablation"))
+    parser.add_argument("--paper-dir", type=Path, default=Path("doc/current/paper"))
     args = parser.parse_args()
 
     rows, issues = collect(args.run_dir.resolve())

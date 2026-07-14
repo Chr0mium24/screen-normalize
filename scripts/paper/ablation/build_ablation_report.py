@@ -136,21 +136,21 @@ def build_artifact(results_dir: Path) -> dict:
             "id": "ablation-metrics",
             "label": "四类单 clip 消融指标",
             "type": "file",
-            "path": "doc/paper/results/ablation/ablation_clip_metrics.csv",
+            "path": "doc/archive/paper_results/2026-07-14-first-pass/results/ablation/ablation_clip_metrics.csv",
             "description": "四个代表 clip、full 与三个去模块变体的当前口径指标；geometry 排除初始化帧。",
         },
         {
             "id": "ablation-quality",
             "label": "消融数据质量与实验有效性检查",
             "type": "file",
-            "path": "doc/paper/results/ablation/ablation_quality.json",
+            "path": "doc/archive/paper_results/2026-07-14-first-pass/results/ablation/ablation_quality.json",
             "description": "输出完整性、模块触发、几何失败、非确定性、样本量和论文占位项检查。",
         },
         {
             "id": "video-integrity",
             "label": "输出视频完整性检查",
             "type": "file",
-            "path": "doc/paper/results/ablation/video_integrity.csv",
+            "path": "doc/archive/paper_results/2026-07-14-first-pass/results/ablation/video_integrity.csv",
             "description": "ffprobe 视频帧数与 method.json processed_frames 的逐方法核对。",
         },
     ]
@@ -354,7 +354,7 @@ def build_artifact(results_dir: Path) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build the four-clip ablation report artifact.")
-    parser.add_argument("--results-dir", type=Path, default=Path("doc/paper/results/ablation"))
+    parser.add_argument("--results-dir", type=Path, default=Path("doc/archive/paper_results/2026-07-14-first-pass/results/ablation"))
     args = parser.parse_args()
 
     artifact = build_artifact(args.results_dir)

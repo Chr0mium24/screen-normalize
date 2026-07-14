@@ -2,7 +2,7 @@
 set -eu
 
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-manuscript="$root/doc/paper/manuscript"
+manuscript="$root/doc/current/paper/manuscript"
 chrome="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 temporary=$(mktemp -d)
 trap 'rm -rf "$temporary"' EXIT
