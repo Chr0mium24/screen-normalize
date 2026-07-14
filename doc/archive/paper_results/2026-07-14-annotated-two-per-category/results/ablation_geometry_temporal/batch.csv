@@ -1,0 +1,11 @@
+category,clip_id,status,reason,report
+static,static_01,ok,,D:\2522\ECE4512\ourproject\screen-normalize\runs\20260714_annotated_two_per_category_ablation\static\static_01\report.html
+static,static_02,ok,,D:\2522\ECE4512\ourproject\screen-normalize\runs\20260714_annotated_two_per_category_ablation\static\static_02\report.html
+scrolling,scrolling_01,ok,,D:\2522\ECE4512\ourproject\screen-normalize\runs\20260714_annotated_two_per_category_ablation\scrolling\scrolling_01\report.html
+scrolling,scrolling_02,ok,,D:\2522\ECE4512\ourproject\screen-normalize\runs\20260714_annotated_two_per_category_ablation\scrolling\scrolling_02\report.html
+screen_video,screen_video_01,ok,,D:\2522\ECE4512\ourproject\screen-normalize\runs\20260714_annotated_two_per_category_ablation\screen_video\screen_video_01\report.html
+screen_video,screen_video_02,ok,,D:\2522\ECE4512\ourproject\screen-normalize\runs\20260714_annotated_two_per_category_ablation\screen_video\screen_video_02\report.html
+weak_border,weak_border_01,ok,,D:\2522\ECE4512\ourproject\screen-normalize\runs\20260714_annotated_two_per_category_ablation\weak_border\weak_border_01\report.html
+weak_border,weak_border_02,ok,,D:\2522\ECE4512\ourproject\screen-normalize\runs\20260714_annotated_two_per_category_ablation\weak_border\weak_border_02\report.html
+hard,hard_01,ok,,D:\2522\ECE4512\ourproject\screen-normalize\runs\20260714_annotated_two_per_category_ablation\hard\hard_01\report.html
+hard,hard_02,ok,,D:\2522\ECE4512\ourproject\screen-normalize\runs\20260714_annotated_two_per_category_ablation\hard\hard_02\report.html

@@ -5,8 +5,8 @@
 - Input scope: current Chinese and English manuscript sources in `doc/current/paper/manuscript/`, current status notes, figure plan, and archived first-pass result summaries.
 - Assessment boundary: this is a manuscript-readiness review based on local files only. It does not verify every reference externally and does not manually inspect all generated videos frame by frame.
 - Shared manuscript claim summary: the paper now claims a bounded engineering result: reference-anchored screen-plane normalization gives smoother estimated trajectories, but the first-pass run exposes a stability-accuracy trade-off rather than an overall win.
-- Visible evidence base: 50 clips, 14985 frames, 179 non-initialization geometry annotations, 50-clip main run, 50-clip ablation run, generated figures, and archived CSV/Markdown evidence.
-- Missing materials affecting confidence: clip-by-clip manual video review, added non-initialization annotations for `scrolling_06` through `scrolling_10`, externally verified reference metadata, and a formal rerun of any tuned Proposed configuration.
+- Visible evidence base: 50 clips, 14985 frames, 248 annotated frames, 199 non-initialization geometry annotations, 50-clip first-pass runs, a two-clips-per-category geometry/temporal rerun after annotation completion, generated figures, and archived CSV/Markdown evidence.
+- Missing materials affecting confidence: clip-by-clip manual video review, full 50-clip geometry/temporal rerun under the completed annotations, externally verified reference metadata, and a formal rerun of any tuned Proposed configuration.
 
 ## Reviewer 1
 
@@ -14,7 +14,7 @@
 - Who would be interested in the results, and why: readers working on screen capture preprocessing, geometric rectification, and course-project reproducibility would care because the paper exposes a practical failure mode in reference tracking.
 - Major strengths: the paper clearly separates geometry, temporal stability, detail preservation, and frequency diagnostics; it also avoids claiming demoireing performance.
 - Major concerns: the implemented method differs from the original border-guided plan, while the outline and figure plan still contain older promises about physical border dominance. This creates a mismatch between intended contribution and actual evidence.
-- Technical failings that need to be addressed before the case is established: the strongest result is negative/mixed, but the visual audit is not complete; several geometry records are skipped in scrolling; `no_offline_repair` is probably inconclusive; and the tuned-gate smoke test is too small to support aggregate claims.
+- Technical failings that need to be addressed before the case is established: the strongest result is negative/mixed, but the visual audit is not complete; the full 50-clip summaries still predate the completed annotation state; `no_offline_repair` is probably inconclusive; and the tuned-gate smoke test is too small to support aggregate claims.
 - Assessment against Nature-style criteria: originality is modest but credible as an engineering benchmark; technical soundness is partial because evidence is first-pass and sparse; broad significance is limited; readability is good for the current project scope.
 - Recommendation posture: revise before final submission.
 
@@ -41,13 +41,13 @@
 ## Cross-review synthesis
 
 - Consensus strengths: the current manuscript has a clear bounded claim, real first-pass data, real ablation data, and a candid negative result.
-- Consensus technical risks: incomplete manual audit, sparse/uneven annotations, skipped scrolling geometry records, inconclusive offline-repair ablation, and method-story mismatch around physical-border evidence.
+- Consensus technical risks: incomplete manual audit, sparse keyframe annotations, incomplete full rerun under the completed annotation state, inconclusive offline-repair ablation, and method-story mismatch around physical-border evidence.
 - Where emphasis differs across reviewers: Reviewer 1 emphasizes evidence validity, Reviewer 2 emphasizes novelty and contribution framing, and Reviewer 3 emphasizes reader-facing packaging.
 - Broad-interest / significance readout: the paper is currently strongest as a transparent engineering report. It is not yet a strong method paper because the proposed method does not win overall and the intended border-guided mechanism is not implemented.
 - Most important issues to resolve before a strong case is established:
   1. Align the manuscript, outline, and figure plan around the implemented reference-anchored method, or implement the physical-border module and rerun.
   2. Manually review generated HTML/video reports and record which qualitative examples are accepted.
-  3. Add or explicitly justify missing non-initialization annotations for the five skipped scrolling clips.
+  3. Decide whether the manuscript should cite the annotated two-per-category rerun now or wait for a full 50-clip geometry/temporal rerun.
   4. Mark `no_offline_repair` as inconclusive unless repair-triggering intervals are audited.
   5. Keep the tuned-gate smoke test as diagnostic only, unless a formal tuned subset/full run is added.
 

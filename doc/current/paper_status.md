@@ -6,13 +6,14 @@ This file is the current status entry for the paper. Stable, one-off experiment 
 
 ## Current Scope
 
-The current data scope is a local 50-clip, five-category captured-screen video collection with matching local annotation CSV files. The current result scope is a computational first pass over all 50 active clips for the three main methods and three ablation methods, plus a small smoke test of softened Proposed gates. These outputs are usable for drafting but are not manually reviewed final evidence.
+The current data scope is a local 50-clip, five-category captured-screen video collection with matching local annotation CSV files. The active CSV set now includes non-initialization annotations for the previously incomplete scrolling clips. The current result scope includes the original computational first pass over all 50 active clips and a newer two-clips-per-category geometry/temporal rerun after annotation completion. These outputs are usable for drafting but are not manually reviewed final evidence.
 
 | Area | Current fact | Paper implication |
 | --- | --- | --- |
 | Active video categories | `static`, `scrolling`, `screen_video`, `weak_border`, `hard` | Dataset section can describe a 50-clip, five-category benchmark. |
 | Main first pass | 50 clips x 3 methods x 4 metrics | Results can discuss a stability-accuracy trade-off, with first-pass caveats. |
 | Ablation first pass | 50 clips x 4 compared variants x 4 metrics | Reliability gates and smoothing can be discussed; offline repair remains inconclusive. |
+| Annotated subset rerun | 10 clips x main/ablation methods x geometry/temporal | Use this as the current lightweight evidence that every included category has non-initialization geometry labels. |
 | Proposed tuning | 1-2 smoke clips per category | Shows softened gates can help over-freezing cases, but this is not a full replacement run. |
 | Manuscript | Current Chinese and English Markdown, HTML, and PDF exist | The paper is complete enough to review, not ready for final submission claims. |
 | Figures | Eight main figures exist in PNG/SVG/PDF form | Figures are current manuscript assets; raw result figures remain archived. |
@@ -31,6 +32,7 @@ The current data scope is a local 50-clip, five-category captured-screen video c
 
 - Main first pass: `doc/archive/paper_results/2026-07-14-first-pass/results/full_pipeline_first_pass/`
 - Full ablation first pass: `doc/archive/paper_results/2026-07-14-first-pass/results/full_ablation_first_pass/`
+- Annotated two-per-category geometry/temporal rerun: `doc/archive/paper_results/2026-07-14-annotated-two-per-category/`
 - Older four-clip pilot ablation: `doc/archive/paper_results/2026-07-14-first-pass/results/ablation/`
 - Proposed tuning smoke: `doc/archive/paper_results/2026-07-14-first-pass/results/proposed_tuning_2026-07-14.md`
 - Tuning smoke table: `doc/archive/paper_results/2026-07-14-first-pass/results/proposed_tuning_smoke.csv`
@@ -53,11 +55,10 @@ The current data scope is a local 50-clip, five-category captured-screen video c
 ## Known Limitations
 
 - The first-pass outputs have not been manually reviewed clip by clip.
-- `scrolling_06` through `scrolling_10` have skipped geometry records because they only have frame-0 annotations and frame 0 is excluded as initialization.
+- The original full first-pass summaries were produced before the current completed annotation state; use the annotated two-per-category rerun for updated geometry/temporal wording.
 - Proposed is visually and trajectory stable, but the first-pass geometry and detail metrics are not universally better.
 - The softened-gate tuning smoke improves several over-freezing hard/weak-border cases, but scrolling still needs stronger physical-border evidence.
 - `no_offline_repair` is still potentially inconclusive because the archived first pass did not isolate clear repair-triggering intervals.
-- Push to GitHub still requires local authentication before the branch can be published.
 
 ## Done
 
@@ -65,13 +66,14 @@ The current data scope is a local 50-clip, five-category captured-screen video c
 - [x] 50-clip three-method first pass completed: 50/50 batch `ok`, 150 method videos, 600 metric JSON files.
 - [x] 50-clip three-ablation first pass completed: 50/50 batch `ok`, 150 ablation method videos, 600 ablation metric JSON files.
 - [x] First-pass result tables, figures, raw text metric archive, and evidence notes are archived under `doc/archive/paper_results/2026-07-14-first-pass/`.
+- [x] Annotated two-per-category geometry/temporal rerun completed and archived.
 - [x] Current manuscript assets are under `doc/current/paper/manuscript/`.
 - [x] Current documents and archived result records are separated into different paths.
 
 ## Next Missing Work
 
 1. Manually review the generated HTML/video reports, especially `hard`, `weak_border`, and scrolling clips with high rejection counts.
-2. Add non-initialization annotations for `scrolling_06` through `scrolling_10`, or explicitly report that their geometry metrics are excluded because only frame 0 is labeled.
+2. Decide whether to replace manuscript tables with the annotated subset rerun now, or wait for a full 50-clip geometry/temporal rerun.
 3. Decide whether `no_offline_repair` should stay in the paper or be marked inconclusive.
 4. If time permits, run a small formal tuned-Proposed subset and update only the evidence batch that the manuscript cites.
 5. Re-check paper claims after manual review so the text does not imply Proposed is an overall winner when the data support a trade-off.

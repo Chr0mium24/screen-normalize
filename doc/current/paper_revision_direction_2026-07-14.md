@@ -84,19 +84,20 @@ Mapping:
 | `weak_border` | weak-border scenes |
 | `hard` | challenging scenes |
 
-### 5. Update scrolling annotation status
+### 5. Update annotation status
 
-Current risk:
+Current state:
 
-- Current status and manuscript text say five scrolling clips have only frame-0 annotations and their geometry metrics are skipped.
-- The user reports that scrolling annotations have now been completed.
+- The active annotation CSV set now includes non-initialization labels for every active clip.
+- A two-clips-per-category geometry/temporal rerun has been archived after annotation completion.
+- A full 50-clip geometry/temporal rerun is still optional follow-up work.
 
 Revision direction:
 
-- Update `doc/current/paper_status.md` to reflect the new annotation state.
-- Recompute or regenerate the metric summaries before changing manuscript numbers.
-- If annotations are updated but metrics have not been rerun, write that clearly as "annotations updated; metrics pending rerun."
-- After rerun, update:
+- Keep `doc/current/paper_status.md` aligned with the completed annotation state.
+- If the manuscript uses full 50-clip aggregate geometry numbers, rerun or regenerate those summaries before changing result numbers.
+- If the manuscript uses the two-per-category rerun, label it clearly as a lightweight subset.
+- After any full rerun, update:
   - Dataset annotation counts;
   - number of clips with geometry metrics;
   - aggregate geometry tables;
@@ -395,17 +396,16 @@ Preferred framing:
 
 > This study evaluates geometric normalization only; content restoration and learned demoireing are outside the evaluated scope.
 
-### C. Synchronize scrolling annotations before changing claims
+### C. Synchronize completed annotations before changing full-result claims
 
 Current problem:
 
-- The manuscript and `paper_status.md` still state that five scrolling clips only have frame-0 annotations and are skipped for geometry.
-- The user reports that the scrolling annotations have now been completed.
+- The manuscript and `paper_status.md` have been updated for completed annotations and a two-per-category geometry/temporal rerun.
+- The original full 50-clip summaries still predate that completed annotation state.
 
 Required change:
 
-- Update `paper_status.md` to reflect the new annotation state.
-- Regenerate metrics before changing result numbers.
+- Regenerate full 50-clip geometry/temporal metrics before replacing full-result numbers.
 - Update all affected counts and claims after rerun:
   - total annotated frames;
   - number of clips contributing geometry metrics;

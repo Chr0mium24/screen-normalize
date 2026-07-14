@@ -1,0 +1,161 @@
+metric,category,clip_id,method,status,reason
+geometry,hard,hard_01,proposed,ok,
+temporal,hard,hard_01,proposed,ok,
+detail,hard,hard_01,proposed,missing,missing metric json
+frequency,hard,hard_01,proposed,missing,missing metric json
+geometry,hard,hard_01,no_reliability_gates,ok,
+temporal,hard,hard_01,no_reliability_gates,ok,
+detail,hard,hard_01,no_reliability_gates,missing,missing metric json
+frequency,hard,hard_01,no_reliability_gates,missing,missing metric json
+geometry,hard,hard_01,no_trajectory_smoothing,ok,
+temporal,hard,hard_01,no_trajectory_smoothing,ok,
+detail,hard,hard_01,no_trajectory_smoothing,missing,missing metric json
+frequency,hard,hard_01,no_trajectory_smoothing,missing,missing metric json
+geometry,hard,hard_01,no_offline_repair,ok,
+temporal,hard,hard_01,no_offline_repair,ok,
+detail,hard,hard_01,no_offline_repair,missing,missing metric json
+frequency,hard,hard_01,no_offline_repair,missing,missing metric json
+geometry,hard,hard_02,proposed,ok,
+temporal,hard,hard_02,proposed,ok,
+detail,hard,hard_02,proposed,missing,missing metric json
+frequency,hard,hard_02,proposed,missing,missing metric json
+geometry,hard,hard_02,no_reliability_gates,ok,
+temporal,hard,hard_02,no_reliability_gates,ok,
+detail,hard,hard_02,no_reliability_gates,missing,missing metric json
+frequency,hard,hard_02,no_reliability_gates,missing,missing metric json
+geometry,hard,hard_02,no_trajectory_smoothing,ok,
+temporal,hard,hard_02,no_trajectory_smoothing,ok,
+detail,hard,hard_02,no_trajectory_smoothing,missing,missing metric json
+frequency,hard,hard_02,no_trajectory_smoothing,missing,missing metric json
+geometry,hard,hard_02,no_offline_repair,ok,
+temporal,hard,hard_02,no_offline_repair,ok,
+detail,hard,hard_02,no_offline_repair,missing,missing metric json
+frequency,hard,hard_02,no_offline_repair,missing,missing metric json
+geometry,screen_video,screen_video_01,proposed,ok,
+temporal,screen_video,screen_video_01,proposed,ok,
+detail,screen_video,screen_video_01,proposed,missing,missing metric json
+frequency,screen_video,screen_video_01,proposed,missing,missing metric json
+geometry,screen_video,screen_video_01,no_reliability_gates,ok,
+temporal,screen_video,screen_video_01,no_reliability_gates,ok,
+detail,screen_video,screen_video_01,no_reliability_gates,missing,missing metric json
+frequency,screen_video,screen_video_01,no_reliability_gates,missing,missing metric json
+geometry,screen_video,screen_video_01,no_trajectory_smoothing,ok,
+temporal,screen_video,screen_video_01,no_trajectory_smoothing,ok,
+detail,screen_video,screen_video_01,no_trajectory_smoothing,missing,missing metric json
+frequency,screen_video,screen_video_01,no_trajectory_smoothing,missing,missing metric json
+geometry,screen_video,screen_video_01,no_offline_repair,ok,
+temporal,screen_video,screen_video_01,no_offline_repair,ok,
+detail,screen_video,screen_video_01,no_offline_repair,missing,missing metric json
+frequency,screen_video,screen_video_01,no_offline_repair,missing,missing metric json
+geometry,screen_video,screen_video_02,proposed,ok,
+temporal,screen_video,screen_video_02,proposed,ok,
+detail,screen_video,screen_video_02,proposed,missing,missing metric json
+frequency,screen_video,screen_video_02,proposed,missing,missing metric json
+geometry,screen_video,screen_video_02,no_reliability_gates,ok,
+temporal,screen_video,screen_video_02,no_reliability_gates,ok,
+detail,screen_video,screen_video_02,no_reliability_gates,missing,missing metric json
+frequency,screen_video,screen_video_02,no_reliability_gates,missing,missing metric json
+geometry,screen_video,screen_video_02,no_trajectory_smoothing,ok,
+temporal,screen_video,screen_video_02,no_trajectory_smoothing,ok,
+detail,screen_video,screen_video_02,no_trajectory_smoothing,missing,missing metric json
+frequency,screen_video,screen_video_02,no_trajectory_smoothing,missing,missing metric json
+geometry,screen_video,screen_video_02,no_offline_repair,ok,
+temporal,screen_video,screen_video_02,no_offline_repair,ok,
+detail,screen_video,screen_video_02,no_offline_repair,missing,missing metric json
+frequency,screen_video,screen_video_02,no_offline_repair,missing,missing metric json
+geometry,scrolling,scrolling_01,proposed,ok,
+temporal,scrolling,scrolling_01,proposed,ok,
+detail,scrolling,scrolling_01,proposed,missing,missing metric json
+frequency,scrolling,scrolling_01,proposed,missing,missing metric json
+geometry,scrolling,scrolling_01,no_reliability_gates,ok,
+temporal,scrolling,scrolling_01,no_reliability_gates,ok,
+detail,scrolling,scrolling_01,no_reliability_gates,missing,missing metric json
+frequency,scrolling,scrolling_01,no_reliability_gates,missing,missing metric json
+geometry,scrolling,scrolling_01,no_trajectory_smoothing,ok,
+temporal,scrolling,scrolling_01,no_trajectory_smoothing,ok,
+detail,scrolling,scrolling_01,no_trajectory_smoothing,missing,missing metric json
+frequency,scrolling,scrolling_01,no_trajectory_smoothing,missing,missing metric json
+geometry,scrolling,scrolling_01,no_offline_repair,ok,
+temporal,scrolling,scrolling_01,no_offline_repair,ok,
+detail,scrolling,scrolling_01,no_offline_repair,missing,missing metric json
+frequency,scrolling,scrolling_01,no_offline_repair,missing,missing metric json
+geometry,scrolling,scrolling_02,proposed,ok,
+temporal,scrolling,scrolling_02,proposed,ok,
+detail,scrolling,scrolling_02,proposed,missing,missing metric json
+frequency,scrolling,scrolling_02,proposed,missing,missing metric json
+geometry,scrolling,scrolling_02,no_reliability_gates,ok,
+temporal,scrolling,scrolling_02,no_reliability_gates,ok,
+detail,scrolling,scrolling_02,no_reliability_gates,missing,missing metric json
+frequency,scrolling,scrolling_02,no_reliability_gates,missing,missing metric json
+geometry,scrolling,scrolling_02,no_trajectory_smoothing,ok,
+temporal,scrolling,scrolling_02,no_trajectory_smoothing,ok,
+detail,scrolling,scrolling_02,no_trajectory_smoothing,missing,missing metric json
+frequency,scrolling,scrolling_02,no_trajectory_smoothing,missing,missing metric json
+geometry,scrolling,scrolling_02,no_offline_repair,ok,
+temporal,scrolling,scrolling_02,no_offline_repair,ok,
+detail,scrolling,scrolling_02,no_offline_repair,missing,missing metric json
+frequency,scrolling,scrolling_02,no_offline_repair,missing,missing metric json
+geometry,static,static_01,proposed,ok,
+temporal,static,static_01,proposed,ok,
+detail,static,static_01,proposed,missing,missing metric json
+frequency,static,static_01,proposed,missing,missing metric json
+geometry,static,static_01,no_reliability_gates,ok,
+temporal,static,static_01,no_reliability_gates,ok,
+detail,static,static_01,no_reliability_gates,missing,missing metric json
+frequency,static,static_01,no_reliability_gates,missing,missing metric json
+geometry,static,static_01,no_trajectory_smoothing,ok,
+temporal,static,static_01,no_trajectory_smoothing,ok,
+detail,static,static_01,no_trajectory_smoothing,missing,missing metric json
+frequency,static,static_01,no_trajectory_smoothing,missing,missing metric json
+geometry,static,static_01,no_offline_repair,ok,
+temporal,static,static_01,no_offline_repair,ok,
+detail,static,static_01,no_offline_repair,missing,missing metric json
+frequency,static,static_01,no_offline_repair,missing,missing metric json
+geometry,static,static_02,proposed,ok,
+temporal,static,static_02,proposed,ok,
+detail,static,static_02,proposed,missing,missing metric json
+frequency,static,static_02,proposed,missing,missing metric json
+geometry,static,static_02,no_reliability_gates,ok,
+temporal,static,static_02,no_reliability_gates,ok,
+detail,static,static_02,no_reliability_gates,missing,missing metric json
+frequency,static,static_02,no_reliability_gates,missing,missing metric json
+geometry,static,static_02,no_trajectory_smoothing,ok,
+temporal,static,static_02,no_trajectory_smoothing,ok,
+detail,static,static_02,no_trajectory_smoothing,missing,missing metric json
+frequency,static,static_02,no_trajectory_smoothing,missing,missing metric json
+geometry,static,static_02,no_offline_repair,ok,
+temporal,static,static_02,no_offline_repair,ok,
+detail,static,static_02,no_offline_repair,missing,missing metric json
+frequency,static,static_02,no_offline_repair,missing,missing metric json
+geometry,weak_border,weak_border_01,proposed,ok,
+temporal,weak_border,weak_border_01,proposed,ok,
+detail,weak_border,weak_border_01,proposed,missing,missing metric json
+frequency,weak_border,weak_border_01,proposed,missing,missing metric json
+geometry,weak_border,weak_border_01,no_reliability_gates,ok,
+temporal,weak_border,weak_border_01,no_reliability_gates,ok,
+detail,weak_border,weak_border_01,no_reliability_gates,missing,missing metric json
+frequency,weak_border,weak_border_01,no_reliability_gates,missing,missing metric json
+geometry,weak_border,weak_border_01,no_trajectory_smoothing,ok,
+temporal,weak_border,weak_border_01,no_trajectory_smoothing,ok,
+detail,weak_border,weak_border_01,no_trajectory_smoothing,missing,missing metric json
+frequency,weak_border,weak_border_01,no_trajectory_smoothing,missing,missing metric json
+geometry,weak_border,weak_border_01,no_offline_repair,ok,
+temporal,weak_border,weak_border_01,no_offline_repair,ok,
+detail,weak_border,weak_border_01,no_offline_repair,missing,missing metric json
+frequency,weak_border,weak_border_01,no_offline_repair,missing,missing metric json
+geometry,weak_border,weak_border_02,proposed,ok,
+temporal,weak_border,weak_border_02,proposed,ok,
+detail,weak_border,weak_border_02,proposed,missing,missing metric json
+frequency,weak_border,weak_border_02,proposed,missing,missing metric json
+geometry,weak_border,weak_border_02,no_reliability_gates,ok,
+temporal,weak_border,weak_border_02,no_reliability_gates,ok,
+detail,weak_border,weak_border_02,no_reliability_gates,missing,missing metric json
+frequency,weak_border,weak_border_02,no_reliability_gates,missing,missing metric json
+geometry,weak_border,weak_border_02,no_trajectory_smoothing,ok,
+temporal,weak_border,weak_border_02,no_trajectory_smoothing,ok,
+detail,weak_border,weak_border_02,no_trajectory_smoothing,missing,missing metric json
+frequency,weak_border,weak_border_02,no_trajectory_smoothing,missing,missing metric json
+geometry,weak_border,weak_border_02,no_offline_repair,ok,
+temporal,weak_border,weak_border_02,no_offline_repair,ok,
+detail,weak_border,weak_border_02,no_offline_repair,missing,missing metric json
+frequency,weak_border,weak_border_02,no_offline_repair,missing,missing metric json

@@ -22,6 +22,7 @@
 - `paper_status.md` 是当前论文状态的权威摘要。
 - `../archive/paper_results/2026-07-14-first-pass/results/full_pipeline_first_pass/` 是当前 50-clip 三方法主实验 first-pass 的提交汇总。
 - `../archive/paper_results/2026-07-14-first-pass/results/full_ablation_first_pass/` 是当前 50-clip 消融 first-pass 的提交汇总。
+- `../archive/paper_results/2026-07-14-annotated-two-per-category/` 是补齐标注后的每类 2 个 clip 轻量重算，只包含 geometry 和 temporal。
 - `../archive/paper_results/2026-07-14-first-pass/results/ablation/` 是早期四 clip 消融 pilot 结果。
 - `../archive/paper_results/2026-07-14-first-pass/evidence/` 是已保留的实验记录。
 - 当前工作树有 50 个本地 active mp4 clip，五类各 10 个；每个 active clip 都有同名角点 CSV。
