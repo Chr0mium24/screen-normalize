@@ -12,9 +12,9 @@ METHOD_LABELS = {
     "point_edge": "Point-edge",
 }
 METHOD_COLORS = {
-    "frame_wise": "#526D82",
-    "optical_flow": "#C58B3A",
-    "proposed": "#2F7F73",
+    "frame_wise": "#5B6470",
+    "optical_flow": "#7C8FB8",
+    "proposed": "#0F4D92",
     "point_edge": "#806491",
 }
 METHOD_MARKERS = {"frame_wise": "o", "optical_flow": "s", "proposed": "D", "point_edge": "^"}
@@ -26,17 +26,21 @@ TEXT_COLOR = "#242729"
 def apply_paper_style() -> None:
     plt.rcParams.update(
         {
-            "font.family": "DejaVu Sans",
-            "font.size": 8.5,
-            "axes.titlesize": 9,
-            "axes.labelsize": 8.5,
+            "font.family": "sans-serif",
+            "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans", "sans-serif"],
+            "font.size": 7.8,
+            "axes.titlesize": 8.5,
+            "axes.labelsize": 7.8,
             "axes.edgecolor": TEXT_COLOR,
             "axes.labelcolor": TEXT_COLOR,
             "xtick.color": TEXT_COLOR,
             "ytick.color": TEXT_COLOR,
-            "legend.fontsize": 8,
+            "legend.fontsize": 7.4,
             "legend.frameon": False,
             "svg.fonttype": "none",
+            "pdf.fonttype": 42,
+            "axes.spines.top": False,
+            "axes.spines.right": False,
         }
     )
 

@@ -1,0 +1,11 @@
+category,clip,rmse_old,rmse_tuned,temporal_old,temporal_tuned,accept_old,accept_tuned,read
+hard,hard_01,191.83,41.56,0.026,7.098,3/300,298/300,geometry improved; freeze fixed
+hard,hard_10,191.83,41.56,0.026,7.098,3/300,298/300,geometry improved; freeze fixed
+screen_video,screen_video_07,192.88,233.11,0.000,0.400,1/300,6/300,still weak; slight unfreeze only
+screen_video,screen_video_08,412.69,344.56,0.529,6.407,5/299,59/299,geometry improved; more motion followed
+scrolling,scrolling_05,873.67,1027.15,4.093,5.175,149/299,194/299,more accepted frames but worse geometry
+scrolling,scrolling_10,NA,NA,0.003,2.309,2/300,300/300,no non-initialization geometry labels
+static,static_02,1.91,1.91,2.644,2.645,300/300,300/300,neutral
+static,static_03,2.62,2.17,3.426,3.440,300/300,300/300,slight geometry improvement
+weak_border,weak_border_03,188.20,104.78,0.010,9.087,2/300,138/300,geometry improved; freeze reduced
+weak_border,weak_border_10,188.20,104.78,0.010,9.087,2/300,138/300,geometry improved; freeze reduced
