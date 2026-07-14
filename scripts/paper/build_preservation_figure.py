@@ -125,7 +125,6 @@ def save(fig: plt.Figure, output: Path, dpi: int) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     base = output.with_suffix("")
     fig.savefig(base.with_suffix(".svg"), bbox_inches="tight")
-    fig.savefig(base.with_suffix(".pdf"), bbox_inches="tight")
     fig.savefig(base.with_suffix(".png"), dpi=dpi, bbox_inches="tight")
     plt.close(fig)
 
