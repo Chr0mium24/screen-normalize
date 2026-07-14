@@ -11,14 +11,14 @@
 | `paper/references/papers/` | 当前论文引用的学术文献 |
 | `paper/references/samples/` | 教师提供的写作与排版样例 |
 | `paper/rewrite_notes_2026-07-14.md` | 当前论文主线、证据映射和图表说明 |
-| `paper/border_detector_ablation_2026-07-14.md` | 新边框检测器消融结果 |
+| `paper/proposal_border_ablation_2026-07-14.md` | 当前 Proposed 方法的模块和边框消融结果 |
 
 ## Current Manuscript State
 
 - 当前论文主线是 **border-guided screen-plane normalization**。
 - `proposal_border` 是正文 Proposed 方法；它使用 profile-based physical border observations。
 - 主实验使用 `runs/20260714_small_sample_with_proposal_border`，覆盖五类拍摄条件、每类两个代表 clip。
-- detector 消融使用 `runs/20260714_border_detector_ablation_scrolling_01`，比较 profile、LSD 和 Hough 边框观测。
+- current Proposed 消融使用 `runs/20260714_proposal_border_ablation_scrolling_01`，比较 no-border diagnostics、border-observation variants 和功能模块变体。
 - 正文只主张几何屏幕平面归一化，不主张内容恢复或去摩尔纹质量。
 
 ## Archive Boundary

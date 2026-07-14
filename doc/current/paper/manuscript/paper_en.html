@@ -293,40 +293,82 @@ figcaption {
 <p>The proposed method is consistent across the ten evaluated clips (Figure 4). Seven clips have median RMSE below 5 px, and all ten remain below 15 px. The higher-error cases are one weak-border clip and the two challenging clips, where the visible boundary is less reliable. In the same run, the method held zero frames: every frame was accepted from border evidence or a valid fallback rather than from a frozen trajectory.</p>
 <figure><img src="figures/figure_04_proposed_clip_results.png" alt="Figure 4. Proposed-method per-clip results. The dashed line marks 10 px corner RMSE; all evaluated clips remain below 15 px."><figcaption>Figure 4. Proposed-method per-clip results. The dashed line marks 10 px corner RMSE; all evaluated clips remain below 15 px.</figcaption></figure>
 <p>This behavior is different from a purely conservative gate that becomes stable by refusing updates. The accepted trajectory changes when the physical border moves, and LK/RANSAC disagreement is recorded mainly when internal content motion conflicts with that boundary estimate.</p>
-<h2>5.4 Border Detector Ablation</h2>
-<p>A targeted detector ablation on the representative scrolling clip supports the profile-based border observation used in the proposed method (Table 4). Profile sampling gives the lowest corner RMSE, 3.253 px, and the lowest translation variation, 0.752 px/frame. LSD line segments are close geometrically but take substantially longer on this clip. Hough line segments keep the trajectory smooth but increase corner RMSE to 27.335 px, indicating that sparse segment detections are not precise enough for the screen boundary in this case.</p>
+<h2>5.4 Proposed-Method Ablation</h2>
+<p>A targeted ablation on the representative scrolling clip tests the components added by the proposed method (Table 4). The main comparison baselines remain unchanged in the overall experiment; here they are reused only as no-border diagnostics. Without physical screen-boundary evidence, adjacent-frame optical flow reaches 76.114 px RMSE, and a reference-plane LK/RANSAC tracker reaches 643.949 px RMSE. The full border-guided method reaches 3.253 px RMSE and 0.996038 IoU on the same clip.</p>
 <table>
 <thead><tr>
-<th>Border observation</th>
+<th>Variant</th>
+<th>Change tested</th>
 <th>Corner RMSE, px ↓</th>
 <th>IoU ↑</th>
 <th>Translation variation, px/frame ↓</th>
-<th>Runtime, s</th>
 </tr></thead>
 <tbody>
 <tr>
-<td>Profile sampling</td>
+<td>Adjacent-frame optical flow</td>
+<td>No physical border cue</td>
+<td>76.114</td>
+<td>0.916022</td>
+<td>2.205</td>
+</tr>
+<tr>
+<td>Reference-plane LK/RANSAC</td>
+<td>No physical border cue</td>
+<td>643.949</td>
+<td>0.520994</td>
+<td>4.579</td>
+</tr>
+<tr>
+<td>Proposed, profile border</td>
+<td>Full method</td>
 <td>3.253</td>
 <td>0.996038</td>
 <td>0.752</td>
-<td>59.21</td>
 </tr>
 <tr>
-<td>LSD segments</td>
+<td>Without trajectory filter</td>
+<td>Removes trajectory smoothing</td>
+<td>2.932</td>
+<td>0.996585</td>
+<td>1.430</td>
+</tr>
+<tr>
+<td>Without LK consistency diagnostic</td>
+<td>Disables internal-motion check</td>
+<td>3.253</td>
+<td>0.996038</td>
+<td>0.752</td>
+</tr>
+<tr>
+<td>Without redetection fallback</td>
+<td>Disables automatic fallback</td>
+<td>3.253</td>
+<td>0.996038</td>
+<td>0.752</td>
+</tr>
+<tr>
+<td>Loose edge gates</td>
+<td>Relaxes edge plausibility gates</td>
+<td>3.253</td>
+<td>0.996038</td>
+<td>0.752</td>
+</tr>
+<tr>
+<td>LSD border observation</td>
+<td>Replaces profile edge observation</td>
 <td>3.604</td>
 <td>0.995716</td>
 <td>0.961</td>
-<td>285.49</td>
 </tr>
 <tr>
-<td>Hough segments</td>
+<td>Hough border observation</td>
+<td>Replaces profile edge observation</td>
 <td>27.335</td>
 <td>0.974200</td>
 <td>0.897</td>
-<td>159.25</td>
 </tr>
 </tbody></table>
-<p>All three variants accepted every frame, so the difference is not caused by freezing. The ablation therefore supports using local profile evidence as the default physical-border cue in the main method.</p>
+<p>The ablation identifies the physical-border cue as the decisive component. Removing it lets coherent scrolling content dominate the homography. Removing trajectory smoothing slightly lowers sparse annotated-frame RMSE on this clip, but it nearly doubles frame-to-frame translation variation, so the filter is kept for temporal stability. The LK diagnostic, redetection fallback, and edge-gate relaxations do not change this clip because profile border evidence succeeds on every frame; these rows therefore show that the clip is not stabilized by freezing or fallback. The detector rows are one border-observation ablation group: LSD is close but slower, while Hough is much less accurate, supporting the profile-based observation used in the main method.</p>
 <h2>5.5 Qualitative Comparison</h2>
 <p>Qualitative outputs match the quantitative results (Figure 5). The proposed method preserves the screen extent on scrolling and weak-border examples where content-driven tracking or frame-wise detection can shift the crop. On static and screen-video examples, all methods produce readable rectifications, but the proposed method keeps the physical frame alignment more consistently.</p>
 <figure><img src="figures/figure_05_qualitative.png" alt="Figure 5. Representative input frames and normalized outputs. Each row shows one capture condition; columns compare the input annotation, frame-wise output, adjacent-frame optical-flow output, and proposed output."><figcaption>Figure 5. Representative input frames and normalized outputs. Each row shows one capture condition; columns compare the input annotation, frame-wise output, adjacent-frame optical-flow output, and proposed output.</figcaption></figure>

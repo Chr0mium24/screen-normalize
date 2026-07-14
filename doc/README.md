@@ -12,7 +12,7 @@
 - `current/README.md`：当前论文文档入口。
 - `current/paper/manuscript/`：当前中英文论文源文件、PDF、HTML 和主图。
 - `current/paper/rewrite_notes_2026-07-14.md`：当前论文主线、图表和证据映射。
-- `current/paper/border_detector_ablation_2026-07-14.md`：当前边框检测器消融结果。
+- `current/paper/proposal_border_ablation_2026-07-14.md`：当前 Proposed 方法的模块和边框消融结果。
 - `current/paper/references/`：当前仍需引用的论文和课程样例。
 - `current/paper/source/proposal.pdf`：正式 proposal。
 

@@ -17,6 +17,10 @@ ABLATION_METHOD_IDS = (
     "no_offline_repair",
     "proposal_border_lsd",
     "proposal_border_hough",
+    "proposal_border_no_smoothing",
+    "proposal_border_no_lk",
+    "proposal_border_no_redetect",
+    "proposal_border_loose_gates",
 )
 RUNNABLE_METHOD_IDS = METHOD_IDS + ABLATION_METHOD_IDS
 METRIC_IDS = ("geometry", "temporal", "detail", "frequency")

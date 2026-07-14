@@ -35,6 +35,11 @@ class MethodConfig:
     reference_align: bool
     reference_reliability_gates: bool = True
     proposal_edge_detector: str = "profile"
+    proposal_min_edge_confidence: float = 0.35
+    proposal_max_scale_step: float = 0.10
+    proposal_max_area_step: float = 0.20
+    proposal_use_lk_consistency: bool = True
+    proposal_redetect_fallback: bool = True
     ablation_of: str | None = None
     disabled_module: str | None = None
 
@@ -78,6 +83,59 @@ METHOD_CONFIGS = {
         proposal_edge_detector="hough",
         ablation_of="proposal_border",
         disabled_module="profile_edge_detector",
+    ),
+    "proposal_border_no_smoothing": MethodConfig(
+        "proposal_border_no_smoothing",
+        "proposal_border",
+        0.0,
+        1,
+        1,
+        False,
+        False,
+        False,
+        ablation_of="proposal_border",
+        disabled_module="trajectory_filter",
+    ),
+    "proposal_border_no_lk": MethodConfig(
+        "proposal_border_no_lk",
+        "proposal_border",
+        0.0,
+        5,
+        9,
+        False,
+        False,
+        False,
+        proposal_use_lk_consistency=False,
+        ablation_of="proposal_border",
+        disabled_module="lk_consistency_diagnostic",
+    ),
+    "proposal_border_no_redetect": MethodConfig(
+        "proposal_border_no_redetect",
+        "proposal_border",
+        0.0,
+        5,
+        9,
+        False,
+        False,
+        False,
+        proposal_redetect_fallback=False,
+        ablation_of="proposal_border",
+        disabled_module="redetect_fallback",
+    ),
+    "proposal_border_loose_gates": MethodConfig(
+        "proposal_border_loose_gates",
+        "proposal_border",
+        0.0,
+        5,
+        9,
+        False,
+        False,
+        False,
+        proposal_min_edge_confidence=0.0,
+        proposal_max_scale_step=10.0,
+        proposal_max_area_step=10.0,
+        ablation_of="proposal_border",
+        disabled_module="edge_update_gates",
     ),
     "point_edge": MethodConfig("point_edge", "boundary", 0.0, 3, 5, True, True, False),
     "no_reliability_gates": MethodConfig(
@@ -224,7 +282,14 @@ def run_method(source: Path, output_dir: Path, method: str) -> RunResult:
         trajectory = estimate_proposal_border_trajectory(
             capture=capture,
             initial_corners=proposal_initial,
-            config=ProposalDemoConfig(edge_detector=config.proposal_edge_detector),
+            config=ProposalDemoConfig(
+                edge_detector=config.proposal_edge_detector,
+                min_edge_confidence=config.proposal_min_edge_confidence,
+                max_scale_step=config.proposal_max_scale_step,
+                max_area_step=config.proposal_max_area_step,
+                use_lk_consistency=config.proposal_use_lk_consistency,
+                redetect_fallback=config.proposal_redetect_fallback,
+            ),
             debug_rows=tracker_rows,
         )
         if trajectory:

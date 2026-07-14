@@ -28,6 +28,8 @@ class ProposalDemoConfig:
     min_lk_inliers: int = 24
     min_lk_inlier_ratio: float = 0.25
     max_lk_disagreement: float = 24.0
+    use_lk_consistency: bool = True
+    redetect_fallback: bool = True
     max_frames: int = 0
 
 
@@ -246,14 +248,18 @@ def estimate_proposal_border_trajectory(
         extra = flatten_latest_attempt(attempts)
 
         if candidate is not None:
-            lk = estimate_lk_consistency(previous_gray, gray, predicted, candidate, config)
+            lk = (
+                estimate_lk_consistency(previous_gray, gray, predicted, candidate, config)
+                if config.use_lk_consistency
+                else {"lk_status": "disabled"}
+            )
             predicted = candidate
             polarities = update_polarities(polarities, measured)
             accepted = True
             reason = "edge_accept_lk_conflict" if lk.get("lk_status") == "content_conflict" else "edge_accept"
             extra.update(lk)
         else:
-            redetected = detect_screen_corners(frame)
+            redetected = detect_screen_corners(frame) if config.redetect_fallback else None
             if (
                 redetected is not None
                 and detected_corners_are_valid(redetected, gray.shape)
@@ -265,13 +271,18 @@ def estimate_proposal_border_trajectory(
                 )
             ):
                 candidate = order_corners(redetected).astype(np.float32)
-                lk = estimate_lk_consistency(previous_gray, gray, predicted, candidate, config)
+                lk = (
+                    estimate_lk_consistency(previous_gray, gray, predicted, candidate, config)
+                    if config.use_lk_consistency
+                    else {"lk_status": "disabled"}
+                )
                 predicted = candidate
                 accepted = True
                 reason = "redetect_accept"
                 extra.update(lk)
             else:
-                extra.update({"lk_status": "skipped_no_border_candidate"})
+                status = "skipped_no_border_candidate" if config.redetect_fallback else "redetect_disabled"
+                extra.update({"lk_status": status})
 
         trajectory.append(predicted.copy())
         append_debug_row(

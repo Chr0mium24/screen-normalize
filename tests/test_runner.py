@@ -21,6 +21,8 @@ def test_method_configs_are_distinct() -> None:
     assert not proposal_border.reference_align
     assert method_config("proposal_border_lsd").proposal_edge_detector == "lsd"
     assert method_config("proposal_border_hough").proposal_edge_detector == "hough"
+    assert method_config("proposal_border_no_lk").proposal_use_lk_consistency is False
+    assert method_config("proposal_border_no_redetect").proposal_redetect_fallback is False
 
 
 def test_unknown_method() -> None:
@@ -52,12 +54,30 @@ def test_ablation_configs_disable_only_the_target_module() -> None:
     assert _functional_differences("proposed", "no_offline_repair") == {"interpolate"}
 
 
-def test_border_detector_ablation_changes_only_detector() -> None:
+def test_border_observation_variants_change_only_detector() -> None:
     assert _functional_differences("proposal_border", "proposal_border_lsd") == {
         "proposal_edge_detector"
     }
     assert _functional_differences("proposal_border", "proposal_border_hough") == {
         "proposal_edge_detector"
+    }
+
+
+def test_proposal_border_module_ablations_are_isolated() -> None:
+    assert _functional_differences("proposal_border", "proposal_border_no_smoothing") == {
+        "median_window",
+        "trajectory_window",
+    }
+    assert _functional_differences("proposal_border", "proposal_border_no_lk") == {
+        "proposal_use_lk_consistency"
+    }
+    assert _functional_differences("proposal_border", "proposal_border_no_redetect") == {
+        "proposal_redetect_fallback"
+    }
+    assert _functional_differences("proposal_border", "proposal_border_loose_gates") == {
+        "proposal_min_edge_confidence",
+        "proposal_max_scale_step",
+        "proposal_max_area_step",
     }
 
 

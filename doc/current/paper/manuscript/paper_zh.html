@@ -293,40 +293,82 @@ figcaption {
 <p>Proposed 在十个评估片段上表现稳定（图 4）。其中七个片段的 RMSE 中位数低于 5 px，所有片段都低于 15 px。误差较高的片段是一段弱边框视频和两个挑战视频，它们的可见边界更弱。在同一次运行中，方法没有冻结任何帧：每一帧都来自边框证据或有效回退，而不是依靠长期保持上一四边形获得稳定性。</p>
 <figure><img src="figures/figure_04_proposed_clip_results.png" alt="图 4. Proposed 的片段级结果。虚线表示 10 px 角点 RMSE；所有评估片段都低于 15 px。"><figcaption>图 4. Proposed 的片段级结果。虚线表示 10 px 角点 RMSE；所有评估片段都低于 15 px。</figcaption></figure>
 <p>这说明当前结果并不是保守门控拒绝更新后得到的表面稳定。物理边框移动时，轨迹会随之更新；LK/RANSAC 不一致主要记录内部内容运动与边界估计之间的冲突。</p>
-<h2>5.4 边框检测器消融</h2>
-<p>在代表性滚动片段上的检测器消融支持 Proposed 采用的 profile 边框剖面观测（表 4）。Profile 采样取得最低角点 RMSE，为 3.253 px，同时平移变化最低，为 0.752 px/frame。LSD 线段检测的几何精度接近，但在该片段上耗时明显更长。Hough 线段检测能保持较平滑轨迹，但角点 RMSE 升至 27.335 px，说明其线段证据在该场景下不足以精确定位屏幕边界。</p>
+<h2>5.4 Proposed 方法消融</h2>
+<p>在代表性滚动片段上，我们对当前 Proposed 链路新增的模块做定向消融（表 4）。正文总体实验中的 baseline 不变；这里复用其中两个结果，只作为“无物理边框线索”的诊断项。去掉物理屏幕边界后，相邻帧光流的 RMSE 为 76.114 px，reference-plane LK/RANSAC 跟踪器的 RMSE 为 643.949 px。相同片段上，完整边框主导方法的 RMSE 为 3.253 px，IoU 为 0.996038。</p>
 <table>
 <thead><tr>
-<th>边框观测方式</th>
+<th>变体</th>
+<th>检查内容</th>
 <th>角点 RMSE，px ↓</th>
 <th>IoU ↑</th>
 <th>平移变化，px/frame ↓</th>
-<th>运行时间，s</th>
 </tr></thead>
 <tbody>
 <tr>
-<td>Profile 采样</td>
+<td>相邻帧光流</td>
+<td>无物理边框线索</td>
+<td>76.114</td>
+<td>0.916022</td>
+<td>2.205</td>
+</tr>
+<tr>
+<td>Reference-plane LK/RANSAC</td>
+<td>无物理边框线索</td>
+<td>643.949</td>
+<td>0.520994</td>
+<td>4.579</td>
+</tr>
+<tr>
+<td>Proposed，profile 边框</td>
+<td>完整方法</td>
 <td>3.253</td>
 <td>0.996038</td>
 <td>0.752</td>
-<td>59.21</td>
 </tr>
 <tr>
-<td>LSD 线段</td>
+<td>去掉轨迹滤波</td>
+<td>移除轨迹平滑</td>
+<td>2.932</td>
+<td>0.996585</td>
+<td>1.430</td>
+</tr>
+<tr>
+<td>去掉 LK 一致性诊断</td>
+<td>关闭内部运动检查</td>
+<td>3.253</td>
+<td>0.996038</td>
+<td>0.752</td>
+</tr>
+<tr>
+<td>去掉重新检测回退</td>
+<td>关闭自动回退</td>
+<td>3.253</td>
+<td>0.996038</td>
+<td>0.752</td>
+</tr>
+<tr>
+<td>放宽边缘门控</td>
+<td>放宽边缘合理性约束</td>
+<td>3.253</td>
+<td>0.996038</td>
+<td>0.752</td>
+</tr>
+<tr>
+<td>LSD 边框观测</td>
+<td>替换 profile 边缘观测</td>
 <td>3.604</td>
 <td>0.995716</td>
 <td>0.961</td>
-<td>285.49</td>
 </tr>
 <tr>
-<td>Hough 线段</td>
+<td>Hough 边框观测</td>
+<td>替换 profile 边缘观测</td>
 <td>27.335</td>
 <td>0.974200</td>
 <td>0.897</td>
-<td>159.25</td>
 </tr>
 </tbody></table>
-<p>三种变体都接受了所有帧，因此差异不是由冻结造成的。该消融支持在主方法中使用局部 profile 证据作为默认物理边框线索。</p>
+<p>这个消融说明，物理边框线索是决定性模块；没有它，连贯的滚动内容会主导单应矩阵。去掉轨迹平滑在这个片段的稀疏标注帧上 RMSE 略低，但帧间平移变化接近翻倍，因此主方法保留该滤波以换取时间稳定性。LK 诊断、重新检测回退和放宽门控在这个片段上没有改变结果，是因为 profile 边框证据每一帧都成功；这些行说明当前结果不是靠冻结或回退得到的。LSD 和 Hough 属于同一组边框观测方式消融：LSD 几何接近但更慢，Hough 误差明显更大，因此主方法使用 profile 观测。</p>
 <h2>5.5 定性对比</h2>
 <p>定性输出与定量结果一致（图 5）。在滚动和弱边框样例中，Proposed 更好地保留了屏幕范围，而内容驱动跟踪或逐帧检测可能产生裁切偏移。在静态页面和屏幕内视频样例中，三种方法都能生成可读结果，但 Proposed 的物理边框对齐更稳定。</p>
 <figure><img src="figures/figure_05_qualitative.png" alt="图 5. 代表性输入帧和归一化输出。每行对应一种拍摄条件；四列分别为输入标注、逐帧输出、相邻帧光流输出和 Proposed 输出。"><figcaption>图 5. 代表性输入帧和归一化输出。每行对应一种拍摄条件；四列分别为输入标注、逐帧输出、相邻帧光流输出和 Proposed 输出。</figcaption></figure>
