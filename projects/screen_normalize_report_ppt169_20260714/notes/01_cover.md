@@ -1,1 +1,0 @@
-This project normalizes the perspective of a physical display in real captured-screen video. The central result is a corner RMSE of 3.87 pixels, compared with more than 30 pixels for both the frame-wise and optical-flow baselines.

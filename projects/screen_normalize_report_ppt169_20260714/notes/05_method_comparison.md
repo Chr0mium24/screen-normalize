@@ -1,1 +1,0 @@
-The main difference among the three methods is the evidence they trust. Frame-wise detection restarts from the current image, optical flow propagates internal feature motion, while our method follows the physical border and invokes hold or redetection only when that evidence becomes unreliable.

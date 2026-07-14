@@ -1,1 +1,0 @@
-The conclusion is simple: track the display, not the content moving inside it. A border-first pipeline produces the best aggregate geometry and stability, with its largest gains appearing exactly where frame-wise detection and optical flow are most easily confused.

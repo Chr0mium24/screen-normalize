@@ -1,1 +1,0 @@
-The advantage becomes especially clear when internal scrolling or weak physical borders challenge the baselines. On scrolling clips the RMSE falls to 2.87 pixels, and on weak-border clips it remains at 9.35 pixels while both baselines exceed 155 pixels.

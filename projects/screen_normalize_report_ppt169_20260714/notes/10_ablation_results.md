@@ -1,1 +1,0 @@
-The ablation results show that trajectory smoothing is the only tested removal that changes this sequence directly. Removing it improves the instantaneous geometry slightly, but increases frame-to-frame variation from 0.752 to 1.430, so the complete method cuts that instability by about 47 percent.
