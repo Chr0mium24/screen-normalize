@@ -10,9 +10,15 @@ def test_method_configs_are_distinct() -> None:
     frame_wise = method_config("frame_wise")
     flow = method_config("optical_flow")
     proposed = method_config("proposed")
+    proposal_border = method_config("proposal_border")
     assert frame_wise.tracker == "detect" and not frame_wise.interpolate
     assert flow.tracker == "flow" and not flow.geometry_gate
     assert proposed.tracker == "reference" and proposed.interpolate and proposed.reference_align
+    assert proposal_border.tracker == "proposal_border"
+    assert proposal_border.median_window == 5
+    assert proposal_border.trajectory_window == 9
+    assert not proposal_border.interpolate
+    assert not proposal_border.reference_align
 
 
 def test_unknown_method() -> None:

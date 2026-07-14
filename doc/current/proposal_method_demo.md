@@ -12,7 +12,7 @@ This demo implements a small, runnable version of the method described in the or
 - freeze the last valid quadrilateral when neither border tracking nor re-detection recovers;
 - warp the video into a fixed front-facing screen canvas.
 
-This is a demonstration path, not the formal method used by the current paper experiments.
+This started as a demonstration path. It has now been integrated into the main experiment pipeline as the runnable method `proposal_border`; the existing `proposed` method remains unchanged.
 
 ## Implementation
 
@@ -61,6 +61,16 @@ Summary:
 Interpretation:
 
 The demo runs end-to-end on a real static-page clip and shows that border evidence can drive every update in this easy case. This is only a smoke result. It does not establish that the border-guided proposal method outperforms the current reference-anchored method, and it should not be reported as a formal experimental result without rerunning the annotated benchmark.
+
+## Main-Chain Integration
+
+The same algorithm is available in the main pipeline:
+
+```powershell
+uv run python scripts\run_batch.py --videos inputs\scrolling\scrolling_01.mp4 --methods proposal_border --metrics geometry temporal
+```
+
+The main-chain method writes the standard method artifacts: `normalized.mp4`, `estimated_corners.csv`, `debug.csv`, metric JSON files, and the HTML report.
 
 ## Verification
 

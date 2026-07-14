@@ -10,7 +10,7 @@ from ..common import clean_path_component, create_run_directory, project_root
 from .evaluation import as_jsonable
 
 
-METHOD_IDS = ("frame_wise", "optical_flow", "proposed", "point_edge")
+METHOD_IDS = ("frame_wise", "optical_flow", "proposed", "proposal_border", "point_edge")
 ABLATION_METHOD_IDS = (
     "no_reliability_gates",
     "no_trajectory_smoothing",

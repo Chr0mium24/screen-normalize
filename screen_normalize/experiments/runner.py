@@ -9,6 +9,7 @@ import cv2
 import numpy as np
 
 from ..algorithms.encoding import encode_warped_video, mux_audio
+from ..algorithms.proposal_demo import ProposalDemoConfig, estimate_proposal_border_trajectory
 from ..algorithms.tracking import estimate_corner_trajectory
 from ..algorithms.trajectory import (
     apply_offline_geometry_gate,
@@ -41,6 +42,16 @@ METHOD_CONFIGS = {
     "frame_wise": MethodConfig("frame_wise", "detect", 0.0, 1, 1, False, False, False),
     "optical_flow": MethodConfig("optical_flow", "flow", 0.0, 1, 1, False, False, False),
     "proposed": MethodConfig("proposed", "reference", 0.85, 5, 9, True, True, True),
+    "proposal_border": MethodConfig(
+        "proposal_border",
+        "proposal_border",
+        0.0,
+        5,
+        9,
+        False,
+        False,
+        False,
+    ),
     "point_edge": MethodConfig("point_edge", "boundary", 0.0, 3, 5, True, True, False),
     "no_reliability_gates": MethodConfig(
         "no_reliability_gates",
@@ -179,25 +190,38 @@ def run_method(source: Path, output_dir: Path, method: str) -> RunResult:
         fallback = manual_initial
 
     tracker_rows: list[dict[str, object]] = []
-    trajectory = estimate_corner_trajectory(
-        capture=capture,
-        fallback_corners=fallback,
-        auto_detect=auto_detect,
-        initial_corners=manual_initial,
-        tracker=args.tracker,
-        smooth=args.smooth,
-        detect_correction=args.detect_correction,
-        feature_refresh=args.feature_refresh,
-        reference_min_inliers=args.reference_min_inliers,
-        reference_min_inlier_ratio=args.reference_min_inlier_ratio,
-        reference_max_reprojection_error=args.reference_max_reprojection_error,
-        reference_max_scale_step=args.reference_max_scale_step,
-        reference_max_area_step=args.reference_max_area_step,
-        reference_min_point_age=args.reference_min_point_age,
-        reference_min_coverage_x=args.reference_min_coverage_x,
-        reference_min_coverage_y=args.reference_min_coverage_y,
-        tracker_debug_rows=tracker_rows,
-    )
+    if args.tracker == "proposal_border":
+        proposal_initial = manual_initial if manual_initial is not None else None
+        if proposal_initial is None and not auto_detect:
+            proposal_initial = fallback
+        trajectory = estimate_proposal_border_trajectory(
+            capture=capture,
+            initial_corners=proposal_initial,
+            config=ProposalDemoConfig(),
+            debug_rows=tracker_rows,
+        )
+        if trajectory:
+            fallback = trajectory[0]
+    else:
+        trajectory = estimate_corner_trajectory(
+            capture=capture,
+            fallback_corners=fallback,
+            auto_detect=auto_detect,
+            initial_corners=manual_initial,
+            tracker=args.tracker,
+            smooth=args.smooth,
+            detect_correction=args.detect_correction,
+            feature_refresh=args.feature_refresh,
+            reference_min_inliers=args.reference_min_inliers,
+            reference_min_inlier_ratio=args.reference_min_inlier_ratio,
+            reference_max_reprojection_error=args.reference_max_reprojection_error,
+            reference_max_scale_step=args.reference_max_scale_step,
+            reference_max_area_step=args.reference_max_area_step,
+            reference_min_point_age=args.reference_min_point_age,
+            reference_min_coverage_x=args.reference_min_coverage_x,
+            reference_min_coverage_y=args.reference_min_coverage_y,
+            tracker_debug_rows=tracker_rows,
+        )
     capture.release()
     reliable = reliable_mask_from_tracker_rows(tracker_rows, len(trajectory))
     if args.trajectory_geometry_gate:
