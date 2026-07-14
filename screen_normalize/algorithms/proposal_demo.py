@@ -7,7 +7,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from .boundary import corners_from_lines, observe_quad_edges
+from .boundary import corners_from_lines, observe_quad_edges, observe_quad_edges_by_line_detector
 from .detection import detect_screen_corners, select_tracking_points
 from .geometry import (
     detected_corners_are_valid,
@@ -19,6 +19,7 @@ from .geometry import (
 
 @dataclass(frozen=True)
 class ProposalDemoConfig:
+    edge_detector: str = "profile"
     sample_count: int = 50
     search_radii: tuple[int, ...] = (20, 60, 120)
     min_edge_confidence: float = 0.35
@@ -121,19 +122,28 @@ def observe_border_candidate(
     best_reason = "edge_not_found"
 
     for radius in config.search_radii:
-        observations, measured = observe_quad_edges(
-            gray,
-            predicted,
-            config.sample_count,
-            radius,
-            polarities,
-        )
+        if config.edge_detector == "profile":
+            observations, measured = observe_quad_edges(
+                gray,
+                predicted,
+                config.sample_count,
+                radius,
+                polarities,
+            )
+        else:
+            observations, measured = observe_quad_edges_by_line_detector(
+                gray,
+                predicted,
+                radius,
+                config.edge_detector,
+            )
         candidate = corners_from_lines([item.line for item in observations])
         confidences = [float(item.confidence) for item in observations]
         min_confidence = min(confidences) if confidences else 0.0
         attempts.append(
             {
                 "radius": radius,
+                "edge_detector": config.edge_detector,
                 "candidate_found": candidate is not None,
                 "min_edge_confidence": min_confidence,
                 **{f"edge_{index}_confidence": value for index, value in enumerate(confidences)},
@@ -314,6 +324,7 @@ def write_proposal_debug_csv(path: Path, rows: list[dict[str, object]]) -> None:
         "frame",
         "accepted",
         "reason",
+        "edge_detector",
         "radius",
         "edge_attempt_count",
         "candidate_found",

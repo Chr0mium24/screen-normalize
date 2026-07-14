@@ -50,6 +50,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--height", type=positive_int, default=1080)
     parser.add_argument("--fps", type=float, default=None)
     parser.add_argument("--max-frames", type=int, default=0)
+    parser.add_argument(
+        "--edge-detector",
+        choices=("profile", "hough", "lsd"),
+        default="profile",
+        help="Border observation source. profile is the default normal-gradient sampler.",
+    )
     parser.add_argument("--sample-count", type=positive_int, default=50)
     parser.add_argument("--search-radii", type=parse_radii, default=(20, 60, 120))
     parser.add_argument("--min-edge-confidence", type=nonnegative_fraction, default=0.35)
@@ -209,6 +215,7 @@ def main() -> None:
     initial = initial_corners_from_args(source, args, source_width, source_height)
 
     config = ProposalDemoConfig(
+        edge_detector=args.edge_detector,
         sample_count=args.sample_count,
         search_radii=args.search_radii,
         min_edge_confidence=args.min_edge_confidence,

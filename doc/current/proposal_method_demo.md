@@ -33,6 +33,12 @@ Main flow:
 7. If recovery fails, hold the last valid quadrilateral.
 8. Smooth the accepted/held trajectory and render the normalized video.
 
+Edge observation modes:
+
+- `profile`: default normal-gradient sampling around the predicted physical borders.
+- `hough`: Canny + probabilistic Hough segments filtered near each predicted border.
+- `lsd`: OpenCV Line Segment Detector segments filtered near each predicted border.
+
 ## Smoke Run
 
 Command:
