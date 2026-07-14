@@ -78,6 +78,15 @@ def style_axis(axis: plt.Axes, panel: str, title: str, ylabel: str) -> None:
     axis.set_axisbelow(True)
 
 
+def label_bars(axis: plt.Axes, bars: object, fmt: str = "{:.3f}") -> None:
+    ymin, ymax = axis.get_ylim()
+    offset = 0.018 * (ymax - ymin)
+    for bar in bars:
+        height = float(bar.get_height())
+        x = bar.get_x() + bar.get_width() / 2
+        axis.text(x, height + offset, fmt.format(height), ha="center", va="bottom", fontsize=5.7, color=TEXT)
+
+
 def grouped_bars(
     axis: plt.Axes,
     data: dict[str, dict[str, float]],
@@ -90,9 +99,10 @@ def grouped_bars(
     x = np.arange(len(fields))
     width = 0.23
     offsets = np.linspace(-width, width, len(METHODS))
+    containers = []
     for offset, method in zip(offsets, METHODS):
         values = [data[method][field] for field, _ in fields]
-        axis.bar(
+        bars = axis.bar(
             x + offset,
             values,
             width=width,
@@ -101,10 +111,13 @@ def grouped_bars(
             edgecolor="#2B2B2B",
             linewidth=0.55,
         )
+        containers.append(bars)
     axis.set_xticks(x, [label for _, label in fields])
     if ylim is not None:
         axis.set_ylim(*ylim)
     style_axis(axis, panel, title, ylabel)
+    for bars in containers:
+        label_bars(axis, bars)
 
 
 def add_one_reference(axis: plt.Axes) -> None:
