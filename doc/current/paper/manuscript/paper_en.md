@@ -13,7 +13,7 @@ papersize: a4
 
 # Abstract
 
-Captured-screen videos are useful when direct screen recording is unavailable, but they combine projective distortion, camera shake, background clutter, weak display borders, and screen content that may scroll or play independently of the physical monitor. This paper studies geometric screen-plane normalization for this setting. We implement a reference-anchored pipeline that initializes a screen quadrilateral, tracks sparse reference-plane features with pyramidal Lucas-Kanade optical flow, estimates a RANSAC homography, applies explicit reliability gates, repairs and smooths the corner trajectory, and warps each frame into a frontal screen coordinate system. On a balanced annotated subset of 10 real captured-screen videos, the reference-anchored method produced smoother estimated trajectories than frame-level detection and adjacent-frame tracking, reducing median translation variation to 2.94 px/frame from 4.29 and 4.91 px/frame. This stability did not translate into better annotated geometry: median corner RMSE was 158.94 px, compared with 30.29 and 32.43 px for the two simpler alternatives. Ablation results show that the reliability gates are the main source of this trade-off: removing them reduced median RMSE to 35.63 px but increased median translation variation to 5.20 px/frame. The result is a reproducible geometric preprocessing benchmark showing that smooth estimated screen trajectories can be stale or wrong, so captured-screen normalization should evaluate temporal stability separately from geometric correctness.
+Captured-screen videos are useful when direct screen recording is unavailable, but they combine projective distortion, camera shake, background clutter, weak display borders, and screen content that may scroll or play independently of the physical monitor. This paper studies geometric screen-plane normalization for this setting. We implement a reference-anchored pipeline that initializes a screen quadrilateral, tracks sparse reference-plane features with pyramidal Lucas-Kanade optical flow, estimates a RANSAC homography, applies explicit reliability gates, repairs and smooths the corner trajectory, and warps each frame into a frontal screen coordinate system. In the current annotated evaluation run, the reference-anchored method produced smoother estimated trajectories than frame-level detection and adjacent-frame tracking, reducing median translation variation to 2.94 px/frame from 4.29 and 4.91 px/frame. This stability did not translate into better annotated geometry: median corner RMSE was 158.94 px, compared with 30.29 and 32.43 px for the two simpler alternatives. Ablation results show that the reliability gates are the main source of this trade-off: removing them reduced median RMSE to 35.63 px but increased median translation variation to 5.20 px/frame. The result is a reproducible geometric preprocessing benchmark showing that smooth estimated screen trajectories can be stale or wrong, so captured-screen normalization should evaluate temporal stability separately from geometric correctness.
 
 **Keywords:** screen rectification; video stabilization; homography; optical flow; captured-screen video; projective geometry
 
@@ -63,16 +63,16 @@ The project collection contains 50 captured-screen videos totaling 14985 frames.
 
 ![Figure 2. Annotated captured-screen examples. Each row shows one capture condition and three non-initialization frames with the evaluated screen-corner quadrilateral overlaid.](figures/figure_02_dataset.png)
 
-Human annotations mark the visible screen corners. The current 50-clip annotation set contains 248 annotated frames; after excluding initialization frames, all 50 clips retain non-initialization geometry labels, giving 199 scored annotation frames. The updated quantitative comparison in this paper uses a balanced 10-clip subset with two clips per capture condition and 40 non-initialization annotated frames. This subset was selected after completing the scrolling annotations and recomputes geometry and temporal metrics for the main comparison and ablations.
+Human annotations mark the visible screen corners. The current 50-clip annotation set contains 248 annotated frames; after excluding initialization frames, all 50 clips retain non-initialization geometry labels, giving 199 scored annotation frames. The quantitative comparison below uses the current archived geometry/temporal rerun after annotation completion; detailed run scope is kept in the reproducibility archive rather than repeated in the manuscript body.
 
-| Capture condition | Clips in collection | Clips in reported subset | Frames in collection |
-|---|---:|---:|---:|
-| Static pages | 10 | 2 | 2994 |
-| Scrolling pages | 10 | 2 | 2995 |
-| Videos on screen | 10 | 2 | 2996 |
-| Weak-border scenes | 10 | 2 | 3000 |
-| Challenging scenes | 10 | 2 | 3000 |
-| Total | 50 | 10 | 14985 |
+| Capture condition | Clips in collection | Frames in collection |
+|---|---:|---:|
+| Static pages | 10 | 2994 |
+| Scrolling pages | 10 | 2995 |
+| Videos on screen | 10 | 2996 |
+| Weak-border scenes | 10 | 3000 |
+| Challenging scenes | 10 | 3000 |
+| Total | 50 | 14985 |
 
 ## 4.2 Metrics
 
@@ -84,9 +84,9 @@ The main text focuses on geometry and temporal stability because they directly t
 
 ## 5.1 Reference anchoring improves estimated smoothness but not annotated geometry
 
-The main result is a stability-accuracy trade-off. On the updated 10-clip subset, the reference-anchored method had the lowest median translation variation, but it had the worst median annotated geometry (Figure 3 and Table 2). Its median translation variation was 2.94 px/frame, compared with 4.29 px/frame for frame-level detection and 4.91 px/frame for adjacent-frame tracking. In contrast, its median corner RMSE was 158.94 px, compared with 30.29 px and 32.43 px for the two alternatives.
+The main result is a stability-accuracy trade-off. In the current annotated rerun, the reference-anchored method had the lowest median translation variation, but it had the worst median annotated geometry (Figure 3 and Table 2). Its median translation variation was 2.94 px/frame, compared with 4.29 px/frame for frame-level detection and 4.91 px/frame for adjacent-frame tracking. In contrast, its median corner RMSE was 158.94 px, compared with 30.29 px and 32.43 px for the two alternatives.
 
-![Figure 3. Geometry and temporal comparison on the annotated 10-clip subset. The reference-anchored method reduces estimated frame-to-frame motion but increases median annotated corner error.](figures/figure_03_geometry_comparison.svg)
+![Figure 3. Geometry and temporal comparison in the current annotated rerun. The reference-anchored method reduces estimated frame-to-frame motion but increases median annotated corner error.](figures/figure_03_geometry_comparison.svg)
 
 | Metric | Frame-level detection | Adjacent-frame tracking | Reference-anchored |
 |---|---:|---:|---:|
@@ -115,7 +115,7 @@ The ablation study identifies reliability gating as the main mechanism behind th
 | Without trajectory smoothing | 158.94 [2.82, 202.66] | 0.871 [0.826, 0.997] | 3.07 [0.09, 3.96] |
 | Without offline repair | 158.94 [3.47, 202.66] | 0.871 [0.826, 0.996] | 2.94 [0.03, 3.80] |
 
-The smoothing and offline-repair ablations were close to the full method on this subset. That does not prove those modules are unimportant in all settings. It shows that, under the sampled clips and metrics, the gate decision dominated the geometry-temporal trade-off.
+The smoothing and offline-repair ablations were close to the full method in this run. That does not prove those modules are unimportant in all settings. It shows that, under the current metrics, the gate decision dominated the geometry-temporal trade-off.
 
 ## 5.4 Visual examples clarify the failure mode
 
@@ -129,11 +129,11 @@ The experiments show that reference anchoring is useful but not sufficient for c
 
 The ablation results indicate that update acceptance is the critical design choice. Conservative gates help suppress jitter, especially in weak-border and challenging scenes, but they can also block corrections. Removing the gates recovers much of the annotated geometry at the cost of higher temporal variation. A stronger system should therefore improve the evidence used for accepting updates, for example by incorporating physical screen-boundary cues so that moving screen content cannot dominate the homography.
 
-The evaluation has several boundaries. The dataset is small and self-collected, so it does not establish generalization across capture devices, display technologies, distances, or lighting conditions. The updated geometry and temporal results are computed on a balanced 10-clip subset, not yet on a full 50-clip rerun under the completed annotation state. Geometry labels are sparse keyframes rather than dense frame-level ground truth. Finally, the temporal metric is derived from the estimated quadrilateral itself, so it diagnoses output smoothness but does not independently prove physical screen-plane correctness.
+The evaluation has several boundaries. The dataset is small and self-collected, so it does not establish generalization across capture devices, display technologies, distances, or lighting conditions. Geometry labels are sparse keyframes rather than dense frame-level ground truth. Finally, the temporal metric is derived from the estimated quadrilateral itself, so it diagnoses output smoothness but does not independently prove physical screen-plane correctness.
 
 # 7. Conclusion
 
-This paper evaluates reference-anchored geometric normalization for real captured-screen videos. On an updated annotated subset, the method reduced estimated trajectory variation but did not improve annotated screen geometry. Ablation showed that reliability gates drive this stability-accuracy trade-off: they suppress jitter, but they can also freeze stale geometry. The main implication is that captured-screen preprocessing should not treat smoothness as correctness. Future work should add stronger physical screen-plane evidence and rerun the full benchmark under the completed annotation set.
+This paper evaluates reference-anchored geometric normalization for real captured-screen videos. In the current annotated evaluation, the method reduced estimated trajectory variation but did not improve annotated screen geometry. Ablation showed that reliability gates drive this stability-accuracy trade-off: they suppress jitter, but they can also freeze stale geometry. The main implication is that captured-screen preprocessing should not treat smoothness as correctness. Future work should add stronger physical screen-plane evidence and extend the benchmark under the completed annotation set.
 
 # Data Availability
 

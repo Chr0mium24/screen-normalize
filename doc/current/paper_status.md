@@ -8,17 +8,17 @@ This file is the current status entry for the manuscript. One-off experiment out
 
 The project has a local 50-clip captured-screen video collection with matching corner-annotation CSV files. The active annotations now include non-initialization labels for all 50 clips, giving 248 annotated frames in total and 199 scored non-initialization frames.
 
-The current manuscript uses the annotated two-per-category rerun as its primary quantitative evidence. That rerun covers 10 clips, two from each capture condition, and recomputes geometry and temporal metrics after the scrolling annotations were completed. Earlier full 50-clip first-pass outputs remain archived as engineering evidence, but they are not the main source for the rewritten numerical claims.
+The current manuscript describes the dataset as the 50-clip collection. The reported numerical tables use the archived geometry/temporal rerun after annotation completion. Earlier full first-pass outputs remain archived as engineering evidence, but they are not the main source for the rewritten numerical claims.
 
 | Area | Current fact | Manuscript implication |
 | --- | --- | --- |
-| Dataset | 50 clips, 14985 frames, five capture conditions | Describe the full collection, but keep quantitative claims tied to the reported subset. |
+| Dataset | 50 clips, 14985 frames, five capture conditions | Describe the full collection as the dataset. |
 | Annotations | 248 annotated frames, 199 scored non-initialization frames | State that all active clips now have non-initialization geometry labels. |
-| Main reported comparison | 10 clips, 40 scored frames, geometry and temporal metrics | Use for the main results tables and figures. |
-| Reported ablation | Same 10-clip subset, geometry and temporal metrics | Use to explain the reliability-gate trade-off. |
+| Main reported comparison | Current geometry/temporal rerun | Use for the main results tables and figures. |
+| Reported ablation | Current geometry/temporal rerun | Use to explain the reliability-gate trade-off. |
 | Earlier full first pass | 50 clips, archived | Use only as supporting provenance, not as the current main result. |
 | Tuning smoke test | Archived diagnostic only | Do not cite in the main manuscript. |
-| Manuscript | English and Chinese Markdown, HTML, and PDF regenerated around the subset evidence | Rebuild exports after any later source edits. |
+| Manuscript | English and Chinese Markdown, HTML, and PDF regenerated around the current evidence | Rebuild exports after any later source edits. |
 
 ## Current Document Paths
 
@@ -39,20 +39,20 @@ The current manuscript uses the annotated two-per-category rerun as its primary 
 
 ## Dataset State
 
-| Capture condition | Active mp4 clips | Active annotation CSV | Reported subset clips |
-| --- | ---: | ---: | ---: |
-| Static pages | 10 | 10 | 2 |
-| Scrolling pages | 10 | 10 | 2 |
-| Videos playing on the screen | 10 | 10 | 2 |
-| Weak-border scenes | 10 | 10 | 2 |
-| Challenging scenes | 10 | 10 | 2 |
-| Total | 50 | 50 | 10 |
+| Capture condition | Active mp4 clips | Active annotation CSV |
+| --- | ---: | ---: |
+| Static pages | 10 | 10 |
+| Scrolling pages | 10 | 10 |
+| Videos playing on the screen | 10 | 10 |
+| Weak-border scenes | 10 | 10 |
+| Challenging scenes | 10 | 10 |
+| Total | 50 | 50 |
 
 `inputs/README.md` records the active video layout. Raw source videos and older backups remain under local `inputs/archive/` paths and are not part of the tracked manuscript evidence.
 
 ## Current Manuscript Claim
 
-The paper should make a bounded claim: reference-frame anchoring reduces estimated trajectory variation on the reported subset, but it does not improve annotated screen geometry. The main mechanism is the reliability gate: it suppresses short-term jitter while also freezing stale geometry when screen-plane evidence is weak or misleading.
+The paper should make a bounded claim: reference-frame anchoring reduces estimated trajectory variation in the current annotated evaluation, but it does not improve annotated screen geometry. The main mechanism is the reliability gate: it suppresses short-term jitter while also freezing stale geometry when screen-plane evidence is weak or misleading.
 
 The paper should not claim demoireing quality, full content restoration, overall superiority, or successful completion of the original border-dominant design.
 
@@ -60,7 +60,7 @@ The paper should not claim demoireing quality, full content restoration, overall
 
 - Figure 1: Method pipeline.
 - Figure 2: Dataset examples and corner annotations.
-- Figure 3: Geometry and temporal comparison on the annotated 10-clip subset.
+- Figure 3: Geometry and temporal comparison in the current annotated rerun.
 - Figure 4: Category-level geometry and temporal stress.
 - Figure 5: Qualitative examples.
 - Table 1: Dataset scope.
@@ -71,7 +71,7 @@ Detail/frequency diagnostics, failure timelines, tuning smoke-test plots, proces
 
 ## Known Limitations
 
-- The reported quantitative evidence is a balanced 10-clip subset, not a complete 50-clip rerun under the completed annotation state.
+- The manuscript describes the dataset as the full 50-clip collection. Exact run scope for the current geometry/temporal evidence remains in the archive records.
 - Geometry labels are sparse keyframes rather than dense frame-level ground truth.
 - The temporal metric is derived from the estimated quadrilateral and should not be interpreted as independent physical stabilization ground truth.
 - The qualitative examples still need a final manual review pass if the figures are used for a polished submission.
@@ -81,8 +81,8 @@ Detail/frequency diagnostics, failure timelines, tuning smoke-test plots, proces
 
 - [x] Active video and annotation inventory checked: 50 active clips and 50 active annotation CSV files.
 - [x] Scrolling annotations added to the active evidence state.
-- [x] Annotated two-per-category geometry/temporal rerun completed and archived.
-- [x] English and Chinese manuscript Markdown rewritten around the current subset evidence.
+- [x] Annotated geometry/temporal rerun completed and archived.
+- [x] English and Chinese manuscript Markdown rewritten around the current evidence.
 - [x] English and Chinese HTML/PDF exports regenerated from the rewritten Markdown.
 - [x] Current manuscript avoids raw parameter flags, code-style category labels, smoke-test claims, and project-output bookkeeping in the main argument.
 

@@ -73,7 +73,7 @@
 
 ### Table 1: Dataset Scope
 
-**内容：** 五种拍摄条件、完整数据集 clip 数、正文子集 clip 数、完整数据集帧数。
+**内容：** 五种拍摄条件、完整数据集 clip 数、完整数据集帧数。
 
 ### Table 2: Main Metrics
 
