@@ -222,6 +222,99 @@ Decision rule:
 
 > If a sentence would not help a reader judge the method, evidence, or limitation, it should not be in the paper body.
 
+### 12. Results must interpret figures, not list numbers
+
+Current risk:
+
+- Several Results paragraphs read as metric dumps.
+- Figures are inserted, but the text does not guide the reader through what the figure shows, why it matters, or how it changes the paper's argument.
+- The reader sees many numbers and method names but not a coherent finding.
+
+Problem example:
+
+> Detail metrics provide an independent check on this interpretation (Figure 6). Proposed's gradient-magnitude ratio is close to the baselines; its edge-preservation index is lower; FFT orthogonality is lower than Frame-wise; this is not demoireing.
+
+Why this fails:
+
+- It mixes three different diagnostics without a single paragraph-level claim.
+- It does not say what panel or visual evidence the reader should look at.
+- It reports medians before explaining the visual phenomenon.
+- It introduces frequency diagnostics even though they are not central to the main argument.
+- It ends by negating a claim rather than advancing the result.
+
+Revision direction:
+
+- Each Results paragraph should start with the point the figure supports.
+- Then describe the visual pattern in the figure.
+- Then give only the necessary numbers.
+- Then state the implication for the method or failure mode.
+- If a metric does not change the argument, move it to a table, appendix, or omit it from the main text.
+
+Preferred paragraph pattern:
+
+1. Claim: what the reader should learn.
+2. Figure readout: where that pattern appears in the figure.
+3. Evidence: one or two numbers, only if needed.
+4. Interpretation: what this means for the method.
+
+Possible rewrite direction for the Figure 6 paragraph:
+
+> Figure 6 shows that smoother trajectories do not necessarily preserve screen content better after warping. In examples where the estimated quadrilateral is stale or shifted, local edges become less aligned even though the trajectory curve is smooth. This pattern appears in the edge-preservation scores: the reference-anchored method is lower than the two simpler alternatives, while the gradient-magnitude ratio remains similar. The failure is therefore not primarily a loss of raw texture contrast; it is a geometry-alignment problem caused by stale holds, incorrect warps, or repeated resampling. Frequency-direction measurements are kept as a diagnostic of rectification regularity, but they should not be used as evidence of demoireing.
+
+Use this structure across Results:
+
+- Do not write "Metric A is x, Metric B is y, Metric C is z" unless the paragraph first says why those metrics belong together.
+- Do not mention every plotted value in the text.
+- Do not explain a figure by repeating its axis labels.
+- Do not include a figure unless the text extracts a concrete claim from it.
+
+### 13. Every figure needs a reason to exist
+
+Current risk:
+
+- Some figures may be included because they were generated, not because they sharpen the argument.
+- This weakens continuity and makes the paper feel like a project artifact collection.
+
+Revision direction:
+
+- Before keeping any figure, answer:
+  1. What single claim does this figure support?
+  2. Which panel is the reader supposed to inspect first?
+  3. What would be lost if this figure were removed?
+  4. Does the text interpret the figure, or merely cite it?
+- If the answer is weak, merge the figure into another figure, move it to supplementary material, or remove it.
+
+Figure role targets:
+
+| Figure | Required role |
+| --- | --- |
+| Pipeline | Explain the evaluated method, not the old proposal. |
+| Dataset | Show task difficulty and annotation target, not just categories. |
+| Main trade-off | Carry the central result. |
+| Category stress | Explain where the main trade-off comes from. |
+| Qualitative examples | Make the failure mode visible. |
+| Detail/frequency | Only stay if it clarifies alignment/resampling failure beyond geometry metrics. |
+| Ablation | Identify the mechanism behind the trade-off. |
+| Failures | Connect representative failures to the next method improvement. |
+
+### 14. Reduce secondary diagnostics in the main narrative
+
+Current risk:
+
+- Detail and frequency metrics are secondary diagnostics, but the current writing gives them nearly the same narrative weight as geometry and temporal stability.
+- This makes the paper feel unfocused and "not knowing what it is talking about."
+
+Revision direction:
+
+- Main narrative should revolve around geometry correctness and temporal stability.
+- Detail preservation can be one supporting check if it explains a visible alignment/resampling failure.
+- FFT/frequency diagnostics should be shortened, moved later, or moved to supplementary material unless they directly support a necessary claim.
+- Avoid introducing diagnostics whose interpretation requires long disclaimers.
+
+Decision rule:
+
+> If a metric needs two sentences to explain what it does not mean, it probably should not lead a main Results paragraph.
+
 ## Suggested edit order
 
 1. Update `paper_status.md` for the new scrolling annotation status.
@@ -231,7 +324,9 @@ Decision rule:
 5. Replace code-style category labels in manuscript prose, tables, and captions.
 6. Remove raw parameter dumps and production-count bookkeeping from the paper body.
 7. Replace low-information dataset figures with evidence-bearing visual examples.
-8. Rebuild PDFs after text and figures are consistent.
+8. Rewrite Results paragraphs so each one interprets a figure and advances one claim.
+9. Remove, merge, or demote figures and metrics that do not serve the central argument.
+10. Rebuild PDFs after text and figures are consistent.
 
 ## Current abstract target
 
