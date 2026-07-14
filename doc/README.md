@@ -13,6 +13,7 @@
 - `current/paper/manuscript/`：当前中英文论文源文件、PDF、HTML 和主图。
 - `current/paper/rewrite_notes_2026-07-14.md`：当前论文主线、图表和证据映射。
 - `current/paper/proposal_border_ablation_2026-07-14.md`：当前 Proposed 方法的模块和边框消融结果。
+- `current/paper/detail_preservation_demo_2026-07-14.md`：reference-based 局部细节保留诊断 demo。
 - `current/paper/frequency_preservation_demo_2026-07-14.md`：reference-based 高频/摩尔纹信号保留诊断 demo。
 - `current/paper/references/`：当前仍需引用的论文和课程样例。
 - `current/paper/source/proposal.pdf`：正式 proposal。

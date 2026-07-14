@@ -12,6 +12,7 @@
 | `paper/references/samples/` | 教师提供的写作与排版样例 |
 | `paper/rewrite_notes_2026-07-14.md` | 当前论文主线、证据映射和图表说明 |
 | `paper/proposal_border_ablation_2026-07-14.md` | 当前 Proposed 方法的模块和边框消融结果 |
+| `paper/detail_preservation_demo_2026-07-14.md` | reference-based 局部细节保留诊断 demo |
 | `paper/frequency_preservation_demo_2026-07-14.md` | reference-based 高频/摩尔纹信号保留诊断 demo |
 
 ## Current Manuscript State
@@ -20,6 +21,7 @@
 - `proposal_border` 是正文 Proposed 方法；它使用 profile-based physical border observations。
 - 主实验使用 `runs/20260714_small_sample_with_proposal_border`，覆盖五类拍摄条件、每类两个代表 clip。
 - current Proposed 消融使用 `runs/20260714_proposal_border_ablation_scrolling_01`，比较 no-border diagnostics、border-observation variants 和功能模块变体。
+- Detail 指标只作为 local structure preservation 诊断，不作为独立视觉恢复指标。
 - 高频/摩尔纹相关指标只作为 signal preservation 诊断，不作为去摩尔纹或主几何结论。
 - 正文只主张几何屏幕平面归一化，不主张内容恢复或去摩尔纹质量。
 

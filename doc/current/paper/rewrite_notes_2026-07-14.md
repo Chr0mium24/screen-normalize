@@ -72,6 +72,13 @@ Reference-based frequency preservation demo:
 - The input already contains camera-screen interference patterns, so the diagnostic is signal preservation after geometric normalization, not moire removal.
 - Proposal-border output has higher log-FFT similarity and orientation-histogram similarity than the two baselines on the four annotated non-initialization frames.
 
+Reference-based detail preservation demo:
+
+- `doc/current/paper/detail_preservation_demo_2026-07-14.md`
+- Representative clip: `scrolling_01`
+- The diagnostic compares each normalized output against the annotation-warped original frame reference.
+- Proposal-border output has higher SSIM, gradient-map similarity, and edge F1 than the two baselines on the four annotated non-initialization frames.
+
 ## Removed From Main Narrative
 
 - Old reference-anchored Proposed result that had smooth but incorrect geometry.
