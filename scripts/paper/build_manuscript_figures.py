@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
 from matplotlib import patches
+from matplotlib.colors import LinearSegmentedColormap
 
 from screen_normalize.experiments.annotations import load_annotations
 from screen_normalize.experiments.paper_style import apply_paper_style
@@ -54,6 +55,10 @@ CATEGORY_LABELS = {
 }
 GRID = "#D9DDDF"
 TEXT = "#242729"
+HEATMAP_CMAP = LinearSegmentedColormap.from_list(
+    "screen_normalize_heatmap",
+    ["#DDEEEA", "#AFC7CD", "#7C8FB8", "#5B6470", "#242729"],
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -321,10 +326,14 @@ def figure_02(args: argparse.Namespace, rows: list[dict[str, Any]]) -> None:
 
 def heatmap(axis: plt.Axes, data: np.ndarray, title: str, cbar_label: str, fmt: str, log_color: bool = False) -> None:
     color_data = np.log10(np.maximum(data, 1e-6)) if log_color else data
-    image = axis.imshow(color_data, aspect="auto", cmap="YlGnBu_r")
+    image = axis.imshow(color_data, aspect="auto", cmap=HEATMAP_CMAP)
     axis.set_xticks(np.arange(len(METHODS)), [METHOD_LABELS[m] for m in METHODS], rotation=20, ha="right")
     axis.set_yticks(np.arange(len(CATEGORIES)), [CATEGORY_LABELS[c] for c in CATEGORIES])
     axis.set_title(title, loc="left", fontsize=8.5, fontweight="bold")
+    axis.set_xticks(np.arange(-0.5, len(METHODS), 1), minor=True)
+    axis.set_yticks(np.arange(-0.5, len(CATEGORIES), 1), minor=True)
+    axis.grid(which="minor", color="white", linewidth=0.8)
+    axis.tick_params(which="minor", bottom=False, left=False)
     for row in range(data.shape[0]):
         for col in range(data.shape[1]):
             value = data[row, col]
