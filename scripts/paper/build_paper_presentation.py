@@ -366,16 +366,15 @@ def build_deck(assets: dict[str, Path]) -> tuple[Path, list[SlideNote]]:
     add_title(slide, "消融表明物理边框线索是决定性模块")
     add_table(slide, [
         ["变体", "检查内容", "RMSE↓", "IoU↑", "平移变化↓"],
-        ["相邻帧光流", "无物理边框线索", "76.114", "0.916022", "2.205"],
-        ["Reference-plane LK/RANSAC", "无物理边框线索", "643.949", "0.520994", "4.579"],
-        ["Proposed，profile 边框", "完整方法", "3.253", "0.996038", "0.752"],
-        ["去掉轨迹滤波", "移除轨迹平滑", "2.932", "0.996585", "1.430"],
+        ["Proposed，profile 边框", "完整链路", "3.253", "0.996038", "0.752"],
+        ["去掉 LK 诊断", "关闭内部运动检查", "3.253", "0.996038", "0.752"],
+        ["去掉物理边框", "仅相邻帧光流", "76.114", "0.916022", "2.205"],
         ["LSD 边框观测", "替换 profile", "3.604", "0.995716", "0.961"],
         ["Hough 边框观测", "替换 profile", "27.335", "0.974200", "0.897"],
     ], 0.72, 1.36, 8.7, 4.55, font_size=8)
-    add_caption_band(slide, "没有物理边框线索时，连贯滚动内容会主导单应矩阵；profile 边框观测在精度和稳定性之间更均衡。", 9.72, 2.0, 2.85, 1.25)
+    add_caption_band(slide, "消融只保留当前实现中的可切换模块：LK 诊断、物理边框证据和边框观测器。", 9.72, 2.0, 2.85, 1.25)
     add_source(slide, "Source: Table 4, manuscript", 0.82, 6.92, 3.1)
-    notes.append(SlideNote("消融", "重点读三行即可：无边框线索的两个变体误差大幅上升，完整 Proposed 保持低 RMSE 和低平移变化；去掉轨迹滤波虽在稀疏标注帧略低，但帧间变化接近翻倍。"))
+    notes.append(SlideNote("消融", "重点读三组：去掉 LK 诊断结果不变，说明 LK 不是几何主驱动；去掉物理边框后 RMSE 大幅上升；profile、LSD、Hough 对比说明 profile 是更稳妥的边框观测方式。"))
 
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     add_bg(slide)

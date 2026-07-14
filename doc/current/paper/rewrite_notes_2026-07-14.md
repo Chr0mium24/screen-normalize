@@ -59,14 +59,13 @@ Current Proposed ablation added after the rewrite:
 
 - `runs/20260714_proposal_border_ablation_scrolling_01`
 - Representative clip: `scrolling_01`
-- Profile/default: RMSE 3.253 px, IoU 0.996038, translation 0.752 px/frame
-- No physical border, adjacent optical flow: RMSE 76.114 px, IoU 0.916022, translation 2.205 px/frame
-- No physical border, reference LK/RANSAC: RMSE 643.949 px, IoU 0.520994, translation 4.579 px/frame
-- No trajectory filter: RMSE 2.932 px, IoU 0.996585, translation 1.430 px/frame
-- No LK diagnostic: unchanged geometry on this clip, because LK is diagnostic-only and border evidence succeeds every frame
-- No redetect fallback / loose edge gates: unchanged geometry on this clip, because no fallback was needed
-- LSD segments: RMSE 3.604 px, IoU 0.995716, translation 0.961 px/frame
-- Hough segments: RMSE 27.335 px, IoU 0.974200, translation 0.897 px/frame
+- Main Table 4 keeps only current switchable modules: profile/default, no LK diagnostic, no physical border, LSD border observation, and Hough border observation.
+- Profile/default: RMSE 3.253 px, IoU 0.996038, translation 0.752 px/frame.
+- No LK diagnostic: unchanged geometry on this clip, because LK is diagnostic-only and border evidence succeeds every frame.
+- No physical border, adjacent optical flow: RMSE 76.114 px, IoU 0.916022, translation 2.205 px/frame.
+- LSD segments: RMSE 3.604 px, IoU 0.995716, translation 0.961 px/frame.
+- Hough segments: RMSE 27.335 px, IoU 0.974200, translation 0.897 px/frame.
+- Historical diagnostics such as reference-plane LK/RANSAC, no trajectory filter, no redetect fallback, and loose gates are not kept in the main manuscript table because they distract from the current module story.
 
 Reference-based frequency preservation demo:
 

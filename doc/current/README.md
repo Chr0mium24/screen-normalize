@@ -20,7 +20,7 @@
 - 当前论文主线是 **border-guided screen-plane normalization**。
 - `proposal_border` 是正文 Proposed 方法；它使用 profile-based physical border observations。
 - 主实验使用 `runs/20260714_small_sample_with_proposal_border`，覆盖五类拍摄条件、每类两个代表 clip。
-- current Proposed 消融使用 `runs/20260714_proposal_border_ablation_scrolling_01`，比较 no-border diagnostics、border-observation variants 和功能模块变体。
+- current Proposed 消融使用 `runs/20260714_proposal_border_ablation_scrolling_01`；正文主表只保留当前可切换模块：LK 诊断、物理边框证据、profile/LSD/Hough 边框观测。
 - Detail 指标只作为 local structure preservation 诊断，不作为独立视觉恢复指标。
 - 高频/摩尔纹相关指标只作为 signal preservation 诊断，不作为去摩尔纹或主几何结论。
 - 正文只主张几何屏幕平面归一化，不主张内容恢复或去摩尔纹质量。
