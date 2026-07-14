@@ -78,6 +78,8 @@ Human annotations mark the visible screen corners. Geometry is evaluated on non-
 
 Geometry is measured by corner root-mean-square error (RMSE), quadrilateral intersection-over-union (IoU), and aspect-ratio error. Temporal stability is measured from the frame-to-frame projective change of the estimated screen quadrilateral and summarized by translation, rotation, and scale variation. The main paper reports corner RMSE, IoU, and translation variation because they directly test whether the method is both geometrically accurate and stable.
 
+We also compute reference-based signal preservation diagnostics on annotated frames. The original camera frame is warped with the human corner annotation to form a reference, and each normalized output is compared against that reference in local-detail and frequency domains. These diagnostics test whether geometric normalization preserves the captured screen signal, including high-frequency camera-screen interference patterns. They do not measure moire removal and are not used as primary ranking metrics.
+
 # 5. Results
 
 ## 5.1 Overall Comparison
@@ -141,6 +143,12 @@ The ablation identifies the physical-border cue as the decisive component. Remov
 Qualitative outputs match the quantitative results (Figure 5). The proposed method preserves the screen extent on scrolling and weak-border examples where content-driven tracking or frame-wise detection can shift the crop. On static and screen-video examples, all methods produce readable rectifications, but the proposed method keeps the physical frame alignment more consistently.
 
 ![Figure 5. Representative input frames and normalized outputs. Each row shows one capture condition; columns compare the input annotation, frame-wise output, adjacent-frame optical-flow output, and proposed output.](figures/figure_05_qualitative.png)
+
+## 5.6 Signal Preservation Diagnostics
+
+Reference-based signal diagnostics on the representative scrolling clip support the visual interpretation without changing the main metric hierarchy (Figure 6). Against annotation-warped original-frame references, the proposed method gives higher local-structure similarity than the two comparison methods: SSIM is 0.890, gradient-map similarity is 0.930, and edge F1 is 0.952. Frequency diagnostics show the same pattern at the signal level, with higher log-FFT magnitude similarity and orientation-histogram similarity, while high-frequency and broad-band energy ratios remain close to one.
+
+![Figure 6. Reference-based signal-preservation diagnostics on the representative scrolling clip. Detail panels compare structure, edge, and local energy preservation; frequency panels compare FFT structure and high-frequency energy preservation. These diagnostics measure captured-signal preservation after geometric normalization, not moire removal.](figures/figure_06_signal_preservation.png)
 
 # 6. Discussion
 
