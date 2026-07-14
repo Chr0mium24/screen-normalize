@@ -14,7 +14,7 @@ from pptx.util import Inches, Pt
 
 ROOT = Path(__file__).resolve().parent
 IMG = ROOT / "images"
-OUT = ROOT / "exports" / "screen_normalize_final_6min.pptx"
+OUT = ROOT / "exports" / "screen_normalize_final_6min_en.pptx"
 
 W = 13.333
 H = 7.5
@@ -33,7 +33,7 @@ TEAL = "2E8579"
 TEAL_SOFT = "E6F3F1"
 WHITE = "FFFFFF"
 
-FONT_CN = "Microsoft YaHei"
+FONT_CN = "Aptos"
 FONT_LATIN = "Aptos"
 
 
@@ -203,8 +203,8 @@ def add_footer(slide, page: int, source: str = ""):
     add_text(slide, "ECE4512 Final Project · 2026", 0.62, 7.08, 1.75, 0.19,
              size=7.2, color=MUTED)
     if source:
-        add_text(slide, f"来源：{source}", 2.42, 7.08, 9.68, 0.19,
-                 size=6.7, color=MUTED)
+        add_text(slide, f"Source: {source}", 2.18, 7.05, 10.05, 0.27,
+                 size=6.4, color=MUTED)
     add_text(slide, str(page), 12.45, 7.08, 0.25, 0.19, size=7.6, color=MUTED,
              align=PP_ALIGN.RIGHT)
 
@@ -251,9 +251,9 @@ def build_deck() -> Presentation:
     slide = prs.slides.add_slide(blank)
     add_text(slide, "ECE4512 FINAL PROJECT · 2026", 0.70, 0.48, 6.7, 0.30,
              size=12.2, color=BLUE, bold=True)
-    add_text(slide, "物理边框主导的\n拍屏视频几何归一化", 0.70, 0.92, 6.95, 1.35,
-             size=28.5, bold=True, line_spacing=1.03)
-    add_text(slide, "Border-guided screen-plane normalization", 0.72, 2.36, 6.5, 0.34,
+    add_text(slide, "Border-Guided Geometric\nNormalization of Captured-Screen Video", 0.70, 0.92, 6.95, 1.35,
+             size=25.5, bold=True, line_spacing=1.03)
+    add_text(slide, "Physical screen boundaries as the primary homography cue", 0.72, 2.36, 6.5, 0.34,
              size=14.2, color=MUTED, italic=True, font=FONT_LATIN)
     add_rich_line(
         slide,
@@ -270,38 +270,35 @@ def build_deck() -> Presentation:
     )
 
     add_rect(slide, 0.70, 3.72, 6.85, 2.35, fill=BLUE_SOFT, line=BLUE_SOFT)
-    add_rich_line(slide, [("核心问题。", {"color": BLUE, "bold": True}),
-                          ("拍屏视频中的页面滚动、屏内视频与相机运动并不相同。")],
-                  0.96, 4.00, 6.25, 0.42, size=15.5)
+    add_rich_line(slide, [("Core problem. ", {"color": BLUE, "bold": True}),
+                          ("Page scrolling, in-screen video, and camera motion are not the same motion.")],
+                  0.96, 4.00, 6.25, 0.50, size=14.0)
     add_text(slide,
-             "我们让物理屏幕边框直接决定单应矩阵，内部 LK/RANSAC 仅用于一致性诊断，"
-             "从而在保留真实内容运动的同时，输出稳定的正面屏幕视频。",
-             0.96, 4.53, 6.18, 1.16, size=15.2, color=INK, line_spacing=1.16)
+             "We let the physical screen border directly determine the homography. Internal LK/RANSAC tracks are used only for consistency diagnostics, so true content motion is preserved while the screen plane remains stable.",
+             0.96, 4.55, 6.18, 1.10, size=13.7, color=INK, line_spacing=1.12)
 
     add_rect(slide, 8.04, 1.40, 4.67, 1.88, fill=WHITE, line=LINE)
     add_picture_contain(slide, IMG / "figure_01_pipeline.png", 8.12, 1.49, 4.51, 1.69)
-    add_text(slide, "项目现有方法图：边框驱动的屏幕平面归一化", 8.15, 3.08, 4.45, 0.20,
+    add_text(slide, "Repository method figure: border-guided normalization", 8.15, 3.08, 4.45, 0.20,
              size=8.2, color=MUTED, italic=True, align=PP_ALIGN.CENTER)
 
     add_rect(slide, 8.04, 3.58, 4.67, 2.48, fill=WHITE, line=LINE)
     add_picture_crop(slide, IMG / "annotated_dataset_mosaic.jpg", 8.12, 3.66, 4.51, 2.20,
                      crop_top=0.00, crop_bottom=0.48)
-    add_text(slide, "自采集拍屏样例与人工四角标注", 8.15, 5.84, 4.45, 0.20,
+    add_text(slide, "Self-collected captures with manual corner annotations", 8.15, 5.84, 4.45, 0.20,
              size=8.2, color=MUTED, italic=True, align=PP_ALIGN.CENTER)
-    add_footer(slide, 1, "figure_01_pipeline.png；annotated_dataset_mosaic.jpg")
+    add_footer(slide, 1, "figure_01_pipeline.png; annotated_dataset_mosaic.jpg")
     add_notes(slide,
-              "【约 25 秒】本项目研究的是拍屏视频的几何前端。输入是包含背景、透视畸变、"
-              "手持抖动以及屏幕内部动态内容的完整视频；输出是稳定、正面的屏幕视频。"
-              "核心思路是让物理屏幕边框决定单应矩阵，而不是让页面滚动或屏内视频带着屏幕平面一起移动。")
+              "[About 25 seconds] This project studies the geometric front end for captured-screen video. The input is a full handheld video containing background clutter, perspective distortion, camera shake, and dynamic content inside the display. The output is a stable, front-facing screen video. The key idea is to let the physical screen border determine the homography instead of allowing page scrolling or in-screen video to move the estimated screen plane.")
 
     # Slide 2 — Problem and insight
     slide = prs.slides.add_slide(blank)
-    add_header(slide, "WHY BORDER EVIDENCE", "问题的本质：内容运动 ≠ 屏幕运动", 2,
-               "完善大纲.md；figure_05_qualitative.png")
+    add_header(slide, "WHY BORDER EVIDENCE", "The Core Problem: Content Motion ≠ Screen Motion", 2,
+               "project outline; figure_05_qualitative.png", title_size=27)
     cards = [
-        (0.65, "逐帧检测", "相信当前帧", "检测噪声 → 抖动\n弱边框 → 定位偏移", RED, RED_SOFT),
-        (4.45, "相邻帧光流", "相信内部纹理", "页面滚动 → 内容驱动\n逐帧传播 → 累积漂移", ORANGE, "FFF3E8"),
-        (8.25, "边框主导（本文）", "相信物理边界", "边框决定四边形\n内部光流只做诊断", BLUE, BLUE_SOFT),
+        (0.65, "Frame-wise detection", "Trusts the current frame", "Detection noise → jitter\nWeak borders → localization bias", RED, RED_SOFT),
+        (4.45, "Adjacent optical flow", "Trusts internal texture", "Page scrolling → content-driven motion\nFrame propagation → accumulated drift", ORANGE, "FFF3E8"),
+        (8.25, "Border-guided (ours)", "Trusts the physical boundary", "Border defines the quadrilateral\nInternal flow is diagnostic only", BLUE, BLUE_SOFT),
     ]
     for x, name, belief, weakness, accent, soft in cards:
         add_rect(slide, x, 1.56, 3.46, 2.23, fill=soft, line=accent, line_width=1.1)
@@ -311,31 +308,28 @@ def build_deck() -> Presentation:
         add_text(slide, weakness, x + 0.22, 2.80, 2.98, 0.72, size=13.2, color=INK,
                  line_spacing=1.14)
 
-    add_text(slide, "滚动页面的同一时刻：输入 + 三种方法", 0.70, 4.08, 5.2, 0.28,
+    add_text(slide, "Same moment on a scrolling page: input + three methods", 0.70, 4.08, 6.2, 0.28,
              size=11.4, color=BLUE, bold=True)
     add_rect(slide, 0.65, 4.40, 12.03, 2.18, fill=WHITE, line=LINE)
     add_picture_crop(slide, IMG / "figure_05_qualitative.png", 0.76, 4.51, 11.81, 1.92,
                      crop_top=0.205, crop_bottom=0.615)
-    add_text(slide, "观察重点：屏幕范围是否完整、边缘是否漂移，以及滚动内容是否被正常保留。",
+    add_text(slide, "Check whether the full screen is preserved, the border drifts, and the scrolling content remains intact.",
              0.77, 6.56, 11.78, 0.26, size=10.0, color=MUTED, italic=True,
              align=PP_ALIGN.CENTER)
     add_notes(slide,
-              "【约 45 秒】问题不只是把画面裁成矩形，而是区分屏幕运动和内容运动。"
-              "逐帧检测只相信当前帧，弱边框下容易偏移并产生抖动；相邻帧光流相信内部纹理，"
-              "当网页滚动时会把内容运动误当成屏幕运动并累积漂移。我们的方案优先相信物理屏幕边界。"
-              "下方是项目现有的滚动页面对比：需要同时检查完整屏幕范围、边缘稳定性和真实滚动是否保留。")
+              "[About 45 seconds] The problem is not merely cropping the image into a rectangle; it is separating screen motion from content motion. Frame-wise detection trusts each current frame, so weak borders cause localization bias and jitter. Adjacent-frame optical flow trusts internal texture, so page scrolling can be mistaken for screen motion and accumulate drift. Our method prioritizes the physical screen boundary. The comparison below shows the same scrolling moment: we must check the complete screen extent, border stability, and whether true scrolling is retained.")
 
     # Slide 3 — Pipeline
     slide = prs.slides.add_slide(blank)
-    add_header(slide, "METHOD", "当前边框主导管线", 3,
+    add_header(slide, "METHOD", "The Current Border-Guided Pipeline", 3,
                "figure_01_pipeline.png")
     add_rect(slide, 0.62, 1.50, 12.08, 3.63, fill=WHITE, line=LINE)
     add_picture_contain(slide, IMG / "figure_01_pipeline.png", 0.74, 1.60, 11.84, 3.42)
 
     method_cards = [
-        (0.66, "01", "物理边框决定单应矩阵", "在上一帧预测边附近采样 profile，拟合四条边线并求交。"),
-        (4.55, "02", "LK/RANSAC 只做诊断", "发现内部运动冲突，但不让滚动内容接管屏幕平面。"),
-        (8.44, "03", "门控、重检与平滑", "拒绝非法四边形；必要时重检，并平滑最终轨迹。"),
+        (0.66, "01", "Physical borders define H", "Sample profiles near predicted borders, fit four lines, and intersect them."),
+        (4.55, "02", "LK/RANSAC is diagnostic", "Detect internal-motion conflict without letting scrolling content control the plane."),
+        (8.44, "03", "Gating, redetection, smoothing", "Reject invalid quadrilaterals, redetect when needed, and smooth the final trajectory."),
     ]
     for x, idx, title, body in method_cards:
         add_rect(slide, x, 5.40, 3.60, 1.28, fill=BLUE_PALE, line=LINE)
@@ -344,21 +338,17 @@ def build_deck() -> Presentation:
         add_text(slide, body, x + 0.18, 6.02, 3.12, 0.44, size=10.5, color=MUTED,
                  line_spacing=1.08)
     add_notes(slide,
-              "【约 55 秒】管线从首帧四角初始化开始。之后利用上一帧四边形预测四条边的局部搜索带，"
-              "沿内法线采样梯度 profile，选择靠近预测边的高梯度点并鲁棒拟合四条边线。"
-              "相邻边求交得到当前四边形，再通过凸性、边长和帧间变化等门控。"
-              "LK/RANSAC 只判断内部纹理是否与边框运动冲突；只要边框有效，仍以物理边界为准。"
-              "最后对轨迹插值和平滑，再投影到固定画布。")
+              "[About 55 seconds] The pipeline begins with four-corner initialization on the first frame. The previous quadrilateral predicts local search bands for all four sides. We sample gradient profiles along inward normals, select strong candidates close to each predicted border, and robustly fit four lines. Their intersections form the current quadrilateral, which is checked for convexity, side geometry, and plausible frame-to-frame change. LK/RANSAC only diagnoses disagreement between internal texture and border motion. If the border is valid, the physical boundary still wins. Finally, the trajectory is interpolated, smoothed, and warped to a fixed canvas.")
 
     # Slide 4 — Dataset
     slide = prs.slides.add_slide(blank)
-    add_header(slide, "EVALUATION", "数据集与实验设置", 4,
-               "完善大纲.md；annotated_dataset_mosaic.jpg")
+    add_header(slide, "EVALUATION", "Dataset & Experimental Setup", 4,
+               "project outline; annotated_dataset_mosaic.jpg")
 
     stat_specs = [
-        (0.68, "50", "自采集视频"),
-        (2.77, "14,985", "总帧数"),
-        (5.16, "10", "带标注评估片段"),
+        (0.68, "50", "self-collected clips"),
+        (2.77, "14,985", "total frames"),
+        (5.16, "10", "annotated evaluation clips"),
     ]
     for x, number, label in stat_specs:
         add_rect(slide, x, 1.55, 1.87 if x != 2.77 else 2.13, 1.20,
@@ -369,8 +359,8 @@ def build_deck() -> Presentation:
         add_text(slide, label, x + 0.10, 2.24, (1.67 if x != 2.77 else 1.93), 0.24,
                  size=10.2, color=MUTED, align=PP_ALIGN.CENTER)
 
-    add_text(slide, "五类拍摄条件", 0.69, 3.02, 2.2, 0.28, size=13.5, color=BLUE, bold=True)
-    classes = ["静态页面", "滚动页面", "屏内视频", "弱边框", "挑战场景"]
+    add_text(slide, "Five capture conditions", 0.69, 3.02, 2.8, 0.28, size=13.5, color=BLUE, bold=True)
+    classes = ["Static page", "Scrolling", "In-screen video", "Weak border", "Challenging"]
     class_colors = [BLUE_SOFT, BLUE_SOFT, BLUE_SOFT, BLUE_SOFT, RED_SOFT]
     class_lines = [LINE, LINE, LINE, LINE, RED]
     for i, label in enumerate(classes):
@@ -380,92 +370,82 @@ def build_deck() -> Presentation:
         add_text(slide, f"CLASS {i + 1}", x + 0.08, 3.61, 1.02, 0.20,
                  size=7.8, color=(RED if i == 4 else BLUE), bold=True,
                  align=PP_ALIGN.CENTER)
-        add_text(slide, label, x + 0.08, 4.00, 1.02, 0.30, size=11.2, bold=True,
+        add_text(slide, label, x + 0.08, 3.95, 1.02, 0.42, size=9.7, bold=True,
                  align=PP_ALIGN.CENTER, valign=MSO_ANCHOR.MIDDLE)
 
     add_rect(slide, 0.68, 4.94, 6.58, 1.56, fill=BLUE_PALE, line=LINE)
-    add_rich_line(slide, [("公平比较。", {"color": BLUE, "bold": True}),
-                          ("三种主方法共享相同输入、初始化、输出画布、标注和指标代码。")],
-                  0.92, 5.15, 6.05, 0.35, size=13.1)
-    add_text(slide, "几何评价排除用于初始化的第 0 帧；片段内先取中位数，再跨片段汇总。",
-             0.92, 5.68, 5.98, 0.51, size=11.5, color=MUTED)
+    add_rich_line(slide, [("Fair comparison. ", {"color": BLUE, "bold": True}),
+                          ("All three methods share the same input, initialization, canvas, annotations, and metric code.")],
+                  0.92, 5.15, 6.05, 0.45, size=11.7)
+    add_text(slide, "Geometry excludes initialization frame 0. We take medians within each clip, then aggregate across clips.",
+             0.92, 5.72, 5.98, 0.44, size=10.6, color=MUTED)
 
     add_rect(slide, 7.63, 1.55, 5.05, 4.95, fill=INK, line=INK)
     add_picture_contain(slide, IMG / "annotated_dataset_mosaic.jpg", 7.73, 1.65, 4.85, 4.70)
-    add_text(slide, "项目内现有数据集马赛克；绿色四边形为人工屏幕边界。",
+    add_text(slide, "Repository dataset mosaic; green quadrilaterals mark manual screen boundaries.",
              7.83, 6.28, 4.65, 0.24, size=8.5, color=LINE, italic=True,
              align=PP_ALIGN.CENTER)
     add_notes(slide,
-              "【约 40 秒】完整数据集包含五十个自采集拍屏视频，共一万四千九百八十五帧，"
-              "五类条件各十个片段。当前正式定量评估使用十个带标注片段，每类两个。"
-              "三种方法使用相同的输入、首帧初始化、输出画布、人工角点标注和指标代码；"
-              "几何评价排除第零帧，先对每个片段取中位数，再跨片段取中位数。")
+              "[About 40 seconds] The complete dataset contains fifty self-collected captured-screen videos and 14,985 frames, with ten clips in each of five capture conditions. The current formal quantitative evaluation uses ten annotated clips, two per condition. All methods share the same input, first-frame initialization, output canvas, corner annotations, and metric implementation. Geometry excludes frame zero; metrics are summarized by the median within each clip and then by the median across clips.")
 
     # Slide 5 — Overall results
     slide = prs.slides.add_slide(blank)
-    add_header(slide, "MAIN RESULTS", "总体结果：更准，同时更稳", 5,
-               "figure_02_overall_results.png")
+    add_header(slide, "MAIN RESULTS", "Overall Results: More Accurate and More Stable", 5,
+               "figure_02_overall_results.png", title_size=27)
     add_rect(slide, 0.64, 1.53, 8.42, 4.98, fill=WHITE, line=LINE)
     add_picture_contain(slide, IMG / "figure_02_overall_results.png", 0.75, 1.65, 8.20, 4.72)
 
     add_rect(slide, 9.32, 1.53, 3.37, 4.98, fill=BLUE_SOFT, line=BLUE_SOFT)
     metrics = [
-        ("3.87 px", "角点 RMSE", "最低", BLUE),
-        ("0.996", "四边形 IoU", "最高", TEAL),
-        ("2.45", "px / frame 平移变化", "最低", BLUE),
+        ("3.87 px", "Corner RMSE", "LOWEST", BLUE),
+        ("0.996", "Quadrilateral IoU", "HIGHEST", TEAL),
+        ("2.45", "px/frame translation variation", "LOWEST", BLUE),
     ]
     y = 1.86
     for value, label, tag, c in metrics:
         add_text(slide, value, 9.65, y, 2.72, 0.48, size=23.0, color=c, bold=True)
         add_text(slide, label, 9.65, y + 0.49, 2.20, 0.25, size=10.8, color=INK, bold=True)
-        add_rect(slide, 11.77, y + 0.46, 0.57, 0.25, fill=WHITE, line=LINE)
-        add_text(slide, tag, 11.79, y + 0.50, 0.51, 0.16, size=7.6, color=c, bold=True,
+        add_rect(slide, 11.68, y + 0.46, 0.78, 0.25, fill=WHITE, line=LINE)
+        add_text(slide, tag, 11.70, y + 0.50, 0.74, 0.16, size=6.6, color=c, bold=True,
                  align=PP_ALIGN.CENTER)
         y += 1.08
     add_line(slide, 9.65, 5.06, 12.38, 5.06, color=LINE, width=0.8)
-    add_text(slide, "结论", 9.65, 5.30, 0.68, 0.24, size=10.3, color=BLUE, bold=True)
-    add_text(slide, "改进不只是轨迹更平滑；更关键的是四边形更贴近人工标注。",
-             9.65, 5.63, 2.72, 0.62, size=12.0, color=INK, line_spacing=1.10)
+    add_text(slide, "TAKEAWAY", 9.65, 5.30, 1.10, 0.24, size=9.4, color=BLUE, bold=True)
+    add_text(slide, "The result is not merely smoother—the estimated quadrilateral is also much closer to the annotation.",
+             9.65, 5.63, 2.72, 0.66, size=10.8, color=INK, line_spacing=1.08)
     add_notes(slide,
-              "【约 55 秒】这里的三个指标都来自项目现有总体结果图。边框主导方法的角点 RMSE 为 3.87 像素，"
-              "而逐帧检测和光流分别约为 30.37 和 31.40。IoU 提升到 0.996，"
-              "平移变化降低到每帧 2.45 像素。重要的是，我们不是通过冻结轨迹换取表面稳定："
-              "几何精度和时间稳定性同时改善，说明物理边框确实比内部内容更适合作为单应矩阵的主证据。")
+              "[About 55 seconds] These three metrics come directly from the repository's overall-results figure. The border-guided method reaches a corner RMSE of 3.87 pixels, compared with 30.37 for frame-wise detection and 31.40 for optical flow. IoU rises to 0.996, while translation variation falls to 2.45 pixels per frame. Crucially, this is not superficial stability created by freezing the trajectory. Geometry and temporal stability improve together, supporting the physical screen border as a better primary homography cue than internal content motion.")
 
     # Slide 6 — Category results
     slide = prs.slides.add_slide(blank)
-    add_header(slide, "WHERE IT HELPS", "优势集中在滚动与弱边框场景", 6,
-               "figure_03_category_results.png")
+    add_header(slide, "WHERE IT HELPS", "Largest Gains on Scrolling and Weak-Border Scenes", 6,
+               "figure_03_category_results.png", title_size=26.5)
     add_rect(slide, 0.64, 1.53, 8.83, 4.98, fill=WHITE, line=LINE)
     add_picture_contain(slide, IMG / "figure_03_category_results.png", 0.76, 1.65, 8.59, 4.72)
 
     add_rect(slide, 9.72, 1.53, 2.97, 1.58, fill=BLUE_SOFT, line=BLUE)
-    add_text(slide, "滚动页面", 9.98, 1.78, 2.40, 0.28, size=14.6, color=BLUE, bold=True)
+    add_text(slide, "SCROLLING PAGE", 9.98, 1.78, 2.40, 0.28, size=12.8, color=BLUE, bold=True)
     add_text(slide, "RMSE  2.87 px", 9.98, 2.18, 2.40, 0.31, size=16.4, color=INK, bold=True)
-    add_text(slide, "逐帧 31.76 · 光流 81.67", 9.98, 2.60, 2.40, 0.22,
+    add_text(slide, "Frame-wise 31.76 · Flow 81.67", 9.98, 2.60, 2.40, 0.22,
              size=8.8, color=MUTED)
 
     add_rect(slide, 9.72, 3.30, 2.97, 1.58, fill=TEAL_SOFT, line=TEAL)
-    add_text(slide, "弱边框", 9.98, 3.55, 2.40, 0.28, size=14.6, color=TEAL, bold=True)
+    add_text(slide, "WEAK BORDER", 9.98, 3.55, 2.40, 0.28, size=12.8, color=TEAL, bold=True)
     add_text(slide, "RMSE  9.35 px", 9.98, 3.95, 2.40, 0.31, size=16.4, color=INK, bold=True)
-    add_text(slide, "另外两种方法均 >155 px", 9.98, 4.37, 2.40, 0.22,
+    add_text(slide, "Both comparison methods >155 px", 9.98, 4.37, 2.40, 0.22,
              size=8.8, color=MUTED)
 
     add_rect(slide, 9.72, 5.07, 2.97, 1.44, fill=BLUE_PALE, line=LINE)
-    add_text(slide, "挑战场景仍是限制", 9.98, 5.31, 2.40, 0.26, size=12.6, color=RED, bold=True)
-    add_text(slide, "几何略逊于逐帧检测，但平移变化 3.74，仍低于 5.19 / 8.56。",
-             9.98, 5.72, 2.40, 0.54, size=10.0, color=MUTED, line_spacing=1.08)
+    add_text(slide, "CHALLENGING SCENES REMAIN A LIMIT", 9.98, 5.27, 2.40, 0.38, size=9.8, color=RED, bold=True)
+    add_text(slide, "Geometry is slightly worse than frame-wise detection, but translation variation is 3.74 versus 5.19 / 8.56.",
+             9.98, 5.74, 2.40, 0.58, size=9.1, color=MUTED, line_spacing=1.06)
     add_notes(slide,
-              "【约 50 秒】分类结果解释了优势来自哪里。滚动页面上，光流会跟随内容移动，"
-              "RMSE 上升到 81.67 像素；边框方案保持在物理屏幕上，只有 2.87 像素。"
-              "弱边框场景中，上一帧预测的局部搜索带也显著优于全帧独立检测，RMSE 为 9.35，"
-              "另外两种方法都超过 155。挑战场景是主要限制：逐帧检测几何误差略低，"
-              "但我们的轨迹仍更稳定，因此后续应重点处理反光、遮挡和极低对比度。")
+              "[About 50 seconds] The category results show where the improvement comes from. On scrolling pages, optical flow follows the moving content and RMSE rises to 81.67 pixels. The border-guided method stays on the physical screen and reaches 2.87 pixels. In weak-border scenes, the local search band predicted from the previous frame is far more stable than independent full-frame detection: our RMSE is 9.35, while both comparison methods exceed 155. Challenging scenes remain the main limitation. Frame-wise detection has slightly lower geometry error there, but our trajectory is still more stable, so future work should focus on glare, occlusion, and very low contrast.")
 
     # Slide 7 — Ablation
     slide = prs.slides.add_slide(blank)
-    add_header(slide, "ABLATION", "消融：滤波换来稳定，其余模块提供安全网", 7,
-               "proposal_border_ablation_2026-07-14.md")
+    add_header(slide, "ABLATION", "Filtering Adds Stability; Other Modules Form a Safety Net", 7,
+               "proposal_border_ablation_2026-07-14.md", title_size=24.5)
     rows = 6
     cols = 4
     table_shape = slide.shapes.add_table(rows, cols, Inches(0.66), Inches(1.62), Inches(8.25), Inches(4.62))
@@ -476,16 +456,16 @@ def build_deck() -> Presentation:
     for row_idx in range(rows):
         table.rows[row_idx].height = Inches(0.77)
 
-    headers = ["变体", "RMSE ↓", "IoU ↑", "平移变化 ↓"]
+    headers = ["Variant", "RMSE ↓", "IoU ↑", "Translation ↓"]
     for j, h_text in enumerate(headers):
         style_cell(table.cell(0, j), h_text, BLUE_DARK, color=WHITE, bold=True, size=11.3)
 
     data = [
-        ("完整方法：Profile 边框", "3.253", "0.996038", "0.752"),
-        ("去掉轨迹滤波", "2.932", "0.996585", "1.430"),
-        ("去掉 LK 一致性诊断", "3.253", "0.996038", "0.752"),
-        ("去掉重新检测回退", "3.253", "0.996038", "0.752"),
-        ("放宽边缘门控", "3.253", "0.996038", "0.752"),
+        ("Full method: Profile border", "3.253", "0.996038", "0.752"),
+        ("No trajectory smoothing", "2.932", "0.996585", "1.430"),
+        ("No LK consistency diagnostic", "3.253", "0.996038", "0.752"),
+        ("No redetection fallback", "3.253", "0.996038", "0.752"),
+        ("Loose edge gates", "3.253", "0.996038", "0.752"),
     ]
     for i, row in enumerate(data, start=1):
         fill = BLUE_SOFT if i == 1 else (RED_SOFT if i == 2 else "F6F8FB")
@@ -498,52 +478,48 @@ def build_deck() -> Presentation:
     add_rect(slide, 9.20, 1.62, 3.48, 2.05, fill=BLUE_SOFT, line=BLUE)
     add_text(slide, "0.752  →  1.430", 9.48, 1.96, 2.91, 0.44,
              size=22.0, color=BLUE, bold=True, align=PP_ALIGN.CENTER)
-    add_text(slide, "去掉滤波后，平移变化接近翻倍", 9.49, 2.55, 2.89, 0.46,
-             size=12.0, color=INK, bold=True, align=PP_ALIGN.CENTER)
-    add_text(slide, "代价：稀疏标注帧 RMSE 略降，但帧间抖动明显增加。",
-             9.48, 3.06, 2.91, 0.37, size=9.2, color=MUTED, align=PP_ALIGN.CENTER)
+    add_text(slide, "Translation variation nearly doubles without smoothing", 9.49, 2.50, 2.89, 0.56,
+             size=10.4, color=INK, bold=True, align=PP_ALIGN.CENTER)
+    add_text(slide, "Trade-off: sparse-frame RMSE improves slightly, but frame-to-frame jitter increases.",
+             9.48, 3.07, 2.91, 0.42, size=8.4, color=MUTED, align=PP_ALIGN.CENTER)
 
     add_rect(slide, 9.20, 3.93, 3.48, 2.31, fill=BLUE_PALE, line=LINE)
-    add_text(slide, "LK / 重检 / 门控", 9.48, 4.24, 2.91, 0.34,
+    add_text(slide, "LK / REDETECTION / GATING", 9.48, 4.24, 2.91, 0.34,
              size=15.0, color=INK, bold=True, align=PP_ALIGN.CENTER)
-    add_text(slide, "在该滚动片段上数值不变", 9.48, 4.73, 2.91, 0.28,
-             size=11.3, color=BLUE, bold=True, align=PP_ALIGN.CENTER)
+    add_text(slide, "No metric change on this scrolling clip", 9.48, 4.73, 2.91, 0.34,
+             size=10.0, color=BLUE, bold=True, align=PP_ALIGN.CENTER)
     add_text(slide,
-             "说明 Profile 边框证据逐帧成功；这些模块主要承担异常检测与恢复，而不是正常帧的主估计。",
-             9.50, 5.18, 2.87, 0.73, size=10.2, color=MUTED,
+             "Profile border evidence succeeds on every frame here. These modules mainly handle abnormal detection and recovery rather than normal-frame estimation.",
+             9.50, 5.18, 2.87, 0.75, size=9.3, color=MUTED,
              align=PP_ALIGN.CENTER, line_spacing=1.10)
-    add_text(slide, "表中数值均直接转录自项目现有 Proposal Border Ablation 文档。",
+    add_text(slide, "All values are transcribed directly from the repository's Proposal Border Ablation document.",
              0.69, 6.47, 8.15, 0.24, size=8.6, color=MUTED, italic=True)
     add_notes(slide,
-              "【约 55 秒】消融在代表性的滚动片段上进行。完整方法的 RMSE 为 3.253，"
-              "平移变化为 0.752。去掉轨迹滤波后，RMSE 在稀疏标注帧上略降到 2.932，"
-              "但平移变化升到 1.430，接近翻倍，所以滤波的作用是时间稳定，而不是提高单帧精度。"
-              "去掉 LK 诊断、重检或放宽门控没有改变这个片段的结果，说明 Profile 边框证据每帧都成功；"
-              "这些模块是异常情况下的安全网，不会干扰正常主链。")
+              "[About 55 seconds] This ablation uses a representative scrolling clip. The full method reaches an RMSE of 3.253 and translation variation of 0.752. Without trajectory smoothing, RMSE on sparse annotated frames improves slightly to 2.932, but translation variation rises to 1.430, almost doubling. This shows that smoothing primarily improves temporal stability rather than single-frame accuracy. Removing the LK diagnostic, redetection, or edge gating does not change this clip because Profile border evidence succeeds on every frame. These components are a safety net for abnormal cases and do not interfere with the normal main chain.")
 
     # Slide 8 — Limitations and conclusion
     slide = prs.slides.add_slide(blank)
-    add_header(slide, "LIMITS & TAKEAWAY", "边界仍是限制，但结论清晰", 8,
-               "完善大纲.md §4–5")
+    add_header(slide, "LIMITS & TAKEAWAY", "Boundary Evidence Is Still the Limitation—but the Conclusion Is Clear", 8,
+               "project outline §§4–5", title_size=23.5)
 
     add_rect(slide, 0.66, 1.58, 5.82, 2.03, fill=RED_SOFT, line=RED)
-    add_text(slide, "主要局限", 0.94, 1.87, 1.45, 0.31, size=15.0, color=RED, bold=True)
-    add_text(slide, "• 弱边缘 / 极低对比度：真实梯度不足，背景纹理可能成为更强候选\n"
-                    "• 强反光 / 遮挡：伪梯度会偏移边线，或触发重检与保持",
-             0.94, 2.35, 5.16, 0.89, size=12.2, color=INK, line_spacing=1.16)
+    add_text(slide, "MAIN LIMITATIONS", 0.94, 1.87, 2.15, 0.31, size=13.5, color=RED, bold=True)
+    add_text(slide, "• Weak edges / very low contrast: true gradients fade and background texture may become the stronger candidate\n"
+                    "• Strong glare / occlusion: false gradients can shift a fitted line or trigger redetection and hold",
+             0.94, 2.30, 5.16, 1.05, size=10.6, color=INK, line_spacing=1.10)
 
     add_rect(slide, 6.77, 1.58, 5.91, 2.03, fill=BLUE_SOFT, line=BLUE)
-    add_text(slide, "最终结论", 7.07, 1.87, 1.45, 0.31, size=15.0, color=BLUE, bold=True)
+    add_text(slide, "FINAL CONCLUSION", 7.07, 1.87, 2.15, 0.31, size=13.5, color=BLUE, bold=True)
     add_text(slide,
-             "物理屏幕边框比单帧独立检测或内部内容光流，更适合作为屏幕平面的主要证据。",
-             7.07, 2.35, 5.28, 0.86, size=17.4, color=INK, bold=True,
+             "The physical screen border is a better primary cue for the screen plane than independent frame detection or internal-content optical flow.",
+             7.07, 2.28, 5.28, 1.00, size=14.1, color=INK, bold=True,
              align=PP_ALIGN.CENTER, valign=MSO_ANCHOR.MIDDLE, line_spacing=1.10)
 
-    add_text(slide, "下一步", 0.69, 4.00, 1.20, 0.28, size=13.5, color=BLUE, bold=True)
+    add_text(slide, "NEXT STEPS", 0.69, 4.00, 1.35, 0.28, size=13.5, color=BLUE, bold=True)
     next_steps = [
-        (0.68, "01", "多线索边界融合", "联合 Profile、长线段、颜色差异与矩形约束。"),
-        (4.57, "02", "边级置信度", "对四条边分别估计可信度，并跨帧补全低置信度边。"),
-        (8.46, "03", "更强失败恢复", "连续失败时主动重新初始化，并扩充反光、遮挡标注。"),
+        (0.68, "01", "Multi-cue boundary fusion", "Combine profiles, long line segments, color differences, and rectangular constraints."),
+        (4.57, "02", "Per-edge confidence", "Estimate confidence for each side and complete low-confidence edges across frames."),
+        (8.46, "03", "Stronger failure recovery", "Actively reinitialize after repeated failures and expand glare/occlusion annotations."),
     ]
     for x, idx, title, body in next_steps:
         add_rect(slide, x, 4.42, 3.58, 1.62, fill=BLUE_PALE, line=LINE)
@@ -556,10 +532,7 @@ def build_deck() -> Presentation:
              0.69, 6.35, 11.92, 0.42, size=16.4, color=BLUE, bold=True,
              align=PP_ALIGN.CENTER)
     add_notes(slide,
-              "【约 35 秒】当前方法仍依赖可见、可辨认的屏幕边界。极低对比度、强反光和遮挡会削弱真实梯度，"
-              "并产生更强的伪边缘。下一步应融合多种边界线索，为四条边分别估计置信度，并在连续失败时主动重初始化。"
-              "但本次实验支持的结论已经清晰：让物理屏幕边框主导单应矩阵，可以同时获得更高的几何精度和更好的时间稳定性。"
-              "整场汇报到这里约六分钟。")
+              "[About 35 seconds] The current method still depends on a visible and distinguishable screen boundary. Very low contrast, strong glare, and occlusion can weaken the true gradient and create stronger false edges. Future work should fuse multiple boundary cues, estimate confidence for each side, and actively reinitialize after consecutive failures. However, the experimental conclusion is already clear: allowing the physical screen border to drive the homography improves both geometric accuracy and temporal stability. This brings the full presentation to approximately six minutes.")
 
     return prs
 
