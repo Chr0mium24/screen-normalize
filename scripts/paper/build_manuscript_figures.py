@@ -235,23 +235,20 @@ def figure_01(args: argparse.Namespace) -> None:
     save(fig, args.output / "figure_01_pipeline.png", args.dpi)
 
 def figure_02(args: argparse.Namespace) -> None:
-    frame_counts = [sum(frame_count(path) for path in sorted((args.input / category).glob("*.mp4"))) for category in CATEGORIES]
-    fig = plt.figure(figsize=(7.2, 4.9), constrained_layout=True)
-    grid = fig.add_gridspec(2, 5, height_ratios=[0.9, 1.4])
-    axis = fig.add_subplot(grid[0, :])
-    bars = axis.bar(range(len(CATEGORIES)), frame_counts, color="#AFC4DD", edgecolor="#354052", linewidth=0.8)
-    for bar, value in zip(bars, frame_counts):
-        axis.text(bar.get_x() + bar.get_width() / 2, value + 55, f"{value}", ha="center", va="bottom", fontsize=7.5)
-    axis.set_xticks(range(len(CATEGORIES)), [CATEGORY_LABELS[c] for c in CATEGORIES], rotation=15, ha="right")
-    axis.set_ylabel("Frames")
-    style_metric_axis(axis, "a  Fifty clips across five capture conditions")
-    for col, category in enumerate(CATEGORIES):
-        clip = f"{category}_01"
-        video = args.input / category / f"{clip}.mp4"
-        frame, corners = annotation_frame(video, prefer_nonzero=True)
-        ax_img = fig.add_subplot(grid[1, col])
-        show_image(ax_img, overlay_corners(read_frame(video, frame), corners), CATEGORY_LABELS[category])
-        add_panel_label(ax_img, chr(ord("b") + col))
+    order = ("static", "scrolling", "screen_video", "weak_border", "hard")
+    fig, axes = plt.subplots(len(order), 3, figsize=(7.2, 7.55), constrained_layout=True)
+    for row, category in enumerate(order):
+        for col in range(3):
+            clip = f"{category}_{col + 1:02d}"
+            video = args.input / category / f"{clip}.mp4"
+            frame, corners = annotation_frame(video, prefer_nonzero=True)
+            title = CATEGORY_LABELS[category] if col == 0 else ""
+            label = f"{clip}  frame {frame}"
+            image = overlay_corners(read_frame(video, frame), corners)
+            show_image(axes[row, col], image, title or label)
+            axes[row, col].text(0.02, 0.96, label, transform=axes[row, col].transAxes, ha="left", va="top", fontsize=6.8, color="white", bbox={"facecolor": "#111111", "alpha": 0.68, "pad": 1.8, "edgecolor": "none"})
+            if col == 0:
+                add_panel_label(axes[row, col], chr(ord("a") + row))
     save(fig, args.output / "figure_02_dataset.png", args.dpi)
 
 

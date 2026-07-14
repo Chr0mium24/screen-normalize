@@ -36,7 +36,7 @@ Supporting colors are muted plum `#806491`, failure red `#B55D5D`, neutral gray 
 | Planned item | Automatic source | Current behavior |
 | --- | --- | --- |
 | Figure 1 pipeline | saved intermediate frames | pending dedicated assets; never synthesized |
-| Figure 2 dataset/annotations | formal representative frames and corner CSV | pending formal dataset |
+| Figure 2 dataset/annotations | formal representative frames and corner CSV | generated as annotated examples, not a frame-count chart |
 | Figure 3 geometry | `geometry.json` across annotated clips | generated only when geometry status is `ok` |
 | Figure 4 temporal | `temporal_frames.csv` and `temporal.json` | generated from a representative reviewed clip plus aggregate table |
 | Figure 5 qualitative | original and three normalized videos | pending reviewed frame selection |

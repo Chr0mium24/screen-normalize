@@ -59,9 +59,9 @@ All compared methods use the same input videos, initialization corners, output c
 
 ## 4.1 Dataset and annotations
 
-The project collection contains 50 captured-screen videos totaling 14985 frames. The five capture conditions each contain ten clips: static pages, scrolling pages, videos playing on the screen, weak-border scenes, and challenging scenes with difficult viewpoints or backgrounds. Figure 2 shows representative annotated frames and the type of screen-corner target used for evaluation.
+The project collection contains 50 captured-screen videos totaling 14985 frames. The five capture conditions each contain ten clips: static pages, scrolling pages, videos playing on the screen, weak-border scenes, and challenging scenes with difficult viewpoints or backgrounds. Figure 2 shows three annotated non-initialization frames from each capture condition and the screen-corner target used for evaluation.
 
-![Figure 2. Representative captured-screen frames and corner annotations from the five capture conditions.](figures/figure_02_dataset.png)
+![Figure 2. Annotated captured-screen examples. Each row shows one capture condition and three non-initialization frames with the evaluated screen-corner quadrilateral overlaid.](figures/figure_02_dataset.png)
 
 Human annotations mark the visible screen corners. The current 50-clip annotation set contains 248 annotated frames; after excluding initialization frames, all 50 clips retain non-initialization geometry labels, giving 199 scored annotation frames. The updated quantitative comparison in this paper uses a balanced 10-clip subset with two clips per capture condition and 40 non-initialization annotated frames. This subset was selected after completing the scrolling annotations and recomputes geometry and temporal metrics for the main comparison and ablations.
 
