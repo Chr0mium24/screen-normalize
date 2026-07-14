@@ -34,3 +34,12 @@
 - 复用：历史 `proposed` 视频与角点轨迹；指标按当前代码重算并排除初始化帧。
 - 汇总：`doc/paper/results/ablation/`。
 - 限制：仅描述性 n=4；offline repair 未被当前四个 clip 有效触发。
+
+## Current Full First-Pass Archives
+
+- Main run：`runs/20260714_full_pipeline_first_pass`
+- Ablation run：`runs/20260714_full_ablation_first_pass`
+- 汇总表、论文图和证据说明已展开保存在 `doc/paper/results/`、`doc/paper/evidence/` 和 `doc/paper/manuscript/figures/`。
+- 轻量 raw metrics archive：`doc/paper/results/raw_run_archives/first_pass_text_metrics_20260714.zip`。
+- Archive 包含两个完整 run 的 CSV、JSON、MD 和 SVG 文件，并附带 `MANIFEST.csv` 记录每个成员文件的大小和 SHA-256。
+- Archive 明确排除 MP4、JPG、PNG 和 HTML 本地报告；两次完整 run 的未压缩媒体产物约 3.7 GB，仍保留在本地 `runs/`。
