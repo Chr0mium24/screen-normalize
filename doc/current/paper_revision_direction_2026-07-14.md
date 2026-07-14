@@ -297,6 +297,22 @@ Figure role targets:
 | Ablation | Identify the mechanism behind the trade-off. |
 | Failures | Connect representative failures to the next method improvement. |
 
+Specific Figure 8 issue:
+
+- A figure described as "failure modes and tuning signal" has low value if it only shows old/new gate acceptance ratios or internal timelines.
+- Acceptance ratio is an internal diagnostic. It does not by itself show the reader what failed visually, how the geometry was wrong, or why the failure matters.
+- The current Figure 8 should either be replaced, redesigned, moved to supplementary material, or removed.
+
+Figure 8 should only stay if it does at least two of the following:
+
+1. shows original input frames with the true/estimated quadrilateral overlaid;
+2. shows the resulting warped screen output so the failure is visible;
+3. links each failure to one mechanism, such as stale geometry, content-motion tracking, weak screen boundary, or viewpoint distortion;
+4. reports one reader-facing consequence, such as large corner error, lost screen area, or visible crop/shift;
+5. supports a specific future-method decision, such as needing stronger physical screen evidence.
+
+If the only message is "tuned gates increased acceptance," do not keep it as a main-text figure. Put the tuning table in a short diagnostic note or omit it.
+
 ### 14. Reduce secondary diagnostics in the main narrative
 
 Current risk:
