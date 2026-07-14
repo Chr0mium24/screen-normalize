@@ -315,6 +315,36 @@ Decision rule:
 
 > If a metric needs two sentences to explain what it does not mean, it probably should not lead a main Results paragraph.
 
+### 15. Keep references only when they are cited and useful
+
+Current risk:
+
+- The reference folder contains many papers, and the manuscript reference list can become a bibliography dump.
+- Extra uncited or weakly related references make the paper look less focused.
+
+Revision direction:
+
+- Keep only references that are actually cited in the manuscript body.
+- Each cited reference must serve one clear function:
+  - establish the screen/captured-video restoration context;
+  - support planar homography or rectification background;
+  - support LK feature tracking / RANSAC / robust model fitting;
+  - support video stabilization or temporal smoothing evaluation;
+  - support a comparison or limitation discussed in the text.
+- Delete references that are merely stored in `doc/current/paper/references/` but not used in the argument.
+- Do not cite papers just because they are in the local reference folder.
+
+Reference-list rule:
+
+> The final bibliography should be the set of works cited in the text, not the set of PDFs collected during the project.
+
+Practical cleanup:
+
+1. Scan manuscript citation markers and build the used-reference set.
+2. Remove bibliography entries not cited in the body.
+3. If a citation is only decorative, remove the citation and the entry.
+4. If a claim needs support but has no citation, add one targeted citation rather than several broad ones.
+
 ## Suggested edit order
 
 1. Update `paper_status.md` for the new scrolling annotation status.
@@ -326,7 +356,8 @@ Decision rule:
 7. Replace low-information dataset figures with evidence-bearing visual examples.
 8. Rewrite Results paragraphs so each one interprets a figure and advances one claim.
 9. Remove, merge, or demote figures and metrics that do not serve the central argument.
-10. Rebuild PDFs after text and figures are consistent.
+10. Trim references to body-cited, argument-serving works only.
+11. Rebuild PDFs after text and figures are consistent.
 
 ## Current abstract target
 
