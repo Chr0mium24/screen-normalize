@@ -341,7 +341,7 @@ def build_figure(summary_rows: list[dict[str, Any]], output: Path, dpi: int) -> 
     handles, labels = axes[0, 0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="upper center", ncol=3, frameon=False, bbox_to_anchor=(0.5, 0.90))
     fig.suptitle(
-        "Moire ROI frequency preservation diagnostics on scrolling_01",
+        "Moire ROI frequency preservation diagnostics",
         fontsize=9.6,
         fontweight="bold",
         color=TEXT,
