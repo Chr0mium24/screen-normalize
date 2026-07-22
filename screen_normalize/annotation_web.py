@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import json
 import mimetypes
+import csv
+import tempfile
+import os
 from dataclasses import dataclass
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -18,6 +21,7 @@ CATEGORIES = ("static", "scrolling", "screen_video", "weak_border", "hard")
 VIDEO_EXTENSIONS = {".mp4"}
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 MEDIA_EXTENSIONS = VIDEO_EXTENSIONS | IMAGE_EXTENSIONS
+ROI_FIELDS = ("frame", "roi_id", "x1", "y1", "x2", "y2", "label", "notes")
 
 
 def select_keyframes(frame_count: int, frames_per_clip: int) -> list[int]:
@@ -78,6 +82,85 @@ def read_media_frame(path: Path, frame_index: int) -> np.ndarray:
     if not ok:
         raise ValueError(f"无法读取第 {frame_index} 帧")
     return frame
+
+
+def roi_path_for(video: Path) -> Path:
+    return video.with_name(f"{video.stem}_moire_rois.csv")
+
+
+def validate_rois(rois: object, width: int, height: int) -> list[dict[str, object]]:
+    if not isinstance(rois, list):
+        raise AnnotationError("rois must be a list")
+    valid: list[dict[str, object]] = []
+    for index, item in enumerate(rois, start=1):
+        if not isinstance(item, dict):
+            raise AnnotationError("each roi must be an object")
+        try:
+            x1 = float(item["x1"])
+            y1 = float(item["y1"])
+            x2 = float(item["x2"])
+            y2 = float(item["y2"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise AnnotationError(f"invalid roi coordinates at item {index}") from exc
+        left, right = sorted((x1, x2))
+        top, bottom = sorted((y1, y2))
+        if right - left < 4.0 or bottom - top < 4.0:
+            raise AnnotationError("moire roi must be at least 4 x 4 pixels")
+        if left < 0 or top < 0 or right >= width or bottom >= height:
+            raise AnnotationError("moire roi is outside the media frame")
+        valid.append(
+            {
+                "roi_id": str(item.get("roi_id") or f"roi_{index:02d}"),
+                "x1": left,
+                "y1": top,
+                "x2": right,
+                "y2": bottom,
+                "label": str(item.get("label") or "moire"),
+                "notes": str(item.get("notes") or ""),
+            }
+        )
+    return valid
+
+
+def load_moire_rois(path: Path, width: int, height: int) -> dict[int, list[dict[str, object]]]:
+    if not path.exists():
+        return {}
+    result: dict[int, list[dict[str, object]]] = {}
+    with path.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        if tuple(reader.fieldnames or ()) != ROI_FIELDS:
+            raise AnnotationError(f"moire roi columns must be: {','.join(ROI_FIELDS)}")
+        for line, row in enumerate(reader, start=2):
+            try:
+                frame = int(row["frame"])
+                roi = validate_rois([row], width, height)[0]
+            except (TypeError, ValueError, AnnotationError) as exc:
+                raise AnnotationError(f"invalid moire roi at line {line}") from exc
+            if frame < 0:
+                raise AnnotationError(f"frame must be non-negative at line {line}")
+            result.setdefault(frame, []).append(roi)
+    return dict(sorted(result.items()))
+
+
+def save_moire_rois(path: Path, rois_by_frame: dict[int, list[dict[str, object]]], width: int, height: int) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    rows: list[dict[str, object]] = []
+    for frame, rois in sorted(rois_by_frame.items()):
+        if frame < 0:
+            raise AnnotationError("frame must be non-negative")
+        for roi in validate_rois(rois, width, height):
+            rows.append({"frame": frame, **roi})
+
+    fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent, text=True)
+    try:
+        with os.fdopen(fd, "w", newline="", encoding="utf-8") as handle:
+            writer = csv.DictWriter(handle, fieldnames=ROI_FIELDS)
+            writer.writeheader()
+            writer.writerows(rows)
+        os.replace(temporary, path)
+    except BaseException:
+        Path(temporary).unlink(missing_ok=True)
+        raise
 
 
 @dataclass(frozen=True)
@@ -151,6 +234,11 @@ class AnnotationStore:
         width, height, _ = media_shape(video)
         return video, width, height, load_annotations(video.with_suffix(".csv"), width, height)
 
+    def moire_rois(self, video_id: str) -> tuple[Path, int, int, dict[int, list[dict[str, object]]]]:
+        video = self.resolve_video(video_id)
+        width, height, _ = media_shape(video)
+        return video, width, height, load_moire_rois(roi_path_for(video), width, height)
+
     def frame_jpeg(self, video_id: str, frame_index: int) -> bytes:
         video = self.resolve_video(video_id)
         _, _, count = media_shape(video)
@@ -175,6 +263,21 @@ class AnnotationStore:
         video, width, height, annotations = self.annotations(video_id)
         existed = annotations.pop(frame, None) is not None
         save_annotations(video.with_suffix(".csv"), annotations, width, height)
+        return {"ok": True, "deleted": existed}
+
+    def save_rois(self, video_id: str, frame: int, rois: object) -> dict[str, object]:
+        video, width, height, values = self.moire_rois(video_id)
+        _, _, count = media_shape(video)
+        if not 0 <= frame < count:
+            raise AnnotationError("帧号超出视频范围")
+        values[frame] = validate_rois(rois, width, height)
+        save_moire_rois(roi_path_for(video), values, width, height)
+        return {"ok": True, "frame": frame, "rois": len(values[frame])}
+
+    def delete_rois(self, video_id: str, frame: int) -> dict[str, object]:
+        video, width, height, values = self.moire_rois(video_id)
+        existed = values.pop(frame, None) is not None
+        save_moire_rois(roi_path_for(video), values, width, height)
         return {"ok": True, "deleted": existed}
 
     def preview_jpeg(self, video_id: str, frame: int, corners: object) -> bytes:
@@ -228,6 +331,9 @@ def make_handler(store: AnnotationStore, static_dir: Path) -> type[BaseHTTPReque
                 elif path == "/api/annotations":
                     _, _, _, values = store.annotations(self.query()["video"])
                     self.send_json({"annotations": {str(k): v.tolist() for k, v in values.items()}})
+                elif path == "/api/moire-rois":
+                    _, _, _, values = store.moire_rois(self.query()["video"])
+                    self.send_json({"rois": {str(k): v for k, v in values.items()}})
                 elif path == "/api/frame":
                     query = self.query()
                     self.send_bytes(store.frame_jpeg(query["video"], int(query["frame"])), "image/jpeg")
@@ -247,6 +353,8 @@ def make_handler(store: AnnotationStore, static_dir: Path) -> type[BaseHTTPReque
                 data = self.body()
                 if path == "/api/annotations":
                     self.send_json(store.save(str(data["video"]), int(data["frame"]), data["corners"]))
+                elif path == "/api/moire-rois":
+                    self.send_json(store.save_rois(str(data["video"]), int(data["frame"]), data["rois"]))
                 elif path == "/api/preview":
                     self.send_bytes(store.preview_jpeg(str(data["video"]), int(data["frame"]), data["corners"]), "image/jpeg")
                 else:
@@ -257,7 +365,10 @@ def make_handler(store: AnnotationStore, static_dir: Path) -> type[BaseHTTPReque
         def do_DELETE(self) -> None:
             try:
                 query = self.query()
-                self.send_json(store.delete(query["video"], int(query["frame"])))
+                if urlparse(self.path).path == "/api/moire-rois":
+                    self.send_json(store.delete_rois(query["video"], int(query["frame"])))
+                else:
+                    self.send_json(store.delete(query["video"], int(query["frame"])))
             except (Exception, KeyError) as exc:
                 self.handle_error(exc)
 

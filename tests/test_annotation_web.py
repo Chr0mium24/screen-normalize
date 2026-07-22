@@ -42,6 +42,28 @@ def test_store_discovers_saves_and_deletes_annotations(tmp_path: Path) -> None:
     assert store.annotations(item["id"])[3] == {}
 
 
+def test_store_saves_and_deletes_moire_rois(tmp_path: Path) -> None:
+    video = tmp_path / "scrolling" / "clip.mp4"
+    make_video(video)
+    store = AnnotationStore(tmp_path, frames_per_clip=3)
+    [item] = store.videos()
+
+    rois = [
+        {"x1": 10, "y1": 12, "x2": 42, "y2": 48, "label": "moire", "notes": "white area"},
+        {"x1": 50, "y1": 20, "x2": 80, "y2": 55, "label": "moire", "notes": ""},
+    ]
+    assert store.save_rois(item["id"], 3, rois) == {"ok": True, "frame": 3, "rois": 2}
+
+    _, _, _, saved = store.moire_rois(item["id"])
+    assert len(saved[3]) == 2
+    assert saved[3][0]["roi_id"] == "roi_01"
+    assert saved[3][0]["x1"] == 10.0
+    assert (video.parent / "clip_moire_rois.csv").exists()
+
+    assert store.delete_rois(item["id"], 3)["deleted"] is True
+    assert store.moire_rois(item["id"])[3] == {}
+
+
 def test_store_rejects_path_escape(tmp_path: Path) -> None:
     store = AnnotationStore(tmp_path)
     try:
